@@ -1,0 +1,32 @@
+return PlaceObj('ModDef', {
+	'title', "The Nests Awaken!",
+	'description', '[h1] A new disaster looms![/h1]\n[h3]A crumb of new content for these trying times[/h3]\n\n[h2]The nests will now realize that you are a threat, and must be cleansed![/h2]\n\nPlease consider this a... very early draft of the mod.\nI plan to give this the TLC it needs to be more rounded.\n\nThis mod currently adds:\n- 1 new can-be-found-by-exploring expedition\n- Ability for nests to grow and send waves of attacks at your base\n-- This does not stop or take the place of the games "regular" attacks.\n- Nests will now properly evolve their defenders, making attacking nests harder.\n-- Based on my Insects Level Up Mod species evolutions\n- A multi-phase disaster, where the nests band together to try and get you off their lawn!\n\nIf you want the disaster or individual waves to stop , you only have one option!\nPush each wave farther and farther back until you destroy the nests in question.\nBut be warned [b]the nests are much harder to kill[\\b]\n\nYour selected difficulty will greatly warp how difficult (hehe) nests will be to deal with. It influences certain mechanics in the disaster, how fast the nests grow and send attacks, and a few other misc things.\n\n[h3]Plans:[/h3]\nI plan to develop:\n- Support for non-Shrieker nests (Looking at you Saltu with your Scissorhand Nests)\n- A reward for surviving, based on the species of nest you survived\n- More expeditions or events that let you interact with the nests\n\n[b]This mod does require my Insects Level Up Mod[\\b]',
+	'image', "Mod/TGkJ3Tu/Preview.png",
+	'last_changes', 'Update 1.1 Turns out the mod was implemented badly....\n\n1. Bugfix: Multiple disasters cannot trigger in the same save (Possible cause of sluggishness)\n\n2. Removal: Removed complex code that tried to track if a nest was in combat (Possible cause of sluggishness)\n\n3. Bugfix: Corrected math errors causing nests to be ready for an attack in 1-2 in game hours (Causing massive spawning of attackers)\n\n4. Bugfix: Corrected an input to a base game function, which was expecting an input in percentage of player strength. the mod was giving actual player strength (Causing any input above 100 to be a.... "strong" attack.)\nTL:DR This caused massive spawning of attackers, and it is fixed\n\n5. QoL: Lot\'s of logging was added outputs to the mod log and the actual game log, to track if the custom lua functions are causing the sluggishness. \n\n\nAny issues with this.... very complex mod please include the logs so I can track down why.',
+	'dependencies', {
+		PlaceObj('ModDependency', {
+			'id', "rtw6tLg",
+			'title', "Insects Level up All Species",
+			'version_major', 4,
+			'version_minor', 5,
+		}),
+	},
+	'id', "TGkJ3Tu",
+	'author', "Ark Builder",
+	'version_major', 1,
+	'version', 18,
+	'lua_revision', 233360,
+	'saved_with_revision', 352677,
+	'code', {
+		"Code/nest_class.lua",
+	},
+	'has_data', true,
+	'saved', 1753059379,
+	'code_hash', 9162668920356043452,
+	'screenshot1', "Mod/TGkJ3Tu/Shrieker_Nest_small.png",
+	'screenshot2', "Mod/TGkJ3Tu/Solar Eclipse.JPG",
+	'screenshot3', "Mod/TGkJ3Tu/notifications.PNG",
+	'steam_id', "3479479720",
+	'TagAnimals', true,
+	'TagGameplay', true,
+})
