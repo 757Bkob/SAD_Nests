@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity path="" name="">
+	<state id="idle">
+		<mesh_ref ref="PXSatelite"/>
+	</state>
+	<mesh_description id="PXSatelite">
+		<lod idx="0" distance="0">
+			<mesh file="Meshes/PXSatelite_PXSatelite.m.hgm"/>
+			<material file="Materials/PXSatelite_PXSatelite.mtl"/>
+			<bsphere value="-2.674,0.000,295.418,485.272"/>
+			<box min="-374.601,-384.658,0.419" max="369.253,384.658,590.417"/>
+			<src file="C:/Users/44796/AppData/Roaming/Stranded - Alien Dawn/ModAssets/FBX/.fbx"/>
+		</lod>
+		<surf type="collision" points="238.777,-238.777,-22.961;-238.777,238.777,-22.961;-238.777,-238.777,-22.961"/>
+		<surf type="collision" points="-238.777,238.777,-22.961;-238.777,-238.777,454.593;-238.777,-238.777,-22.961"/>
+		<surf type="collision" points="238.777,-238.777,454.593;-238.777,-238.777,-22.961;-238.777,-238.777,454.593"/>
+		<surf type="collision" points="-238.777,-238.777,454.593;-238.777,238.777,-22.961;-238.777,238.777,454.593"/>
+		<surf type="collision" points="238.777,238.777,-22.961;-238.777,238.777,454.593;-238.777,238.777,-22.961"/>
+		<surf type="collision" points="-238.777,238.777,454.593;238.777,238.777,454.593;-238.777,-238.777,454.593"/>
+		<surf type="collision" points="-238.777,-238.777,-22.961;238.777,-238.777,454.593;238.777,-238.777,-22.961"/>
+		<surf type="collision" points="238.777,238.777,454.593;238.777,-238.777,-22.961;238.777,-238.777,454.593"/>
+		<surf type="collision" points="-238.777,-238.777,454.593;238.777,238.777,454.593;238.777,-238.777,454.593"/>
+		<surf type="collision" points="238.777,-238.777,-22.961;238.777,238.777,-22.961;-238.777,238.777,-22.961"/>
+		<surf type="collision" points="-238.777,238.777,454.593;238.777,238.777,-22.961;238.777,238.777,454.593"/>
+		<surf type="collision" points="238.777,-238.777,-22.961;238.777,238.777,454.593;238.777,238.777,-22.961"/>
+		<surf_hash type="collision" value="21245558"/>
+	</mesh_description>
+</entity>

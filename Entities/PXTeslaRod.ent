@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity path="" name="">
+	<state id="idle">
+		<mesh_ref ref="PXTeslaRod"/>
+	</state>
+	<mesh_description id="PXTeslaRod">
+		<lod idx="0" distance="0">
+			<mesh file="Meshes/PXTeslaRod_PXTeslaRod.m.hgm"/>
+			<material file="Materials/PXTeslaRod_PXTeslaRod.mtl"/>
+			<bsphere value="-13.092,19.059,509.577,582.456"/>
+			<box min="-246.636,-219.599,-10.999" max="220.452,257.716,1030.153"/>
+			<src file="C:/Users/44796/AppData/Roaming/Stranded - Alien Dawn/ModAssets/FBX/.fbx"/>
+		</lod>
+		<surf type="collision" points="131.277,-131.277,14.634;-131.277,131.277,14.634;-131.277,-131.277,14.634"/>
+		<surf type="collision" points="-131.277,131.277,14.634;-131.277,-131.277,826.181;-131.277,-131.277,14.634"/>
+		<surf type="collision" points="131.277,-131.277,826.181;-131.277,-131.277,14.634;-131.277,-131.277,826.181"/>
+		<surf type="collision" points="131.277,131.277,14.634;-131.277,131.277,826.181;-131.277,131.277,14.634"/>
+		<surf type="collision" points="-131.277,-131.277,826.181;-131.277,131.277,14.634;-131.277,131.277,826.181"/>
+		<surf type="collision" points="-131.277,131.277,826.181;131.277,131.277,826.181;-131.277,-131.277,826.181"/>
+		<surf type="collision" points="-131.277,-131.277,14.634;131.277,-131.277,826.181;131.277,-131.277,14.634"/>
+		<surf type="collision" points="131.277,131.277,826.181;131.277,-131.277,14.634;131.277,-131.277,826.181"/>
+		<surf type="collision" points="-131.277,-131.277,826.181;131.277,131.277,826.181;131.277,-131.277,826.181"/>
+		<surf type="collision" points="131.277,-131.277,14.634;131.277,131.277,14.634;-131.277,131.277,14.634"/>
+		<surf type="collision" points="131.277,-131.277,14.634;131.277,131.277,826.181;131.277,131.277,14.634"/>
+		<surf type="collision" points="-131.277,131.277,826.181;131.277,131.277,14.634;131.277,131.277,826.181"/>
+		<surf_hash type="collision" value="513521449"/>
+	</mesh_description>
+</entity>
