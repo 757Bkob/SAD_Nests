@@ -38,15 +38,15 @@ function EnhancedTerritorialNest:Init()
     end,self)
     -- Create a thread that will have this nest consume or grow approx twice a day
     CreateGameTimeThread(function(this_nest)
-        local prox_triggers = this_nest.proximity
-        if this_nest:IsAsleep() then
-            prox_triggers = 1
-        end
+        --local prox_triggers = this_nest.proximity
+        --if this_nest:IsAsleep() then
+        --    prox_triggers = 1
+        --end
         while this_nest.Health > 0 do
-            Sleep(AsyncRand(hour_duration * 9,hour_duration * 14))
-            for i=1,prox_triggers do
-                this_nest:consume_closest_node()
-            end
+            Sleep(AsyncRand(hour_duration * 24,hour_duration * 36))
+            --for i=1,prox_triggers do
+            this_nest:consume_closest_node()
+            --end
         end
 	end,self)
 end
@@ -119,11 +119,13 @@ function EnhancedTerritorialNest:consume_closest_node()
     DoneObject(closest_res)
     self:give_ep_to_struct(EP_to_give)
 	local attack_cd = Game:GetCooldowns()['Attack']
+	self.attack_time = self.attack_time - DivRound(attack_cd,100)
+	--[[
 	if EP_to_give > 10 then
-		local percent_reduced = DivRound(EP_to_give,10)
+		local percent_reduced = DivRound(EP_to_give,50)
 		self.attack_time = self.attack_time - DivRound(attack_cd*percent_reduced,100)
 		-- This makes the attacks "happen" faster
-	end
+	end]]
 	--[[
     local diff_impact = DivRound(3*Get_difficulty_offset(),2) -- diff influence is 2x to 11x reduction
 	--(self.attack_time)
@@ -286,10 +288,10 @@ end
 function EnhancedTerritorialNest:calculate_attack_strength()
 	local base_strength = self.base_strength or 30
     local nests = MapCount(true,"TerritorialNest",function(other_nest,this_nest)
-		if IsKindOf(other_nest,this_nest) and other_nest.state != 'asleep' then
+		if IsKindOf(other_nest,this_nest) and not (other_nest.state == 'asleep') then
 			return true
 		end
-	end) * 10
+	end,self) * 10
 	local diff_increase
 	if Get_difficulty_offset() > 5 then
 		diff_increase = 10
@@ -336,12 +338,12 @@ function EnhancedTerritorialNest:attack(fake_flag)
     instance.SpawnClass = self.elder_class
     spawn_def = spawn_def:CreateInstance(instance)
     spawn_def:ActivateSpawn(false,{},self:calculate_attack_strength())
-    if self.attacks_done ~= -1 then
+    --[[if self.attacks_done ~= -1 then
         self.attacks_done = self.attacks_done-1
         if self.attacks_done == 0 then
             self:SwitchState('asleep') -- It's tired now
         end
-    end
+    end]]
     self.attacks_done = self.attacks_done + 1
     if self.attacks_to_evo == self.attacks_done then
         self:change_nest_herd(true)

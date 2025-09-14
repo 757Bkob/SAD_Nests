@@ -2,7 +2,7 @@ return PlaceObj('ModDef', {
 	'title', "The Nests Awaken!",
 	'description', '[h1] A new disaster looms![/h1]\n[h3]A crumb of new content for these thirsting for more.[/h3]\n\n[h2]The nests will now realize that you are a threat, and must be cleansed![/h2]\n\nThis mod adds:\n1. New mechanics for nests (Shrieker, Scissorhand, and a new Consortium "Nest") that "learns" about the players presence.\n1a. They now consume nearby resources slowly (Unless awoken). To do what? Create more & Evolve their defenders!\n1b. If awoken, those defenders will instead be attacking you!\n\n2. A new looming disaster where a single species attempts world domination!\nThe specific species is semi-random, and there is a semi-hidden way for you to pick the one you want.\n\n3. Four new expedition sites (One for each nest species and a special bonus one) that can be found while exploring. Each with 3 different event chains with negative and positive results! With each event having the ability to influence the nests on the game map.\n\n4. Totally unrelated (I promise) there is a new reward type from expeditions, Tamed animals! Now you can convince and bring home "friends" from afar.\n\n5. Mod settings to set how you want notifications about nearby nests.\n\nBut be warned awoken nests are [b]much[/b] harder to kill.\n\nYour difficulty choice greatly influences how to end the disaster, how fast the nests grow and send attacks, and a few other misc things.\n\n[h3]Plans:[/h3]\nI plan to develop for this mod:\n- New nest types (Shogu, Camel, etc...)\n- Species specific rewards for fending off the disaster\n- More expeditions or events that let you interact with the flora/fauna of the planet\n\n[b]This mod does heavily use and rely on Enemys Evolve mod[\\b]',
 	'image', "Mod/TGkJ3Tu/Pics Or it Didn't Happen/Shrieker_Nest_small.png",
-	'last_changes', 'Update 1.11 post-update hotfix\n\n#1 Bugfix: Removed multipliers in nest attack strength calculations, capped an individual nests attack strength to 200% of players "score".\n\nAny issues with this.... very complex mod please include the logs so I can track down why.',
+	'last_changes', "Update 1.12 post-update hotfix\n\n#1 Nest Nerfs: Nests now eat nearby resources 2x-5x less often\nThe attack cooldown of a nest <em>was</em> reduced by 1% of attack time per 10 EP of eaten resources.\nThis is now a 1% reduction per node, no longer reliant on EP in the node eaten.\n\nAny issues with this.... very complex mod please include the logs so I can track down why.",
 	'dependencies', {
 		PlaceObj('ModDependency', {
 			'id', "rtw6tLg",
@@ -21,7 +21,7 @@ return PlaceObj('ModDef', {
 	'author', "Ark Builder",
 	'version_major', 1,
 	'version_minor', 1,
-	'version', 86,
+	'version', 88,
 	'lua_revision', 233360,
 	'saved_with_revision', 373414,
 	'entities', {
@@ -40,8 +40,8 @@ return PlaceObj('ModDef', {
 	},
 	'has_options', true,
 	'has_data', true,
-	'saved', 1757867859,
-	'code_hash', 2984989771919372899,
+	'saved', 1757893195,
+	'code_hash', -7814606318462327179,
 	'steam_id', "3479479720",
 	'TagAnimals', true,
 	'TagGameplay', true,
