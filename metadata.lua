@@ -2,7 +2,7 @@ return PlaceObj('ModDef', {
 	'title', "The Nests Awaken!",
 	'description', '[h1] A new disaster looms![/h1]\n[h3]A crumb of new content for these thirsting for more.[/h3]\n\n[h2]The nests will now realize that you are a threat, and must be cleansed![/h2]\n\nThis mod adds:\n1. New mechanics for nests (Shrieker, Scissorhand, and a new Consortium "Nest") that "learns" about the players presence.\n1a. They now consume nearby resources slowly (Unless awoken). To do what? Create more & Evolve their defenders!\n1b. If awoken, those defenders will instead be attacking you!\n\n2. A new looming disaster where a single species attempts world domination!\nThe specific species is semi-random, and there is a semi-hidden way for you to pick the one you want.\n\n3. Four new expedition sites (One for each nest species and a special bonus one) that can be found while exploring. Each with 3 different event chains with negative and positive results! With each event having the ability to influence the nests on the game map.\n\n4. Totally unrelated (I promise) there is a new reward type from expeditions, Tamed animals! Now you can convince and bring home "friends" from afar.\n\n5. Mod settings to set how you want notifications about nearby nests.\n\nBut be warned awoken nests are [b]much[/b] harder to kill.\n\nYour difficulty choice greatly influences how to end the disaster, how fast the nests grow and send attacks, and a few other misc things.\n\n[h3]Plans:[/h3]\nI plan to develop for this mod:\n- New nest types (Shogu, Camel, etc...)\n- Species specific rewards for fending off the disaster\n- More expeditions or events that let you interact with the flora/fauna of the planet\n\n[b]This mod does heavily use and rely on Enemys Evolve mod[\\b]',
 	'image', "Mod/TGkJ3Tu/Pics Or it Didn't Happen/Shrieker_Nest_small.png",
-	'last_changes', 'Update 1.1 Turns out the mod was bad....\n\n1. Bugfix: Everything\n\n2. Removed complicated code\n\n3. Bugfix: Corrected math errors causing nests to be ready for an attack in 1-2 in game hours (Causing massive spawning of attackers)\n\n4. Bugfix: Corrected an input to a base game function, which was expecting an input in percentage of player strength. the mod was giving actual player strength (Causing any input above 100 to be a.... "strong" attack.)\nTL:DR This caused massive spawning of attackers, and it is fixed\n\n5. QoL: Lot\'s of logging was added outputs to the mod log and the actual game log, to track if the custom lua functions are causing the sluggishness. \n\n\nAny issues with this.... very complex mod please include the logs so I can track down why.',
+	'last_changes', 'Update 1.11 post-update hotfix\n\n#1 Bugfix: Removed multipliers in nest attack strength calculations, capped an individual nests attack strength to 200% of players "score".\n\nAny issues with this.... very complex mod please include the logs so I can track down why.',
 	'dependencies', {
 		PlaceObj('ModDependency', {
 			'id', "rtw6tLg",
@@ -20,7 +20,8 @@ return PlaceObj('ModDef', {
 	'id', "TGkJ3Tu",
 	'author', "Ark Builder",
 	'version_major', 1,
-	'version', 85,
+	'version_minor', 1,
+	'version', 86,
 	'lua_revision', 233360,
 	'saved_with_revision', 373414,
 	'entities', {
@@ -39,8 +40,8 @@ return PlaceObj('ModDef', {
 	},
 	'has_options', true,
 	'has_data', true,
-	'saved', 1757795461,
-	'code_hash', 6543167133878113262,
+	'saved', 1757867859,
+	'code_hash', 2984989771919372899,
 	'steam_id', "3479479720",
 	'TagAnimals', true,
 	'TagGameplay', true,

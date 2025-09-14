@@ -17,6 +17,7 @@ DefineClass.EnhancedTerritorialNest = {
         { category = "Nest", id = "last_attack",          name = "last attack time", editor = "number", default = 0, modifiable = true, help = ""},
         { category = "Nest", id = "ui_attack_percent",    name = "How close the attack time is to occuring", editor = "number", scale = "%", default = 0, modifiable = true, help = ""},
         { category = "Nest", id = "ui_evo",               name = "How close this nest is too evolving it's herd", editor = "number", scale = "%", default = 0, modifiable = true, help = ""},
+        { category = "Nest", id = "base_strength",        name = "Base % str of an attack this will send", editor = "number", scale = "%", default = 0, modifiable = true, help = ""},
     },
     state = 'asleep',
 	gas = 0,
@@ -27,6 +28,7 @@ DefineClass.EnhancedTerritorialNest = {
     last_attack = 0,
     ui_attack_percent = 0,
     ui_evo = 0,
+	base_strength = 30
 }
 
 function EnhancedTerritorialNest:Init()
@@ -282,14 +284,20 @@ function EnhancedTerritorialNest:SwitchState(new_state)
 end
 
 function EnhancedTerritorialNest:calculate_attack_strength()
-    local nests = MapCount(true,"TerritorialNest")
-    local diff_add = Get_difficulty_offset() * 5
-    local subsequent_atk = self.attacks_done * 10 -- 10% increase per prior attack
-    local prox_add = self.proximity * 10 -- closest nests will increase attack strength by 40%
-    local strength = DivRound(100,nests) + diff_add + subsequent_atk
-    -- 1 nest left on hard difficulty == 130% strength attack
-    -- 2 nests left on hard difficulty == 80% strength attack
-    return strength
+	local base_strength = self.base_strength or 30
+    local nests = MapCount(true,"TerritorialNest",function(other_nest,this_nest)
+		if IsKindOf(other_nest,this_nest) and other_nest.state != 'asleep' then
+			return true
+		end
+	end) * 10
+	local diff_increase
+	if Get_difficulty_offset() > 5 then
+		diff_increase = 10
+	else
+		diff_increase = 0
+	end
+    local subsequent_attacks = self.attacks_done * 10
+    return Max(200,base_strength + nests + subsequent_attacks + diff_increase)
 end
 
 function EnhancedTerritorialNest:attack(fake_flag)
