@@ -340,7 +340,7 @@ PlaceObj('ModItemFolder', {
 	}),
 	}),
 PlaceObj('ModItemFolder', {
-	'name', "Nest Spawner storybits",
+	'name', "Spawner storybits (Nests/Attacks)",
 	'NameColor', RGBA(192, 4, 4, 255),
 }, {
 	PlaceObj('ModItemStoryBit', {
@@ -425,6 +425,71 @@ PlaceObj('ModItemFolder', {
 			Log = "Modified by Svetlio on 2020-Mar-04\nModified by Lina on 2020-Mar-04\nModified by Lina on 2020-Mar-06\nModified by Lina on 2020-Mar-26\nModified by Lina on 2020-Jun-25\nModified by Lina on 2020-Jul-15\nModified by Lina on 2020-Sep-28\nModified by Lina on 2020-Oct-26\nModified by Lina on 2021-Jan-12\nModified by Ivan on 2021-Feb-05\nModified by Ivan on 2021-Feb-24\nModified by Gaby on 2021-Mar-02\nModified by Ivan on 2021-Mar-02\nModified by Ivan on 2021-Mar-22\nModified by Gaby on 2021-Mar-25\nModified by Bobby on 2021-Aug-02\nModified by Ivan on 2021-Sep-20\nModified by Ivan on 2021-Nov-04\nModified by Xaerial on 2022-Sep-05\nModified by Xaerial on 2022-Oct-10",
 			param_bindings = false,
 		}),
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemAnimalSpawnDef', {
+		Behaviours = {
+			PlaceObj('InvaderBehaviourRoam', {
+				'Duration', 0,
+				'RoamRadius', 15000,
+				'RoamMinDist', 4500,
+				'RoamMaxDist', 9000,
+			}),
+			PlaceObj('InvaderBehaviourAggressive', {
+				'Duration', 0,
+			}),
+		},
+		CheckConnectivity = true,
+		ClearArea = 256,
+		ClearRadius = 1000,
+		CountMod = function (self, target, progress) return self:CalculateInvadersCountMod(self, progress) end,
+		DistFromOthers = 1000,
+		EnabledInTutorial = true,
+		EnabledWithoutSurvivors = false,
+		PostSpawn = function (self, obj, target)
+			obj.CombatHostile = true
+			Msg("SpawnedAnimalThreat", obj)
+		end,
+		SpawnAsGroup = true,
+		SpawnClass = "Skarabei_Manhunting",
+		SurvivorDistMax = -1000,
+		SurvivorSpawnDistMin = 75000,
+		TargetClass = "Human",
+		TargetDistMax = 150000,
+		TargetDistMin = 75000,
+		TargetFilter = function (obj) return not obj:IsVirtual() end,
+		TargetStartPosOnMissingTarget = true,
+		comment = "-- \n    Called from custom Lua code, no storybit attack",
+		group = "Attacks_Insects_NEW",
+		id = "nest_attack",
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemAnimalSpawnDef', {
+		Behaviours = {
+			PlaceObj('AnimalSpawnDefBehaviourRoam', {
+				'Duration', 9600000,
+				'NoSleep', false,
+			}),
+			PlaceObj('AnimalSpawnDefBehaviourBerserk', {
+				'Duration', 320000,
+			}),
+			PlaceObj('AnimalSpawnDefBehaviourRoam', {
+				'Duration', 0,
+				'NoSleep', false,
+			}),
+		},
+		EnabledWithoutSurvivors = false,
+		PostSpawn = function (self, obj, target, context)
+			obj.CombatHostile = false
+		end,
+		SpawnAsGroup = true,
+		SpawnClass = "Shrieker_Manhunting_Hatchling",
+		SurvivorDistMax = -1000,
+		TargetClass = "Human",
+		TargetFilter = function (obj) return not obj:IsVirtual() end,
+		TargetStartPosOnMissingTarget = true,
+		comment = "---\n    Perma-wandering insects because player is unknown/neutral\n    Called from custom Lua code, no storybit attack",
+		id = "nest_overflow",
 		save_in = "Mod/TGkJ3Tu",
 	}),
 	}),
@@ -869,63 +934,6 @@ PlaceObj('ModItemFolder', {
 		money_value = 50000000,
 		save_in = "Mod/TGkJ3Tu",
 		tradable = false,
-	}),
-	PlaceObj('ModItemAnimalSpawnDef', {
-		Behaviours = {
-			PlaceObj('InvaderBehaviourRoam', {
-				'Duration', 0,
-				'RoamRadius', 15000,
-				'RoamMinDist', 4500,
-				'RoamMaxDist', 9000,
-			}),
-			PlaceObj('InvaderBehaviourAggressive', {
-				'Duration', 0,
-			}),
-		},
-		CheckConnectivity = true,
-		ClearArea = 256,
-		ClearRadius = 1000,
-		CountMod = function (self, target, progress) return self:CalculateInvadersCountMod(self, progress) end,
-		DistFromOthers = 1000,
-		EnabledInTutorial = true,
-		PostSpawn = function (self, obj, target)
-			obj.CombatHostile = true
-			Msg("SpawnedAnimalThreat", obj)
-		end,
-		SpawnAsGroup = true,
-		SpawnClass = "Skarabei_Manhunting",
-		SurvivorSpawnDistMin = 75000,
-		TargetClass = "Human",
-		TargetDistMax = 150000,
-		TargetDistMin = 75000,
-		TargetFilter = function (obj) return not obj:IsVirtual() end,
-		TargetStartPosOnMissingTarget = true,
-		comment = "-- \n    Called from custom Lua code, no storybit attack",
-		group = "Attacks_Insects_NEW",
-		id = "nest_attack",
-		save_in = "Mod/TGkJ3Tu",
-	}),
-	PlaceObj('ModItemAnimalSpawnDef', {
-		Behaviours = {
-			PlaceObj('AnimalSpawnDefBehaviourRoam', {
-				'Duration', 9600000,
-				'NoSleep', false,
-			}),
-			PlaceObj('AnimalSpawnDefBehaviourBerserk', {
-				'Duration', 320000,
-			}),
-			PlaceObj('AnimalSpawnDefBehaviourRoam', {
-				'Duration', 0,
-				'NoSleep', false,
-			}),
-		},
-		PostSpawn = function (self, obj, target, context)
-			obj.CombatHostile = true
-		end,
-		SpawnClass = "Shrieker_Manhunting_Hatchling",
-		comment = "---\n    Perma-wandering insects because player is unknown/neutral\n    Called from custom Lua code, no storybit attack",
-		id = "nest_overflow",
-		save_in = "Mod/TGkJ3Tu",
 	}),
 	PlaceObj('ModItemNotificationPreset', {
 		expiration = 60000,
@@ -1375,7 +1383,7 @@ PlaceObj('ModItemFolder', {
 		'NameColor', RGBA(33, 229, 0, 255),
 	}, {
 		PlaceObj('ModItemStoryBit', {
-			Category = "Expedition",
+			Category = "Exploration",
 			Delay = 4000,
 			Enabled = true,
 			FxAction = "UINotificationExpedition",
@@ -1805,7 +1813,7 @@ PlaceObj('ModItemFolder', {
 			}),
 		}),
 		PlaceObj('ModItemStoryBit', {
-			Category = "Expedition",
+			Category = "Exploration",
 			Delay = 4000,
 			Enabled = true,
 			FxAction = "UINotificationExpedition",
@@ -2097,7 +2105,7 @@ PlaceObj('ModItemFolder', {
 			}),
 		}),
 		PlaceObj('ModItemStoryBit', {
-			Category = "Expedition",
+			Category = "Exploration",
 			Delay = 4000,
 			Enabled = true,
 			FxAction = "UINotificationExpedition",
@@ -2380,6 +2388,7 @@ PlaceObj('ModItemFolder', {
 			LockState = "locked",
 			MinSkillLevel = 5,
 			ResearchPoints = 10000,
+			StartingBreakthrough = false,
 			group = "Breakthroughs",
 			id = "Shrieker_food_scraps",
 			save_in = "Mod/TGkJ3Tu",
@@ -2482,7 +2491,7 @@ PlaceObj('ModItemFolder', {
 			PlaceObj('CheckOR', {
 				Conditions = {
 					PlaceObj('CheckTech', {
-						Tech = "FieldShrieker",
+						Tech = "FieldScissorhands",
 					}),
 					PlaceObj('CheckExpression', {
 						EditorViewComment = "one Scissorhand nest awoken",
@@ -2515,7 +2524,7 @@ PlaceObj('ModItemFolder', {
 		'NameColor', RGBA(187, 0, 255, 255),
 	}, {
 		PlaceObj('ModItemStoryBit', {
-			Category = "Expedition",
+			Category = "Exploration",
 			Enabled = true,
 			Image = "Mod/TGkJ3Tu/Pics Or it Didn't Happen/Scissor_Sage_Nest_.PNG",
 			NotificationText = T(516957375298, --[[ModItemStoryBit Single_Occupant_Scissor_Nest NotificationText]] "Expedition complete: <ExplorationSiteName>"),
@@ -2523,6 +2532,7 @@ PlaceObj('ModItemFolder', {
 			SelectObject = false,
 			Text = T(452416333956, --[[ModItemStoryBit Single_Occupant_Scissor_Nest Text]] "We tracked the earthquake to the largest Shrieker Nest I have ever seen!\n\nMy nose was met with the stench of death.\nThe only living creature is a lone 10 ft tall Scissorhands, surrounded by dead Scissorhands.\nIt's shell is marred with.... slashes?!?\n\nWhat should I do?"),
 			Title = T(110135522538, --[[ModItemStoryBit Single_Occupant_Scissor_Nest Title]] "[The Nests Awaken] A Betrayer"),
+			group = "Expedition_FollowUP",
 			id = "Single_Occupant_Scissor_Nest",
 			max_reply_id = 4,
 			save_in = "Mod/TGkJ3Tu",
@@ -2645,13 +2655,14 @@ PlaceObj('ModItemFolder', {
 			}),
 		}),
 		PlaceObj('ModItemStoryBit', {
-			Category = "Expedition",
+			Category = "Exploration",
 			Enabled = true,
 			Image = "Mod/TGkJ3Tu/Pics Or it Didn't Happen/Scissor_Mating.PNG",
 			NotificationText = T(266833903346, --[[ModItemStoryBit Scissorhand_Mating_event NotificationText]] "Expedition complete: <ExplorationSiteName>"),
 			SelectObject = false,
 			Text = T(828743778286, --[[ModItemStoryBit Scissorhand_Mating_event Text]] "I floated over the disturbance.\nIt a Scissorhand mega-colony!\n\nAs I continued to watch, each Scissorhand would stand in the center and dance. Sometimes turning to face another Scissorhand, or always look towards one.\n\nSometimes after one finishes dancing, it will pair off.\nThis must be the mating dance and possibly even ritual they do!\n\nWhat should I do?"),
 			Title = T(526098361340, --[[ModItemStoryBit Scissorhand_Mating_event Title]] "[The Nests Awaken] Scissorhand Mating Site"),
+			group = "Expedition_FollowUP",
 			id = "Scissorhand_Mating_event",
 			max_reply_id = 4,
 			save_in = "Mod/TGkJ3Tu",
@@ -2847,12 +2858,13 @@ PlaceObj('ModItemFolder', {
 			}),
 		}),
 		PlaceObj('ModItemStoryBit', {
-			Category = "Expedition",
+			Category = "Exploration",
 			Enabled = true,
 			Image = "Mod/TGkJ3Tu/Pics Or it Didn't Happen/Scissor_Amush.PNG",
 			NotificationText = T(331213279531, --[[ModItemStoryBit Weak_scissor_hunting_pack NotificationText]] "Expedition complete: <ExplorationSiteName>"),
 			Text = T(728012514068, --[[ModItemStoryBit Weak_scissor_hunting_pack Text]] "I spotted a pack of weak Scissorhands laying in wait near a mountain tunnel.\nAll other Scissorhands most likely cannot ambush hunt due to evolution warping their carapace into vibrant colors.\n\nThey are perfectly still, and look relatively underfed.\nThey would be easy marks for a well equipped colonist, or respond well to food.\n\nHow to proceed?"),
 			Title = T(189024014004, --[[ModItemStoryBit Weak_scissor_hunting_pack Title]] "[The Nests Awaken] Scissorhand Ambush Site"),
+			group = "Expedition_FollowUP",
 			id = "Weak_scissor_hunting_pack",
 			max_reply_id = 4,
 			save_in = "Mod/TGkJ3Tu",
@@ -3088,6 +3100,7 @@ PlaceObj('ModItemFolder', {
 			DisplayName = T(383868277397, --[[ModItemTech scissor_ambush DisplayName]] "Ambush Fire"),
 			LockState = "hidden",
 			ResearchPoints = 30000,
+			StartingBreakthrough = false,
 			group = "Breakthroughs",
 			id = "scissor_ambush",
 			save_in = "Mod/TGkJ3Tu",
@@ -3146,12 +3159,13 @@ PlaceObj('ModItemFolder', {
 		'NameColor', RGBA(32, 181, 211, 255),
 	}, {
 		PlaceObj('ModItemStoryBit', {
-			Category = "Expedition",
+			Category = "Exploration",
 			Enabled = true,
 			Image = "Mod/TGkJ3Tu/Pics Or it Didn't Happen/temporary.png",
 			NotificationText = T(801489114182, --[[ModItemStoryBit Robot_Degraded_Prefab NotificationText]] "Expedition complete: <ExplorationSiteName>"),
 			Text = T(613753515045, --[[ModItemStoryBit Robot_Degraded_Prefab Text]] "I landed and found a group of tattered Consortium buildings.\nBite, claw, and acid burns are on everything.\nRobots with missing arms and limbs are trying to fell trees and break nearby stone.\n\nThis looks like a small automated mining base, and I see a drop box. We can get this base back up and running... or salvage it... \n\nWhat should I do?"),
 			Title = T(275666857275, --[[ModItemStoryBit Robot_Degraded_Prefab Title]] "[The Nests Awaken] Consortium Mining Site"),
+			group = "Expedition_FollowUP",
 			id = "Robot_Degraded_Prefab",
 			max_reply_id = 4,
 			save_in = "Mod/TGkJ3Tu",
@@ -3255,12 +3269,13 @@ PlaceObj('ModItemFolder', {
 			}),
 		}),
 		PlaceObj('ModItemStoryBit', {
-			Category = "Expedition",
+			Category = "Exploration",
 			Enabled = true,
 			Image = "Mod/TGkJ3Tu/Pics Or it Didn't Happen/temporary.png",
 			NotificationText = T(541119697209, --[[ModItemStoryBit Robot_Diplo_Miscomm NotificationText]] "Expedition complete: <ExplorationSiteName>"),
 			Text = T(930081331336, --[[ModItemStoryBit Robot_Diplo_Miscomm Text]] 'As I flew in, a Consortium drone flew up to me and said in multiple languages:\n\n"GREETINGS NATIVES, PLEASE LAND SO WE CAN DISCUSS FIRST CONTACT"\nAfter landing, the main building spat out a Robot in a fancy hat and monocle.\nIt stated "WELCOME, LET US NEGOTIATE MINING RIGHTS"\n\nShould I tell him? Or keep this charade up?'),
 			Title = T(773066943050, --[[ModItemStoryBit Robot_Diplo_Miscomm Title]] "[The Nests Awaken] Consortium First Contact"),
+			group = "Expedition_FollowUP",
 			id = "Robot_Diplo_Miscomm",
 			max_reply_id = 4,
 			save_in = "Mod/TGkJ3Tu",
@@ -3372,12 +3387,13 @@ PlaceObj('ModItemFolder', {
 			}),
 		}),
 		PlaceObj('ModItemStoryBit', {
-			Category = "Expedition",
+			Category = "Exploration",
 			Enabled = true,
 			Image = "Mod/TGkJ3Tu/Pics Or it Didn't Happen/temporary.png",
 			NotificationText = T(624375902685, --[[ModItemStoryBit Robot_Fake_Settlement NotificationText]] "Expedition complete: <ExplorationSiteName>"),
 			Text = T(400841303990, --[[ModItemStoryBit Robot_Fake_Settlement Text]] 'I landed in a "town" called "TOTALLYHUMANVILLE" according to its giant banner.\nClearly Consortium Robots in tattered clothes are standing still saying "I need to file my taxes this year".\nCages with animals (some dead, some alive) are all stacked on top each. With a giant sign above it reading "PLEASE AWW AT OUR PETS".\n\nOne of the Robots eventually wanders up and says "HELLO, WE NEED TO TEST YOU TO MAKE SURE YOUR NOT A ROBOT. PLEAS ANSWER OUR QUESTIONS"'),
 			Title = T(139755321033, --[[ModItemStoryBit Robot_Fake_Settlement Title]] "[The Nests Awaken] A totally human settlement"),
+			group = "Expedition_FollowUP",
 			id = "Robot_Fake_Settlement",
 			max_reply_id = 4,
 			save_in = "Mod/TGkJ3Tu",
@@ -3503,6 +3519,7 @@ PlaceObj('ModItemFolder', {
 			Description = T(498459637401, --[[ModItemTech NA_consort_power_efficiency Description]] "An expedition to a Consortium mining base has revealed a secret frequency that the Consortium is beaming power through!\n\nLet's hack into this signal, and learn how to harness it for our own purposes!\n\n<em>All buildings consume 25% less power</em>"),
 			DisplayName = T(756256372571, --[[ModItemTech NA_consort_power_efficiency DisplayName]] "Consortium Power Beaming"),
 			LockState = "hidden",
+			StartingBreakthrough = false,
 			group = "Breakthroughs",
 			id = "NA_consort_power_efficiency",
 			save_in = "Mod/TGkJ3Tu",
@@ -3557,10 +3574,13 @@ PlaceObj('ModItemFolder', {
 			save_in = "Mod/TGkJ3Tu",
 		}),
 		PlaceObj('ModItemStoryBit', {
+			Category = "Exploration",
+			Enabled = true,
 			Image = "UI/Messages/Expeditions/exp_5_tall_stones",
 			NotificationText = T(790456924082, --[[ModItemStoryBit NA_Ritual_Site NotificationText]] "Expedition complete: <ExplorationSiteName>"),
 			Text = T(427346054794, --[[ModItemStoryBit NA_Ritual_Site Text]] "In the middle of all the pillars was a giant circular hewn staircase going down into the earth.\n\nI cautiously ventured down, and at the bottom was a grueling sight.\n\nA Shrieker, a Scissorhand, and a Robot have vines growing through them.\nThey are all weak and bleeding (or leaking) into a dark pit in the middle of the room.\n\nWhat should I do?"),
 			Title = T(689773556964, --[[ModItemStoryBit NA_Ritual_Site Title]] "[The Nests Awaken] Ritual Site"),
+			group = "Expedition_FollowUP",
 			id = "NA_Ritual_Site",
 			max_reply_id = 2,
 			save_in = "Mod/TGkJ3Tu",
@@ -3594,10 +3614,13 @@ PlaceObj('ModItemFolder', {
 			}),
 		}),
 		PlaceObj('ModItemStoryBit', {
+			Category = "Exploration",
+			Enabled = true,
 			Image = "Mod/TGkJ3Tu/Pics Or it Didn't Happen/Free_ritual.jpg",
 			NotificationText = T(131050927229, --[[ModItemStoryBit NA_Ritual_Site_free NotificationText]] "Expedition complete: <ExplorationSiteName>"),
 			Text = T(301381575679, --[[ModItemStoryBit NA_Ritual_Site_free Text]] "In the middle of all the pillars was a giant circular hewn staircase going down into the earth.\n\nI cautiously ventured down, and at the bottom was a grueling sight.\n\nA Shrieker, a Scissorhand, and a Robot have vines growing through them.\nThey are all weak and bleeding (or leaking) into a dark pit in the middle of the room.\n\nWhat should I do?"),
 			Title = T(461204223176, --[[ModItemStoryBit NA_Ritual_Site_free Title]] "[The Nests Awaken] Ritual Site"),
+			group = "Expedition_FollowUP",
 			id = "NA_Ritual_Site_free",
 			max_reply_id = 8,
 			save_in = "Mod/TGkJ3Tu",
@@ -3730,10 +3753,13 @@ PlaceObj('ModItemFolder', {
 			}),
 		}),
 		PlaceObj('ModItemStoryBit', {
+			Category = "Exploration",
+			Enabled = true,
 			Image = "Mod/TGkJ3Tu/Pics Or it Didn't Happen/throw_ritual.jpg",
 			NotificationText = T(532895415046, --[[ModItemStoryBit NA_Ritual_Site_throw NotificationText]] "Expedition complete: <ExplorationSiteName>"),
 			Text = T(490463520105, --[[ModItemStoryBit NA_Ritual_Site_throw Text]] "In the middle of all the pillars was a giant circular hewn staircase going down into the earth.\n\nI cautiously ventured down, and at the bottom was a grueling sight.\n\nA Shrieker, a Scissorhand, and a Robot have vines growing through them.\nThey are all weak and bleeding (or leaking) into a dark pit in the middle of the room.\n\nWhat should I do?"),
 			Title = T(445367552988, --[[ModItemStoryBit NA_Ritual_Site_throw Title]] "[The Nests Awaken] Ritual Site"),
+			group = "Expedition_FollowUP",
 			id = "NA_Ritual_Site_throw",
 			max_reply_id = 10,
 			save_in = "Mod/TGkJ3Tu",
@@ -3878,7 +3904,7 @@ PlaceObj('ModItemFolder', {
 			PlaceObj('MsgReaction', {
 				Event = "RecipeCrafted",
 				Handler = function (self, production_device, recipe, count, survivor)
-					print(production_device.unfinished_item_data.used_resources)
+					--print(production_device.unfinished_item_data.used_resources)
 					local tab = production_device.unfinished_item_data.used_resources
 					Resource_aggression_check(tab)
 				end,
@@ -3901,19 +3927,23 @@ PlaceObj('ModItemTutorialHint', {
 	Hints = {
 		PlaceObj('TutorialHintItem', {
 			Image = "Mod/TGkJ3Tu/Pics Or it Didn't Happen/Insect Nest UI.jpg",
-			Text = T(375361284496, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>1 of 4</em>\nThe Scissorhands and Shrieker Nests are now <style TextNegative>deadly hazards</style>!\nMeaning they will now:\n<style TextNegative>1. React to your presence\n2. Consume nearby resources.\n3. Launch scout patrols or launch their own attacks\n4. Spawn more often, and based on how you play.</style>\n\nIf you do something that Scissorhands are looking out for (or do not like), you better believe you will find some new Scissorhand Neighbors! \n(Just don't ask to borrow their scissors, they don't un-attach easily)"),
+			Text = T(375361284496, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>1 of 5</em>\nScissorhands & Shrieker Nests are now <style TextNegative>deadly hazards</style>!\nMeaning they will now:\n1. React to your presence\n2. Consume nearby resources.\n3. Launch scout patrols or launch their own attacks\n4. Spawn more often, and based on how you play."),
 		}),
 		PlaceObj('TutorialHintItem', {
 			Image = "Mod/TGkJ3Tu/Pics Or it Didn't Happen/angry nest.PNG",
-			Text = T(283738735418, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>2 of 4</em>\nOnce alerted to your presence, the nests will go into overdrive.\nThis means they will consume nearby resources faster.\nAny units released will be sent right to your base!\n\n<style TextNegative>Beware, lest you leave the nests be.....</style>\nFor in that path lies a literal disaster.\nAnd the planet's denizens will realize and attempt to take out a \"rival\" species (YOU)!"),
+			Text = T(283738735418, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>2 of 5</em>\nOnce alerted to your presence, the nests will go into overdrive.\nThis means they will consume nearby resources faster.\nAny units released will be sent right to your base!\n\n<style TextNegative>Beware, lest you leave the nests be.....</style>\nFor in that path lies a literal disaster.\nAnd the planet's denizens will realize and attempt to take out a \"rival\" species (YOU)!"),
 		}),
 		PlaceObj('TutorialHintItem', {
 			Image = "Mod/TGkJ3Tu/Pics Or it Didn't Happen/ConsortiumNestVariant.PNG",
-			Text = T(760322908319, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>3 of 4</em>\nIf you have the Guardians DLC, there is <style TextPositive>something extra in here as well!</style>\n\n<em>The Consortium hyperactive</em>, and is hurling automated mining bases to prospective locations.\nWhat makes a prospective location you say? Good question!"),
+			Text = T(760322908319, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>3 of 5</em>\nIf you have the Guardians DLC, there is <style TextPositive>something extra in here as well!</style>\n\n<em>The Consortium is now hyperactive in this region of space.</em>.\nOne thing they now do is hurl automated mining bases to prospective locations.\nWhat makes a prospective location you say? Rare metals, alloys, most things a burgeoning colony needs....."),
 		}),
 		PlaceObj('TutorialHintItem', {
 			Image = "Mod/TGkJ3Tu/Pics Or it Didn't Happen/Notifications.PNG",
-			Text = T(400960854348, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>4 of 4</em>\n\nYou will also find <em>4 new Expedition Sites</em>, each with at least 3 possible outcomes!\nThese Expeditions can reward you with <style TextPositive>high tier pre-Tamed animals!</style>\nthey can also rewards you with <style TextNegative>even more new and unfriendly neighbors!</style>\nAfter the expedition, you will find your new friend right next to the Balloon!"),
+			Text = T(400960854348, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>4 of 5</em>\n\nYou will also find <em>4 new Expedition Sites</em>, each with at least 3 possible outcomes!\nThese Expeditions can reward you with <style TextPositive>high tier pre-Tamed animals!</style>\nthey can also rewards you with <style TextNegative>even more new and unfriendly neighbors!</style>\nAfter the expedition, you will find your new friend right next to the Balloon!"),
+		}),
+		PlaceObj('TutorialHintItem', {
+			Image = "Mod/TGkJ3Tu/Pics Or it Didn't Happen/temporary.png",
+			Text = T(864350757194, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>5 of 5</em>\n\nIf you see this in any images from this mod (Or in any other mod I built/maintain) or by itself....\nConsider it an <em>active commission</em> to make a Stranded Alien Dawn version of the image.\nI am not a graphic artist or artistic in any way, and have had to resort to AI images or already made ones.\nWhich can really mess with my immersion.\n\nYou can reach out to me on the Git repo, Steam mod page, or Nexus mods. And let me know what image you would like to replace and your fee for use in the mod."),
 		}),
 	},
 	Tutorial = "",

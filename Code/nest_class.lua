@@ -4,55 +4,48 @@ local hours_per_day = day_duration / hour_duration
 
 RecursiveCallMethods.RegisterTarget = "call"
 
-
-
 DefineClass.EnhancedTerritorialNest = {
 
     properties = {
-        { category = "Nest", id = "state",                name = "State of nest", editor = "choice", template = true, items = { "asleep", "sleepy", "awake" }, default = 'asleep', modifiable = true, help = "state of the nest"},
-        { category = "Nest", id = "attack_time",          name = "Nest Attack Time", editor = "number", default = 0, modifiable = true, help = "When a nest will attack next if not asleep."},
+        { category = "Nest", id = "state",                name = "State of nest", editor = "choice", template = true, items = { "asleep", "sleepy", "awake", "allied"}, default = 'asleep', modifiable = true, help = "state of the nest"},
+        { category = "Nest", id = "attack_time",          name = "Nest Attack Time", editor = "number", default = max_int, modifiable = true, help = "When a nest will attack next if not asleep."},
         { category = "Nest", id = "attacks_done",         name = "Nest Attack Count", editor = "number", default = 0, modifiable = true, help = "Number of attacks this nest has sent total"},
         { category = "Nest", id = "attacks_to_evo",       name = "attacks needed to force evolution", editor = "number", default = 4, modifiable = true, help = "How much EP is needed to evolve the nest denizens"},
         { category = "Nest", id = "proximity",            name = "Nests proximity to players stuff", editor = "number", default = 1, modifiable = true, help = "Higher numbers indicate close distance to the players presence, and effects attack/evo/consumption rates"},
-        { category = "Nest", id = "last_attack",          name = "last attack time", editor = "number", default = 0, modifiable = true, help = ""},
         { category = "Nest", id = "ui_attack_percent",    name = "How close the attack time is to occuring", editor = "number", scale = "%", default = 0, modifiable = true, help = ""},
         { category = "Nest", id = "ui_evo",               name = "How close this nest is too evolving it's herd", editor = "number", scale = "%", default = 0, modifiable = true, help = ""},
-        { category = "Nest", id = "base_strength",        name = "Base % str of an attack this will send", editor = "number", scale = "%", default = 0, modifiable = true, help = ""},
+		{ category = "Nest", id = "base_strength",        name = "Base % str of an attack this will send", editor = "number", scale = "%", default = 30, modifiable = true, help = ""},
+		{ category = "Nest", id = "consume_time",        name = "When nest will eat the next node", editor = "number", default = 0, modifiable = true, help = "This is routinely updated based on each individual nest"},
     },
     state = 'asleep',
-	gas = 0,
-    attack_time = max_int,
-    attacks_done = 0,
-    attacks_to_evo = 4,
+	attack_time = max_int,
+	attacks_done = 0,
+	attacks_to_evo = 4,
+	base_strength = 30,
+	consume_time = max_int,
     proximity = 1,
-    last_attack = 0,
     ui_attack_percent = 0,
     ui_evo = 0,
-	base_strength = 30
 }
 
 function EnhancedTerritorialNest:Init()
+	self.attack_time = max_int
+	self.consume_time = max_int
     CreateGameTimeThread(function(this_nest)
         Sleep(day_duration)
         self:UpdateNextAttackTime()
+		self:get_proximity()
     end,self)
-    -- Create a thread that will have this nest consume or grow approx twice a day
-    CreateGameTimeThread(function(this_nest)
-        --local prox_triggers = this_nest.proximity
-        --if this_nest:IsAsleep() then
-        --    prox_triggers = 1
-        --end
-        while this_nest.Health > 0 do
-            Sleep(AsyncRand(hour_duration * 24,hour_duration * 36))
-            --for i=1,prox_triggers do
-            this_nest:consume_closest_node()
-            --end
-        end
-	end,self)
+end
+
+function EnhancedTerritorialNest:get_next_consume_time()
+	local wait_for = AsyncRand(hour_duration * 24,hour_duration * 36)
+	self.consume_time = GameTime() + wait_for
 end
 
 --This technically just increases the nest members, because the base game uses the nests herd to set the controlled territory
 function EnhancedTerritorialNest:expand()
+	DebugPrint("Nest Expanding it's territory!\n")
     local expand_by = 6
     local nodes = 0
     local max_growths = 5
@@ -73,14 +66,13 @@ end
 
 function EnhancedTerritorialNest:give_ep_to_struct(ep)
     if not ep then return end
-
+	DebugPrint("Nest storing EP in support structures\n")
     local spore_count = MapGet(self,self.territorial_range,function(thing)
     if IsKindOf(thing,'NestSpore') then return true end end)
     local spore = spore_count[1]
     local spore_res = Resources[spore.MineResource]
     local spore_res_prog = spore_res.progress
 	spore_count = #spore_count
-
     local progress_each = DivRound(ep,spore_count)
     local units_to_give = Max(1,DivRound(progress_each,spore_res_prog))
     --("Giving each of the ",spore_count,' nearby nest nodes ', units_to_give,' ',spore_res.id)
@@ -92,6 +84,8 @@ function EnhancedTerritorialNest:give_ep_to_struct(ep)
 end
 
 function EnhancedTerritorialNest:consume_closest_node()
+	DebugPrint("Nest consuming nearest node\n")
+	self.consume_time = max_int
     local closest_res = MapFindNearest(self,self,self.territorial_range,"EntityClass",function(thing)
     if (IsKindOf(thing,'MineableRock') or IsKindOf(thing,'Plant')) and not (IsKindOf(thing,'NestSpore')) then return true end end)
 	-- local closest_res = MapFindNearest(closest_reses)
@@ -120,20 +114,7 @@ function EnhancedTerritorialNest:consume_closest_node()
     self:give_ep_to_struct(EP_to_give)
 	local attack_cd = Game:GetCooldowns()['Attack']
 	self.attack_time = self.attack_time - DivRound(attack_cd,100)
-	--[[
-	if EP_to_give > 10 then
-		local percent_reduced = DivRound(EP_to_give,50)
-		self.attack_time = self.attack_time - DivRound(attack_cd*percent_reduced,100)
-		-- This makes the attacks "happen" faster
-	end]]
-	--[[
-    local diff_impact = DivRound(3*Get_difficulty_offset(),2) -- diff influence is 2x to 11x reduction
-	--(self.attack_time)
-	--(5000 * progress * diff_impact)
-	self.last_attack = self.last_attack - (5000 * progress * diff_impact)
-    self.attack_time = self.attack_time - (5000 * progress * diff_impact) -- simulates how an attack will occur sooner because some resources where consumed
-	--(self.attack_time)
-	]]--
+	self:get_next_consume_time()
 end
 
 function EnhancedTerritorialNest:GetStoryBitPopupImage()
@@ -146,27 +127,34 @@ function EnhancedTerritorialNest:GetStoryBitPopupImage()
 end
 
 function EnhancedTerritorialNest:get_proximity()
-    local center = get_center_of_survivors()
-    local distance = self:Dist(center)
-	--(distance)
-    local found = false
-    local min = 300
-    local prox = 4 
-    while not found and proximity ~= 1 do
-        if distance < min then
-            self.proximity = prox
-            found = true
-        else
-            prox  = prox + 1
-            min = min + 300
-        end
-    end
-    if prox == 1 then
-        self.proximity = 1
-    end
+	DebugPrint("Proximity check triggered, it should not... yet\n")
+    local closest_building = MapFindNearest(self,true,"Building")
+    local closest_human = MapFindNearest(self,true,"Building")
+	closest_human = GetDist(self, closest_human)
+	local close
+	if closest_building then
+		closest_building = GetDist(self, closest_building)
+		if closest_building > closest_human then
+			close = closest_building
+		else
+			close = closest_human or max_int
+		end
+	end
+	DebugPrint("closest_human ")
+	DebugPrint(closest_human)
+	DebugPrint("\n")
+	DebugPrint("closest_building ")
+	DebugPrint(closest_building)
+	DebugPrint("\n")
+    local rate = 300 * guim --300 meters per threshold
+    local prox = DivRound(close,rate)
+	prox = 6 - Clamp(prox,1,5) -- closest nests have a prox of 5
+	self.proximity = prox
+	return prox
 end
 
 function EnhancedTerritorialNest:Getui_evo()
+	DebugPrint("Getting the UI % how close to an evo the nest is\n")
     local option_1 = DivRound(self.attacks_done * 100,self.attacks_to_evo)
     local option_2 = check_count_and_upgrade(self.elder_class,{},100)
     if option_2 ~= self.elder_class then
@@ -189,18 +177,18 @@ function EnhancedTerritorialNest:IsSleepy()
 end
 
 function EnhancedTerritorialNest:Getui_attack_percent()
-    -- gametime is 5
-    -- attack cd is 4
-    -- last attacked at 3
-    -- extrapolate: will attack at 7 (Because 3 + cd )
-    -- denom will be 4 units (attack cd)
-    -- Numerator will be 2 (game time of 5 - last attack of 3)
-    local time_since_last_atk = GameTime() - self.last_attack
-    local percent = DivRound(time_since_last_atk*100,Game:GetCooldowns()['Attack'])
-    return Max(1,percent)
+	DebugPrint("Getting the UI % of how close an attack from the nest is\n")
+	local time_till_attack = self.attack_time - GameTime()
+	local num = Game:GetCooldowns()['Attack']-time_till_attack
+	local percent=DivRound(num*100,Game:GetCooldowns()['Attack'])
+	return Max(1,percent)
 end
 
 function EnhancedTerritorialNest:change_nest_herd(force_evo)
+	DebugPrint("Nest calculating if it needs to upgrade\n")
+	DebugPrint("Was this a forced evo?\n")
+	DebugPrint(force_evo)
+	DebugPrint('\n')
     local elder, adult, baby = self.elder_class, self.adult_class, self.hatchling_class
     local evo, _, _ = check_count_and_upgrade(elder,{},100)
     if evo == elder and not force_evo then return
@@ -238,12 +226,14 @@ function EnhancedTerritorialNest:RegisterTarget(unit, time)
     local tags = unit['UnitTags']
     if not tags then return end 
     if self.state == 'asleep' and tags['Human'] then
+		DebugPrint("Nest registering a human attacker!\n")
         self:SwitchState('sleepy')
         --ForceActivateStoryBit('asleep_too_sleepy'
     end
 end
 
 function EnhancedTerritorialNest:set_new_max_hp()
+	DebugPrint("Nest raising max HP\n")
     local base_hp = 100000
     local diff = Get_difficulty_offset()
     local max_possible_hp = base_hp * 100 * diff
@@ -261,6 +251,7 @@ end
 
 
 function EnhancedTerritorialNest:SwitchState(new_state)
+	DebugPrint("Nest switching it's internal state!\n")
     new_state = new_state or nil
 	local notif_level = MapVarValues['Nest_Notifications'] or 1
     if not new_state or new_state == self.state then
@@ -286,6 +277,7 @@ function EnhancedTerritorialNest:SwitchState(new_state)
 end
 
 function EnhancedTerritorialNest:calculate_attack_strength()
+	DebugPrint("Nest calculating it's attack score\n")
 	local base_strength = self.base_strength or 30
     local nests = MapCount(true,"TerritorialNest",function(other_nest,this_nest)
 		if IsKindOf(other_nest,this_nest) and not (other_nest.state == 'asleep') then
@@ -299,51 +291,92 @@ function EnhancedTerritorialNest:calculate_attack_strength()
 		diff_increase = 0
 	end
     local subsequent_attacks = self.attacks_done * 10
-    return Max(200,base_strength + nests + subsequent_attacks + diff_increase)
+	local per = Max(200,base_strength + nests + subsequent_attacks + diff_increase)
+	DebugPrint(per)
+	DebugPrint("\n")
+    return per
 end
 
 function EnhancedTerritorialNest:attack(fake_flag)
+	DebugPrint("Nest is attacking!\n")
+	if self.state == 'allied' then return end -- stub for PXR
     self:UpdateNextAttackTime()
     self:change_nest_herd() -- In case player has enough EP
-    local spawn_def = SpawnDefs['nest_attack']
-    if fake_flag then
+    local spawn_def
+	local find_spawn
+	if fake_flag then
         spawn_def = SpawnDefs['nest_overflow']
+		find_spawn = function(self, spawn_class, target)
+			local def = spawn_class and g_Classes[self.nest.elder_class]
+			local pfclass = def.pfclass
+			local radius = self.nest.territorial_range
+			local target_retry = 7
+			for i=1,target_retry do
+				local rand = InteractionRandCreate("SpawnFindTarget")
+				local pos_nearish_nest = terrain.FindPassable(self.nest, pfclass, radius)
+				if pos_nearish_nest then
+					return pos_nearish_nest
+				end
+				DebugPrint("Nest via a passive attack failed spawnloc. radius now: ")
+				DebugPrint(spawn_radius)
+				DebugPrint(" meter radius\n")
+				DebugPrint("pfclass was: ")
+				DebugPrint(pfclass)
+				DebugPrint("\n")
+			end
+			::continue::
+			dbg(self:DbgMarkFailedSpawn(self.nest,7))
+		end
+	else
+		spawn_def = SpawnDefs['nest_attack']
+		find_spawn = function(self, spawn_class, target)
+			local def = spawn_class and g_Classes[self.nest.elder_class]
+			local pfclass = def.pfclass
+			local spawn_radius = self.nest.territorial_range
+			local target_radius = 30*guim
+			local target_retry = 7
+			local rand = InteractionRandCreate("SpawnFindTarget")
+			local pos_nearish_nest
+			local pos
+			local survivors
+			survivors = GetValidSurvivorsOnMap()
+			if #survivors == 0 then return end
+			local target_pos
+			for i=1,target_retry do
+				target_pos = survivors[AsyncRand(#survivors)]
+				--("Retry attempt: "..i)
+				local r = rand()
+				local rand_retries = 4096
+				local spot_closest_to_target =  terrain.FindPassable(target_pos, pfclass, target_radius)
+				--  pos = ConnectivityRandomTile(r, spot_closest_to_target, target_pos, max_int, 0, pfclass, rand_retries)
+				local possible_spawnpoint = terrain.FindPassable(self.nest, pfclass, spawn_radius)
+				--local pos_nearish_nest = ConnectivityRandomTile(r, pos_of_nest, target, radius, 3*guim, pfclass, rand_retries)
+				local target = self:ResolveTarget() --rerolling target in case nest cannot reach this person
+				local closests_passable_point_near_target = terrain.FindPassable(target, pfclass, max_int)
+				if ConnectivityCheck(possible_spawnpoint,spot_closest_to_target,pfclass) then
+					return possible_spawnpoint
+				end
+				DebugPrint("Nest via real attack failed spawnloc. radius now: ")
+				DebugPrint(spawn_radius)
+				DebugPrint(" meter radius\n")
+				DebugPrint("pfclass was: ")
+				DebugPrint(pfclass)
+				DebugPrint("\n")
+				spawn_radius = spawn_radius * 2
+				::continue::
+				dbg(self:DbgMarkFailedSpawn(self.nest,7))
+			end
+		end
     end
     local instance = {}
     -- Not calling fill instance, because we are already in hard-code territory
     -- Consider the below the fill instance
     instance.nest = self
-    instance.FindSpawnLoc = function(self, spawn_class, target)
-        local def = spawn_class and g_Classes[self.nest.hatchling_class]
-        local pfclass = def.pfclass
-        local radius = self.nest.territorial_range
-        local target_retry = 7
-        local rand = InteractionRandCreate("SpawnFindTarget")
-        for i=1,target_retry do
-			--("Retry attempt: "..i)
-            local r = rand()
-            local rand_retries = 4096
-            local pos_of_nest = terrain.FindPassable(self.nest, pfclass, radius)
-            local pos_nearish_nest = ConnectivityRandomTile(r, pos_of_nest, pos_of_nest, radius, 3*guim, pfclass, rand_retries)
-            local targets_point = self:ResolveTarget() --rerolling target in case nest cannot reach this person
-            local closests_passable_point_near_target = terrain.FindPassable(targets_point, pfclass, max_int)
-            if ConnectivityCheck(pos_nearish_nest,closests_passable_point_near_target,pfclass) then
-                return pos_nearish_nest
-            end
-			radius = DivRound(radius * 2)
-        end
-		::continue::
-        dbg(self:DbgMarkFailedSpawn(pos_nearish_nest))
-    end
+    instance.FindSpawnLoc = find_spawn
     instance.SpawnClass = self.elder_class
     spawn_def = spawn_def:CreateInstance(instance)
-    spawn_def:ActivateSpawn(false,{},self:calculate_attack_strength())
-    --[[if self.attacks_done ~= -1 then
-        self.attacks_done = self.attacks_done-1
-        if self.attacks_done == 0 then
-            self:SwitchState('asleep') -- It's tired now
-        end
-    end]]
+	local t = spawn_def:ResolveTarget()
+    spawn_def:ActivateSpawn(t,{},self:calculate_attack_strength())
     self.attacks_done = self.attacks_done + 1
     if self.attacks_to_evo == self.attacks_done then
         self:change_nest_herd(true)
@@ -352,6 +385,7 @@ end
 
 
 function EnhancedTerritorialNest:UpdateNextAttackTime()
+	DebugPrint("Nest updating when to attack next\n")
     local diff = Get_difficulty_offset() - 3
     local attack_cd = Game:GetCooldowns()['Attack']
     if self.state == 'asleep' then attack_cd = attack_cd * 2 end
@@ -367,8 +401,12 @@ function EnhancedTerritorialNest:UpdateNextAttackTime()
     end
     local fastest_attack_allowed = DivRound((diff_offset_min * attack_cd),100)
     local slowest_attack_allowed = DivRound((diff_offset_max * attack_cd),100)
-    self.attack_time =  AsyncRand(fastest_attack_allowed,slowest_attack_allowed)
-    self.last_attack = GameTime()
+    self.attack_time =  GameTime() + AsyncRand(fastest_attack_allowed,slowest_attack_allowed)
+	DebugPrint("Next attack time:\n")
+	DebugPrint(self.attack_time)
+	DebugPrint("\nGame Time:\n")
+	DebugPrint(GameTime())
+	DebugPrint("\n")
 end
 
 
@@ -376,11 +414,12 @@ function EnhancedTerritorialNest:OnObjUpdate(time, update_interval)
 	local health = self.Health
 	if health <= 0 then return end
     if self.attack_time < GameTime() then
+		DebugPrint("Nest thinks it's time to attack\n")
         if self.state == 'awake' then -- trigger all the same nests to attack
+		DebugPrint("Triggering all nests of this type to attack!\n")
             MapForEach(true,'TerritorialNest',function(special_nest,this_nest)
                 -- This will include itself
                 if this_nest.class == special_nest.class then
-                    special_nest:UpdateNextAttackTime()
                     special_nest:attack()
                 end
             end,self)
@@ -388,12 +427,14 @@ function EnhancedTerritorialNest:OnObjUpdate(time, update_interval)
         elseif self.state == 'sleepy' then
             self:attack()
             ForceActivateStoryBit('single_nest_attack',self,true)
-            self:UpdateNextAttackTime()
         elseif self.state == 'asleep' then
             self:attack(true) -- true means to use the nest_overflow spawndef
-            self:UpdateNextAttackTime()
         end
     end
+	if self.consume_time < GameTime() then
+		DebugPrint("Nest GameThread triggering!\n")
+        self:consume_closest_node()
+	end
 end
 
 AppendClass.TerritorialNest = {

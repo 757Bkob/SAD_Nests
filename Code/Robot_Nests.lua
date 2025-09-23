@@ -59,21 +59,24 @@ DefineClass.ConsortiumNest = {
 -- Overriding to preserve the base class of the robots in adult/elder class
 -- We do not stutterstep down, instead the assaults and crawlers will just get stronger
 function ConsortiumNest:change_nest_herd(force_evo)
+	DebugPrint("Special Consortium Nest herd change function\n")
 	-- Consortium nests will always have the same farmhand robot to simulate them consuming nearby resources
     local elder, adult= self.elder_class, self.adult_class
 	local new_elder
 	local new_adult
 	local upgraded_flag = false
+	local _
+	local __
 	if force_evo then
 		new_elder = get_next(elder)
 		new_adult = get_next(adult)
 	else
-		new_elder, _, _ = check_count_and_upgrade(elder,{},100)
+		new_elder, _, __ = check_count_and_upgrade(elder,{},100)
 		if new_elder ~= elder then 
 			self.elder_class = new_elder
 			upgraded_flag = true
 			end
-		new_adult, _, _ = check_count_and_upgrade(adult,{},100)
+		new_adult, _, __ = check_count_and_upgrade(adult,{},100)
 		if new_adult ~= adult then
 			self.adult_class = new_adult
 			upgraded_flag = true

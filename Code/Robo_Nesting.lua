@@ -51,6 +51,7 @@ end
 function RoboNesting:GameInit()
 	if IsValid(self.nest) then
 		self.roam_start_pos = self.nest:GetPos()
+		self:SetInvader(true)
 	end
 end
 

@@ -123,6 +123,7 @@ function Get_difficulty_offset()
 end
 
 function Get_nest_by_region()
+	DebugPrint("Getting nest class id by region\n")
     if Region.id == 'Desertum' then
         return 'ShriekerNest'
     elseif Region.id == 'Sobrius' then
@@ -135,6 +136,7 @@ function Get_nest_by_region()
 end
 
 function Is_DLC_Present()
+	DebugPrint("Checking if DLC loaded\n")
 	return TradingShips['SmallCargoShip']
 end
 
@@ -145,6 +147,7 @@ end
 -- Hitting this function will auto-increment faction delay
 -- Returns true/false if this aggression instance is to be acted on
 function Aggression_log_faction(faction)
+	DebugPrint("Logging an aggression event\n")
 	local to_return = false
 	local threshold = MapVarValues['faction_aggression_threshold']
 	if not threshold then
@@ -164,6 +167,9 @@ function Aggression_log_faction(faction)
 	else
 		MapVarValues[faction] = count
 	end
+	DebugPrint("Did this event trigger an aggression up?\n")
+	DebugPrint(to_return)
+	DebugPrint("\n")
 	return to_return
 end
 
@@ -250,6 +256,8 @@ function Add_to_res_nest_mapping(res,nest)
 end
 
 function Resource_aggression_check(wierd_res_table)
+	if not wierd_res_table then return end
+	DebugPrint("A recipe completed\n")
 	--("Checking this table for resources used factions care about:")
 	--(wierd_res_table)
 	local chance
@@ -258,12 +266,16 @@ function Resource_aggression_check(wierd_res_table)
 		--("Is "..v_table['res'].." in this recipe table?")
 		--(wierd_res_table[v_table['res']])
 		if chance then
+			DebugPrint("A resource was consumed a species cares about!\n")
 			--("I FOUND A RESOURCE A SPECIES CARES ABOUT!")
 			Aggression_up(v_table['nest'])
-			--[[if AsyncRand(100) > DivRound(chance,1000) then
+			if AsyncRand(100) > DivRound(chance,1000) then
+				DebugPrint("And it was noticed\n")
 				-- If recipe uses 40 units of the resource, 40% chance to be detected
 				Aggression_up(v_table['nest'])
-			end--]]
+			else
+				DebugPrint("But it went unnoticed\n")
+			end
 		end
 	end
 end
@@ -295,6 +307,7 @@ end
 
 ------------------------------ DISASTER ---------------------------------
 function End_Disaster(nest_id, force_sleep)
+	DebugPrint("Ending the Nest Disaster\n")
     -- To enable me to place multiple types of nests in a single map
     nest_id = nest_id or Get_nest_by_region()
 	local end_state
@@ -310,9 +323,13 @@ function End_Disaster(nest_id, force_sleep)
 end
 
 function Start_Nest_Disaster()
+	DebugPrint("Starting Nest disaster\n")
     if MapVarValues['nest_disaster'] then return end
     MapVar('nest_disaster',GameTime()+hours_per_day)
 	local nest_class = MapVarValues['nest_disaster_species'] or MapVar(nest_disaster_species,Get_nest_by_region())
+	DebugPrint("The species is:\n")
+	DebugPrint(nest_class)
+	DebugPrint("\n")
 	local story_bit = disaster_sb[nest_class]
 	if story_bit then
 		ForceActivateStoryBit(story_bit)
@@ -328,6 +345,7 @@ function Start_Nest_Disaster()
 
         --Only spawn up to 10 nests, break if we failed to spawn more, if 15+ nests on map stop spawning
 		while spawned <= 10 and nests < 15 and not failed_to_spawn do
+			DebugPrint("Spawning a nest disaster phase 1\n")
 			Sleep(hours_per_day) -- pause for 24 hours
 			ForceActivateStoryBit(story_create)
 			Sleep(hour_duration) -- pause for an hour to see if a new nest has indeed spawned
@@ -349,6 +367,7 @@ function Start_Nest_Disaster()
 		if diff <= 3 then
 			denom = 4
 		end
+		DebugPrint("Triggering second phase!\n")
 		MapVar("nests_needed",MulDiv(nests,denom))
         ForceActivateStoryBit("nest_disaster_phase_2")
 	end,nest_class,nest_storybit_spawner)
@@ -357,6 +376,7 @@ end
 ------------------------------ NEW NEST SPAWN CODE ------------------------------
 
 function SpawnNestInsideMap(marker, seed, nest_type, danger_lvl)
+	DebugPrint("Spawning a nest\n")
 	if marker and terrain.IsWater(marker) then
 		return
 	end
@@ -402,6 +422,7 @@ end
 ------------------------------ GENERIC FACTION CALLS ------------------------------
 
 function Aggression_up(species)
+	DebugPrint("Aggression up called\n")
 	-- 1 Find our how many nests of the type on map
 	-- 2 Find out % of said nests are not asleep
 	--- 2a If 0 nests on map, need (difficulty offset - 8) 
@@ -435,6 +456,7 @@ function Aggression_up(species)
 end
 
 function Aggression_down(species)
+	DebugPrint("Aggression down called\n")
 	-- Will deactivate a nest if possible, eventually will lower attack chance/faction
 	species = species or Get_nest_by_region()
 	local nest
@@ -448,27 +470,6 @@ function Aggression_down(species)
 	end
 end
 
-------------------------- NEST WAKING UP BASED ON RESOURCE USE --------------------------
-
-
-function Aggression_based_on_recipe(device)
-	--(device)
-	local producing = device.unfinished_item_data
-	--(producing)
-	for _,v in ipairs(producing.used_resources) do
-		-- test
-		--(v)
-		for _,info in ipairs(res_nest_mapping) do
-			local resour = info['item']
-			--(resour)
-			--local nest_class = info['nest']
-			--(resour == v)
-			if v[resour] == v[f_to_call] and AsyncRand(100) < 5 then
-				f()
-			end
-		end
-	end
-end
 
 ------------------------------ T-FORMATTING ------------------------------
 
