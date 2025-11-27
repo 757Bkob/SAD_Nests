@@ -189,51 +189,6 @@ function Get_center_of_survivors()
     local center = point(DivRound(sum_x,count),DivRound(sum_y,count))
     return center
 end
---[[
-function ActivateNearestConsortiumNest()
-    local center = Get_center_of_survivors()
-    local closest_nest = MapFindNearest(center,true,'ConsortiumNest',function(nest_i_want) return nest_i_want.state == 'asleep' end)
-    if closest_nest then
-        closest_nest:SwitchState('sleepy')
-		closest_nest:SwitchState('sleepy')
-	elseif Get_difficulty_offset() > 4 then
-		ForceActivateStoryBit('new_nest_consortium')
-		closest_nest = MapFindNearest(center,true,'ConsortiumNest',function(nest_i_want) return nest_i_want.state == 'asleep' end)
-		if closest_nest then
-			closest_nest:SwitchState('sleepy')
-		else
-			--("ERROR NO CONSORTIUM NEST SPAWNED!")
-		end
-    end
-end
-
-function ActivateNearestInsectNest()
-    local nest_type = Get_nest_by_region()
-	local nest_sb = species_to_new_storybit_table[nest_type]
-    local center = get_center_of_survivors()
-    local closest_nest = MapFindNearest('TerritorialNest',center,function(nest_i_want,s_c)
-		if (nest_i_want.entity == s_c or IsKindOf(nest_i_want,'ScissorhandsNest')) and nest_i_want.state == 'asleep' then
-			return true
-		end
-	end,s_c)
-    if closest_nest then
-        closest_nest:SwitchState('sleepy')
-	elseif Get_difficulty_offset() > 4 then
-		ForceActivateStoryBit(nest_sb)
-    	    local closest_nest = MapFindNearest('TerritorialNest',center,function(nest_i_want,s_c)
-				if (nest_i_want.entity == s_c or IsKindOf(nest_i_want,'ScissorhandsNest')) and nest_i_want.state == 'asleep' then
-					return true
-				end
-			end,s_c)
-		if closest_nest then
-        	closest_nest:SwitchState('sleepy')
-		else
-			--("ERROR NO INSECT NEST SPAWNED")
-		end
-    end
-end
---]]
-
 local species_to_new_storybit_table = {}
 species_to_new_storybit_table['ShriekerNest'] = 'new_nest_shrieker'
 species_to_new_storybit_table['ScissorhandsNest'] = 'new_nest_scissorhand'
@@ -245,8 +200,8 @@ end
 
 local res_nest_mapping = {}
 res_nest_mapping[#res_nest_mapping+1] = {res='Silicon',nest="ConsortiumNest"}
-res_nest_mapping[#res_nest_mapping+1] = {res='Ore',nest="ConsortiumNest"}
-res_nest_mapping[#res_nest_mapping+1] = {res='Stone',nest="ScissorhandsNest"}
+res_nest_mapping[#res_nest_mapping+1] = {res='Synthetics',nest="ConsortiumNest"}
+res_nest_mapping[#res_nest_mapping+1] = {res='Ore',nest="ScissorhandsNest"}
 res_nest_mapping[#res_nest_mapping+1] = {res='RawMeat',nest="ScissorhandsNest"}
 res_nest_mapping[#res_nest_mapping+1] = {res='CarbonNanotubes',nest="ShriekerNest"}
 res_nest_mapping[#res_nest_mapping+1] = {res='RawMeatInsect',nest="ShriekerNest"}
@@ -489,7 +444,6 @@ function TFormat.disaster_species(context_obj)
 		return T{124110100436,"Everything that has attacked us"}
 	end
 end
-
 
 function TFormat.nests_left(context_obj)
 	local nests_killed = MapVarValues['nests_killed'] or 1

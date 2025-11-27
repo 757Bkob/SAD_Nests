@@ -2,6 +2,151 @@ local hour_duration = const.HourDuration
 local day_duration = const.DayDuration
 local hours_per_day = day_duration / hour_duration
 
+function SpawnNestInsideMap(marker, seed, nest_type, danger_lvl)
+	DebugPrint("Spawning a nest\n")
+	if marker and terrain.IsWater(marker) then
+		return
+	end
+	-- danger level does nothing right now, not part of MVP
+    danger_lvl = danger_lvl or 1
+    seed = seed or InteractionRand(nil, "DailySpawn")
+    local tags = {}
+    nest_type = nest_type or Get_nest_by_region()
+    if not nest_type then
+        return
+    elseif nest_type == 'ShriekerNest' then
+        tags = { shrieker_fall = true }
+    elseif nest_type == 'ScissorhandsNest' then
+        tags = { scissorhands_nest = true }
+    else
+		--("Using backup, whatever nest type is the tag!")
+		--(nest_type)
+        tags[nest_type] = true -- future proof for PX, the nest_type input will be the needed tag
+    end
+	--(tags)
+	SuspendPassEdits("SpawndNest")
+	seed = seed or InteractionRand(nil, "DailySpawn")
+	local nest
+	--(seed)
+	--()
+	local err, objs, pos, prefab, name, inv_bbox = marker:PlacePrefab(seed, {
+		tags_all = tags,
+	})
+	if not err then
+		local nest_marker = FindFirstIsKindOf(objs, "TerritorialNestMarker")
+		if nest_marker then
+			nest = nest_marker:SpawnNest(true)
+		else
+			assert(false, "Prefab without a Scissorhands nest marker: " .. name)
+		end
+	else
+		assert(false, "Prefab error: " .. err)
+	end
+	ResumePassEdits("SpawndNest")
+	return nest
+end
+
+function PlacePrefabLogic:GetPrefabLoc(seed, params)
+	seed = seed or InteractionRand(nil, "PlacePrefab")
+	local name, pos, angle, prefab, idx
+	--("Params")
+	--(params)
+	local prefabs = self:GetPrefabs(params)
+	--("Initial get of #prefabs")
+	--(#prefabs)
+	local r = 4
+	local fresh_prefabs
+	while #prefabs == 0 and r > 0 do
+		--("RETRYING BECAUSE I FAILED TO FIND")
+		prefabs = self:GetPrefabs(params)
+		local fresh_prefabs = PlacePrefabLogic:GetPrefabs(params)
+		--("non-self prefab get count")
+		--(#fresh_prefabs)
+		--("self get of #prefabs")
+		--(#prefabs)
+		r = r - 1
+		if #fresh_prefabs > #prefabs then
+			prefabs = fresh_prefabs
+		end
+	end
+	local retry
+	while true do
+		local idx
+		if #prefabs > 1 then
+			prefab, idx, seed = table.weighted_rand(prefabs, "weight", seed)
+		else
+			prefab = prefabs[1]
+		end
+		----(prefab)
+		assert(prefab)
+		if not prefab then
+			return
+		end
+		pos = params and params.pos
+		if not pos then
+			pos = self:GetVisualPos()
+			if not self.FixAtCenter then
+				local reserved_radius
+				if params and params.avoid_reserved_locations and self.reserved_locations then
+					reserved_radius = (prefab.min_radius + prefab.max_radius) * const.TypeTileSize / 2
+				end
+				local radius = prefab.max_radius * const.TypeTileSize
+				local free_dist = self.MaxPrefabRadius - radius
+				if free_dist > 0 then
+					local center = pos
+					pos = false
+					local retries = params and params.avoid_reserved_retries or 16
+					for i=1,retries do
+						local ra, rr
+						ra, seed = BraidRandom(seed, 360*60)
+						rr, seed = BraidRandom(seed, free_dist)
+						local pos_i = RotateRadius(rr, ra, center)
+						if not reserved_radius or self:CheckReservedLocations(pos_i, reserved_radius) then
+							pos = pos_i
+							break
+						end
+					end
+				elseif reserved_radius and not self:CheckReservedLocations(pos, reserved_radius) then
+					pos = false
+				end
+			end
+		end
+		if pos then
+			name = PrefabMarkers[prefab]
+			angle = params and params.angle
+			if not angle then
+				angle = self:GetAngle()
+				local rand_angle = self.RandAngle
+				if rand_angle > 0 then
+					local desired_angle = params and params.desired_angle
+					if desired_angle then
+						local angle_diff = AngleDiff(desired_angle, angle)
+						if abs(angle_diff) <= rand_angle then
+							angle = desired_angle
+						else
+							local min_angle, max_angle = angle - rand_angle, angle + rand_angle
+							if abs(AngleDiff(desired_angle, min_angle)) < abs(AngleDiff(desired_angle, max_angle)) then
+								angle = min_angle
+							else
+								angle = max_angle
+							end
+						end
+					else
+						local da
+						da, seed = BraidRandom(seed, -rand_angle, rand_angle)
+						angle = angle + da
+					end
+				end
+			end
+			return name, pos, angle, prefab, seed
+		end
+		if #prefabs == 1 then
+			return
+		end
+		table.remove_rotate(prefabs, idx)
+	end
+end
+
 RecursiveCallMethods.RegisterTarget = "call"
 
 DefineClass.EnhancedTerritorialNest = {
@@ -276,8 +421,11 @@ function EnhancedTerritorialNest:SwitchState(new_state)
     self:set_new_max_hp()
 end
 
-function EnhancedTerritorialNest:calculate_attack_strength()
+function EnhancedTerritorialNest:calculate_attack_strength(fake_flag)
 	DebugPrint("Nest calculating it's attack score\n")
+	if fake_flag then
+		return 10
+	end
 	local base_strength = self.base_strength or 30
     local nests = MapCount(true,"TerritorialNest",function(other_nest,this_nest)
 		if IsKindOf(other_nest,this_nest) and not (other_nest.state == 'asleep') then
@@ -290,8 +438,15 @@ function EnhancedTerritorialNest:calculate_attack_strength()
 	else
 		diff_increase = 0
 	end
+	local species_banked_aggr = self.class..'_banked_aggr'
+	local banked = MapVarValues[species_banked_aggr] or 0
+	if MapVarValues[species_banked_aggr] then
+		MapVarValues[species_banked_aggr] = 0
+	else
+		MapVar(species_banked_aggr,0)
+	end
     local subsequent_attacks = self.attacks_done * 10
-	local per = Max(200,base_strength + nests + subsequent_attacks + diff_increase)
+	local per = Max(200,base_strength + banked + nests + subsequent_attacks + diff_increase)
 	DebugPrint(per)
 	DebugPrint("\n")
     return per
@@ -304,6 +459,7 @@ function EnhancedTerritorialNest:attack(fake_flag)
     self:change_nest_herd() -- In case player has enough EP
     local spawn_def
 	local find_spawn
+	local atk_str = self:calculate_attack_strength(fake_flag)
 	if fake_flag then
         spawn_def = SpawnDefs['nest_overflow']
 		find_spawn = function(self, spawn_class, target)
@@ -376,7 +532,7 @@ function EnhancedTerritorialNest:attack(fake_flag)
     instance.SpawnClass = self.elder_class
     spawn_def = spawn_def:CreateInstance(instance)
 	local t = spawn_def:ResolveTarget()
-    spawn_def:ActivateSpawn(t,{},self:calculate_attack_strength())
+    spawn_def:ActivateSpawn(t,{},atk_str)
     self.attacks_done = self.attacks_done + 1
     if self.attacks_to_evo == self.attacks_done then
         self:change_nest_herd(true)
@@ -437,6 +593,83 @@ function EnhancedTerritorialNest:OnObjUpdate(time, update_interval)
 	end
 end
 
+function UnitNesting:OnObjUpdate()
+	local nest = self.nest
+	if not IsValid(nest) then
+		return
+	end
+	local effect = self.NestEffect or ""
+	if effect == "" then
+		return
+	end
+	local nest_nearby = self:IsCloser(nest, nest.territorial_range) or false
+	if nest_nearby == self.nest_nearby then
+		return
+	end
+	self:give_nest_effect()
+end
+
+-- override of base game function to give nest effect in case things go wrong
+function TerritorialNest:AddNestMember(member)
+	table.insert(self.nest_members, member)
+	-- mark guardian members as such (they stay close to the nest and protect it if attacked)
+	self:TrySetNestGuardian(member)
+	member:give_nest_effect()
+end
+
+function UnitNesting:give_nest_effect()
+	if not self.nest then return end
+	local nest = self.nest
+	local give = self:IsCloser(nest, nest.territorial_range)
+	if give then
+		if IsKindOf(self,"Robot") then
+			self:AddRobotCondition('FamiliarGroundRobo','mod')
+		else
+			self:AddHealthCondition(self.NestEffect or "", "nest")
+		end
+	elseif IsKindOf(self,"Robot") then
+		self:RemoveRobotCondition('FamiliarGroundRobo','mod')
+	else
+		self:RemoveHealthConditions(self.NestEffect or "", "nest")
+
+	end
+end
+
+--override of base game because base game function cannot spawn `Robot` units properly
+function TerritorialNest:SpawnAround(class, range, instant, burrowed)
+	local def = class and g_Classes[class]
+	if not def then return end
+	if burrowed and not def.CanBurrowInNest then return end
+	if IsKindOf(def,'Robot') then
+        local spawn_def = SpawnDefs['single_spawn_around_loc']
+		local instance = {}
+		instance.location = self
+		instance.radius = range
+		instance.PostSpawn = function(self,obj,target,context)
+			obj:SetNest(self.location)
+			obj:SetInvader(true)
+		end
+		instance.SpawnClass = class
+		spawn_def = spawn_def:CreateInstance(instance)
+		local t = spawn_def:ResolveTarget()
+		print(spawn_def:ResolveSpawnClass())
+		-- This spawndef is a count of 1 so giving 100%
+		spawn_def:ActivateSpawn(t,{},100)
+		return
+	end
+	local pfclass = def.pfclass
+	local pos = terrain.FindPassableTile(self, const.tfpPassClass, pfclass)
+	local x, y = GetRandomPlayablePos(pos, range, guim, self:RandSeed("SpawnNestMember"), pfclass, def.radius)
+	if not x then return end
+	local obj = def:new()
+	obj:SetNest(self)
+	obj:SetPosAngle(x, y, const.InvalidZ, self:GetAngle() + self:Random(360*60, "SpawnNestMember"))
+	if not instant then
+		obj.init_with_command = "CmdSpawn"
+	end
+	return obj
+end
+
 AppendClass.TerritorialNest = {
     __parents = { "EnhancedTerritorialNest" },
 }
@@ -453,7 +686,8 @@ AppendClass.ShriekerSporeDeposit = {
 AppendClass.ScissorhandSporeDeposit = {
 	__parents = { "NestSpore" }
 }
-
-AppendClass.ConsortiumSporeDeposit = {
+--[[
+ppendClass.ConsortiumSporeDeposit = {
 	__parents = { "NestSpore" }
 }
+--]]

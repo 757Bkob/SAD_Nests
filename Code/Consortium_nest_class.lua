@@ -42,9 +42,10 @@ DefineClass.ConsortiumNest = {
 	min_attacks_count = const.Shriekers.NestMinMembersForAttack,
 	engagement_time = const.Shriekers.NestEngagementTime,
 	
-	adult_class = "LightHostileRobot_LVL1" ,
-	hatchling_class = "FarmhandRobot",
+	adult_class = "HeavyHostileRobot_LVL1" ,
+	hatchling_class = "LightHostileRobot_LVL1",
 	elder_class = "Crawl_APC_LVL1",
+	CombatGroup = "Robots",
 	
 	terrain_change = true,
 	terrain_form_preset = "ShriekerTerritoryTerrain",
@@ -61,24 +62,27 @@ DefineClass.ConsortiumNest = {
 function ConsortiumNest:change_nest_herd(force_evo)
 	DebugPrint("Special Consortium Nest herd change function\n")
 	-- Consortium nests will always have the same farmhand robot to simulate them consuming nearby resources
-    local elder, adult= self.elder_class, self.adult_class
-	local new_elder
-	local new_adult
+    local elder, adult, hatch = self.elder_class, self.adult_class, self.hatchling_class
+	local new_elder = get_next(elder)
+	local new_adult = get_next(adult)
+	local new_hatch = get_next(hatch)
 	local upgraded_flag = false
 	local _
 	local __
-	if force_evo then
-		new_elder = get_next(elder)
-		new_adult = get_next(adult)
-	else
+	if not force_evo then
 		new_elder, _, __ = check_count_and_upgrade(elder,{},100)
 		if new_elder ~= elder then 
 			self.elder_class = new_elder
 			upgraded_flag = true
-			end
+		end
 		new_adult, _, __ = check_count_and_upgrade(adult,{},100)
 		if new_adult ~= adult then
 			self.adult_class = new_adult
+			upgraded_flag = true
+		end
+		new_hatch, _, __ = check_count_and_upgrade(hatch,{},100)
+		if new_hatch ~= hatch then
+			self.hatchling_class = new_hatch
 			upgraded_flag = true
 		end
 	end
@@ -104,3 +108,7 @@ function ConsortiumNest:change_nest_herd(force_evo)
         self.attacks_to_evo = self.attacks_to_evo + 1
     end
 end
+
+AppendClass.ConsortiumSporeDeposit = {
+	__parents = { "NestSpore" }
+}

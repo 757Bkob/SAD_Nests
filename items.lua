@@ -116,20 +116,28 @@ PlaceObj('ModItemStoryBit', {
 	save_in = "Mod/TGkJ3Tu",
 }),
 PlaceObj('ModItemCode', {
-	'name', "Robo_Nesting",
-	'CodeFileName', "Code/Robo_Nesting.lua",
+	'name', "EnhancedTerritorialNest_class",
+	'CodeFileName', "Code/EnhancedTerritorialNest_class.lua",
 }),
 PlaceObj('ModItemCode', {
-	'name', "Robot_Nests",
-	'CodeFileName', "Code/Robot_Nests.lua",
+	'name', "Consortium_nest_class",
+	'CodeFileName', "Code/Consortium_nest_class.lua",
 }),
 PlaceObj('ModItemCode', {
-	'name', "Non_Nest_code",
-	'CodeFileName', "Code/Non_Nest_code.lua",
+	'name', "Disaster_functions",
+	'CodeFileName', "Code/Disaster_functions.lua",
 }),
 PlaceObj('ModItemCode', {
-	'name', "nest_class",
-	'CodeFileName', "Code/nest_class.lua",
+	'name', "Expedition_Functions",
+	'CodeFileName', "Code/Expedition_Functions.lua",
+}),
+PlaceObj('ModItemCode', {
+	'name', "aggression_code",
+	'CodeFileName', "Code/aggression_code.lua",
+}),
+PlaceObj('ModItemCode', {
+	'name', "helper_functions",
+	'CodeFileName', "Code/helper_functions.lua",
 }),
 PlaceObj('ModItemFolder', {
 	'name', "Notifications",
@@ -350,6 +358,12 @@ PlaceObj('ModItemFolder', {
 				SpawnDefId = "ScissorhandNest",
 				param_bindings = false,
 			}),
+			PlaceObj('ExecuteCode', {
+				Code = function (self, obj)
+					mark_spawned_nest('ScissorhandsNest')
+				end,
+				param_bindings = false,
+			}),
 		},
 		Enabled = true,
 		HasNotification = false,
@@ -378,6 +392,12 @@ PlaceObj('ModItemFolder', {
 				SpawnDefId = "ShriekerNest",
 				param_bindings = false,
 			}),
+			PlaceObj('ExecuteCode', {
+				Code = function (self, obj)
+					mark_spawned_nest('ShriekerNest')
+				end,
+				param_bindings = false,
+			}),
 		},
 		Enabled = true,
 		HasNotification = false,
@@ -404,6 +424,12 @@ PlaceObj('ModItemFolder', {
 		Effects = {
 			PlaceObj('ActivateSpawnDef', {
 				SpawnDefId = "ConsortiumNest",
+				param_bindings = false,
+			}),
+			PlaceObj('ExecuteCode', {
+				Code = function (self, obj)
+					mark_spawned_nest('ConsortiumNest')
+				end,
 				param_bindings = false,
 			}),
 		},
@@ -1716,9 +1742,6 @@ PlaceObj('ModItemFolder', {
 						Resource = "CarbonNanotubes",
 						param_bindings = false,
 					}),
-					PlaceObj('ExecuteCode', {
-						param_bindings = false,
-					}),
 					PlaceObj('AddRemoveHealthCondition', {
 						HealthCond = "Bruise_Common",
 						HealthCondType = "Injury",
@@ -1927,7 +1950,7 @@ PlaceObj('ModItemFolder', {
 					PlaceObj('ExecuteCode', {
 						Code = function (self, obj)
 							Aggression_up('ShriekerNest')
-							Aggression_yp("ShriekerNest")
+							Aggression_up("ShriekerNest")
 						end,
 						param_bindings = false,
 					}),
@@ -3873,25 +3896,40 @@ PlaceObj('ModItemFolder', {
 		save_in = "Mod/TGkJ3Tu",
 	}),
 	PlaceObj('ModItemRobotCondition', {
-		Description = T(963092369040, --[[ModItemRobotCondition FamiliarGroundRobo Description]] "This unit self-repairs and is better in combat due to it being near a base of operations"),
+		Description = T(963092369040, --[[ModItemRobotCondition FamiliarGroundRobo Description]] "A nearby Pylon is granting this unit a temporary shield giving <style TextPositive>50% damage reduction</style> and regeneration.\nThis shield lasts for 1 day after combat starts and takes 7 days to recharge."),
 		DisplayName = T(359172351610, --[[ModItemRobotCondition FamiliarGroundRobo DisplayName]] "Nearby Pylon"),
 		Modifiers = {
 			PlaceObj('ModifyRobot', {
 				Id = "autoid_TGkJ3Tu_QRkNWV7",
-				add = 5000,
+				add = 10000,
 				param_bindings = false,
 				prop = "Regeneration",
 			}),
 		},
+		OnAdd = function (self, owner, ...)
+			self.shield_gone = 0
+			self.shield_refresh = 0
+		end,
 		Polarity = "positive",
 		ShowFloatingText = false,
+		StackLimit = 1,
 		id = "FamiliarGroundRobo",
 		save_in = "Mod/TGkJ3Tu",
 		unit_reactions = {
 			PlaceObj('UnitReaction', {
-				Event = "ModifyWeaponHitChance",
-				Handler = function (self, target, chance, weapon_def)
-					return chance + 15
+				Event = "ModifyDamageReceived",
+				Handler = function (self, target, damage, weapon_def, attacker)
+					local deflect = false
+					if self.shield_gone == 0 or self.shield_refresh < GameTime() or self.shield_gone > GameTime() then
+						self.shield_gone = GameTime() + const.DayDuration
+						self.shield_refresh = GameTime() + (const.DayDuration*7)
+						deflect = true
+					end
+					if deflect then
+						return DivRound(damage,2)
+					else
+					    return damage
+					end
 				end,
 				param_bindings = false,
 			}),
@@ -3971,5 +4009,37 @@ PlaceObj('ModItemTutorialHint', {
 		}),
 	},
 	save_in = "Mod/TGkJ3Tu",
+}),
+PlaceObj('ModItemAnimalSpawnDef', {
+	Cond = function (self, target, context, progress)
+		if self.location then return true else return false end
+	end,
+	FindSpawnLoc = function (self, spawn_class, target, context)
+		local def = spawn_class and g_Classes[spawn_class]
+		print('The input spawn_class was: ',spawn_class.class,' which resolved too: ', def)
+		print("The actual spawn class is: ",self:ResolveSpawnClass().class)
+		local center = self.location
+		print(center)
+		local pfclass = def.pfclass
+		local radius = self.radius
+		print(radius)
+		local pos = terrain.FindPassableTile(center, const.tfpPassClass, pfclass)
+		local target_retry = 4
+		for i=1,target_retry do
+			local x, y = GetRandomPlayablePos(pos, radius, guim, self.location:RandSeed("SpawnNestMember"), pfclass, def.radius)
+			if x then
+				print("Found a spot!")
+				print(point(x,y))
+				return point(x, y)
+			end
+		end
+	end,
+	SpawnClass = "LightHostileRobot_LVL1",
+	id = "single_spawn_around_loc",
+	save_in = "Mod/TGkJ3Tu",
+}),
+PlaceObj('ModItemCode', {
+	'name', "all",
+	'CodeFileName', "Code/all.lua",
 }),
 }
