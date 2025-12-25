@@ -1,3 +1,32 @@
+function CheckAndSet(varname,val)
+	if table.find(MapVars, varname) then
+		MapVarValues[varname] = val
+		return true
+	else
+		MapVar(varname,val)
+	end
+end
+
+function Setup_nest_mod()
+	CheckAndSet("global_nest_spawn_cd",0)
+	CheckAndSet("Nest_Notifications",1)
+	local nests = ClassDescendantsList("TerritorialNest")
+	for _, nest in ipairs(nests) do
+		CheckAndSet(nest..'_nest_spawn_cd',0)
+		CheckAndSet(nest..'_evo_cd',0)
+		CheckAndSet(nest..'_stored_aggr',0)
+		CheckAndSet(nest..'_aggro_events',0)
+	end
+	CheckAndSet('faction_aggression_threshold',Max(0,6 - Get_difficulty_offset()))
+	CheckAndSet('nest_tutorial',false)
+	CheckAndSet('nest_upgrade',false)
+	CheckAndSet('nest_disaster_species',false)
+	CheckAndSet('nest_disaster',false)
+	CheckAndSet('nests_needed',false)
+	CheckAndSet('nests_killed',false)
+	CheckAndSet('per_species_nest_max',13)
+end
+
 ------------------------------ HELPER FUNCTIONS ------------------------------
 function Get_difficulty_offset()
     local difficulty_offset = 2
@@ -40,18 +69,9 @@ function Is_DLC_Present()
 end
 
 function mark_spawned_nest(nest_type)
-	local new_spawn_time = GameTime() + MoonInstance.AttackCooldownMin
-	if not MapVarValues.global_nest_spawn_cd then
-		MapVar("global_nest_spawn_cd",new_spawn_time)
-	else
-		MapVarValues.global_nest_spawn_cd = new_spawn_time
-	end
+	MapVarValues['global_nest_spawn_cd'] = GameTime() + MoonInstance.AttackCooldownMin
 	local species_spawn_var = nest_type..'_nest_spawn_cd'
-	if not MapVarValues[species_spawn_var] then
-		MapVar(species_spawn_var,new_spawn_time*3)
-	elseif MapVarValues[species_spawn_var] < GameTime() then
-		MapVarValues[species_spawn_var] = new_spawn_time * 3
-	end
+	MapVarValues[species_spawn_var] = MapVarValues['global_nest_spawn_cd'] * 3
 end
 
 function Get_center_of_survivors()
@@ -86,9 +106,10 @@ function NA_Mod_Set(id)
 	elseif nest_notif == 'Do not Alert me (<style TextNegative>Warning Dangerous</style>)' then
 		nest_level = 0
 	end
-	if not MapVarValues.Nest_Notifications then
-		MapVar("Nest_Notifications",nest_level)
-	else
-		MapVarValues["Nest_Notifications"]=nest_level
-	end
+	Nest_Notifications=nest_level
+	local per_species = options.max_nest
+	MapVarValues['per_species_nest_max'] = per_species or 13
 end
+
+OnMsg.GameStarted = Setup_nest_mod -- first start
+OnMsg.LoadGame = Setup_nest_mod -- savegame load

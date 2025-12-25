@@ -472,9 +472,10 @@ PlaceObj('ModItemFolder', {
 		DistFromOthers = 1000,
 		EnabledInTutorial = true,
 		EnabledWithoutSurvivors = false,
-		PostSpawn = function (self, obj, target)
+		PostSpawn = function (self, obj, target, context)
 			obj.CombatHostile = true
 			Msg("SpawnedAnimalThreat", obj)
+			give_nest_speed_effect(ob)
 		end,
 		SpawnAsGroup = true,
 		SpawnClass = "Skarabei_Manhunting",
@@ -490,31 +491,14 @@ PlaceObj('ModItemFolder', {
 		id = "nest_attack",
 		save_in = "Mod/TGkJ3Tu",
 	}),
-	PlaceObj('ModItemAnimalSpawnDef', {
-		Behaviours = {
-			PlaceObj('AnimalSpawnDefBehaviourRoam', {
-				'Duration', 9600000,
-				'NoSleep', false,
-			}),
-			PlaceObj('AnimalSpawnDefBehaviourBerserk', {
-				'Duration', 320000,
-			}),
-			PlaceObj('AnimalSpawnDefBehaviourRoam', {
-				'Duration', 0,
-				'NoSleep', false,
-			}),
-		},
-		EnabledWithoutSurvivors = false,
+	PlaceObj('ModItemSpawnDef', {
+		CountMod = function (self, target, progress) return self:CalculateInvadersCountMod(self, progress) end,
 		PostSpawn = function (self, obj, target, context)
 			obj.CombatHostile = false
 		end,
-		SpawnAsGroup = true,
-		SpawnClass = "Shrieker_Manhunting_Hatchling",
-		SurvivorDistMax = -1000,
-		TargetClass = "Human",
+		SpawnClass = "Shrieker_Hatchling",
+		SpawnTimeLimit = false,
 		TargetFilter = function (obj) return not obj:IsVirtual() end,
-		TargetStartPosOnMissingTarget = true,
-		comment = "---\n    Perma-wandering insects because player is unknown/neutral\n    Called from custom Lua code, no storybit attack",
 		id = "nest_overflow",
 		save_in = "Mod/TGkJ3Tu",
 	}),
@@ -630,8 +614,6 @@ PlaceObj('ModItemFolder', {
 			'__context_of_kind', "EnhancedTerritorialNest",
 			'__condition', function (parent, context) return context.Health > 0 and IsKindOf(context,'EnhancedTerritorialNest') end,
 			'__template', "InfopanelSection",
-			'RolloverAnchorId', "NestHelp",
-			'RolloverText', T(352700748157, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverText]] "<style TextNegative>Nests will consume nearby flora & fauna.</style>\nWith the material it will:\n1. Create & send attacks\n2. Evolve the units it creates\n3. Store excess in nearby nest structures."),
 			'RolloverTitle', T(685477114002, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle]] "What Enhanced Nests do"),
 			'RolloverHint', T(987068224940, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverHint]] "<em>Kill it quick before it becomes a problem!</em>"),
 			'Id', "idNestInfographic",
@@ -650,10 +632,6 @@ PlaceObj('ModItemFolder', {
 				'Id', "idNestStateText",
 				'FoldWhenHidden', true,
 				'TextStyle', "InfopanelText",
-				'OnContextUpdate', function (self, context, ...)
-					FrameProgress.OnContextUpdate(self, context, ...)
-					self:SetVisible(self.value > 0)
-				end,
 				'Translate', true,
 				'Text', T(395383134651, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "An <style TextEmphasis>awoken</style> nest, actively growing and sending attacks."),
 				'HideOnEmpty', true,
@@ -666,10 +644,6 @@ PlaceObj('ModItemFolder', {
 				'Id', "idNestStateText",
 				'FoldWhenHidden', true,
 				'TextStyle', "InfopanelText",
-				'OnContextUpdate', function (self, context, ...)
-					FrameProgress.OnContextUpdate(self, context, ...)
-					self:SetVisible(self.value > 0)
-				end,
 				'Translate', true,
 				'Text', T(304647586842, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "An <style TextNegative>overactive</style> nest, coordinating with all other nests to grow and attack!"),
 				'HideOnEmpty', true,
@@ -682,46 +656,88 @@ PlaceObj('ModItemFolder', {
 				'Id', "idNestStateText",
 				'FoldWhenHidden', true,
 				'TextStyle', "InfopanelText",
-				'OnContextUpdate', function (self, context, ...)
-					FrameProgress.OnContextUpdate(self, context, ...)
-					self:SetVisible(self.value > 0)
-				end,
 				'Translate', true,
 				'Text', T(821602814761, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "An <style TextPositive>inert</style> nest, slowly growing with some patrolling defenders."),
 				'HideOnEmpty', true,
 			}),
 			PlaceObj('XTemplateWindow', {
-				'comment', "How close to an attack",
+				'comment', "Under 100% attack strength next",
 				'__context_of_kind', "EnhancedTerritorialNest",
-				'__condition', function (parent, context) return context.Health > 0 end,
-				'__class', "FrameProgress",
-				'Id', "idNestHarvest",
-				'OnContextUpdate', function (self, context, ...)
-					FrameProgress.OnContextUpdate(self, context, ...)
-					self:SetVisible(self.value > 0)
-				end,
+				'__condition', function (parent, context) return context:Getui_attack_strength() <= 100 end,
+				'__class', "UIBar",
+				'RolloverTemplate', "Rollover",
+				'RolloverText', T(177622343318, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverText]] "How strong this nests next attack will be!\nThe <em>arrow over the bar</em> indicates the current maximum strength this nest can attack with.\nThis maximum strength will increase as more nests of this species wake up and the longer this nest stays alive!"),
+				'RolloverTitle', T(887730983296, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle]] "Attack Strength"),
+				'Id', "idNestAttackStrBar",
+				'BindTo', "ui_attack_strength",
+				'BarColor', RGBA(96, 116, 127, 255),
+				'Text', T(640556952688, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "Estimated Attack Strength<right><percent(value)>"),
+				'AddTargetTickMark', false,
+				'ShowTargetArrows', false,
+				'MarkerAfterSeperatorImage', "UI/Hud/bar_marker_breakdown",
+			}),
+			PlaceObj('XTemplateWindow', {
+				'comment', "Above 100% attack strength next",
+				'__context_of_kind', "EnhancedTerritorialNest",
+				'__condition', function (parent, context) return context:Getui_attack_strength() > 100 end,
+				'__class', "UIBar",
+				'RolloverTemplate', "Rollover",
+				'RolloverText', T(828707890863, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverText]] "How strong this nests next attack will be!\nThe <em>arrow over the bar</em> indicates the current maximum strength this nest can attack with.\nThis maximum strength will increase as more nests of this species wake up and the longer this nest stays alive!"),
+				'RolloverTitle', T(974540735024, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle]] "Attack Strength"),
+				'Id', "idNestAttackStrBar",
+				'BindTo', "ui_attack_strength",
+				'BarColor', RGBA(235, 13, 13, 255),
+				'Text', T(514131723970, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "You dun messed up"),
+				'AddTargetTickMark', false,
+				'ShowTargetArrows', false,
+				'MarkerAfterSeperatorImage', "UI/Hud/bar_marker_breakdown",
+			}),
+			PlaceObj('XTemplateWindow', {
+				'comment', "Attack is far away",
+				'__context_of_kind', "EnhancedTerritorialNest",
+				'__condition', function (parent, context) return context:Getui_attack_percent() < 90 end,
+				'__class', "UIBar",
+				'RolloverTemplate', "Rollover",
+				'RolloverText', T(347900511203, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverText]] "Our scouts are watching the openings of this nest, and can provide a good estimate on when this nest will release it's next batch! "),
+				'RolloverTitle', T(706440093934, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle]] "Attack timing"),
+				'Id', "idNestAttackTimeBar",
 				'BindTo', "ui_attack_percent",
 				'BarColor', RGBA(96, 116, 127, 255),
-				'Text', T(430714079282, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "Biomass Buildup<right><percent(value, nil, 0)>"),
+				'Text', T(133904546142, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "Time until attack<right><percent(value)>"),
+				'AddTargetTickMark', false,
+				'ShowTargetArrows', false,
+				'MarkerAfterSeperatorImage', "UI/Hud/bar_marker_breakdown",
+			}),
+			PlaceObj('XTemplateWindow', {
+				'comment', "An attack is close to happening",
+				'__context_of_kind', "EnhancedTerritorialNest",
+				'__condition', function (parent, context) return context:Getui_attack_percent() > 90 end,
+				'__class', "UIBar",
+				'RolloverTemplate', "Rollover",
+				'RolloverText', T(439859567286, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverText]] "Our scouts are watching the openings of this nest, and can provide a good estimate on when this nest will release it's next batch! "),
+				'RolloverTitle', T(867262788940, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle]] "Attack timing"),
+				'Id', "idNestAttackTimeBar",
+				'Progress', 100,
+				'BarColor', RGBA(183, 85, 85, 255),
+				'Text', T(812598884528, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "IMMINENT"),
+				'AddTargetTickMark', false,
+				'ShowTargetArrows', false,
+				'MarkerAfterSeperatorImage', "UI/Hud/bar_marker_breakdown",
 			}),
 			PlaceObj('XTemplateWindow', {
 				'comment', "How close to evolving",
 				'__context_of_kind', "EnhancedTerritorialNest",
-				'__condition', function (parent, context) return context.Health > 0 end,
-				'__class', "FrameProgress",
+				'__class', "UIBar",
 				'RolloverTemplate', "Rollover",
-				'RolloverText', T(938069739118, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverText]] "Every nest attack leaves residual material for a nest to evolve it's denizens. Kill it quick before it becomes too strong to handle!"),
-				'RolloverTitle', T(948710175809, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle]] "Nest Evolution"),
-				'RolloverHint', T(773481274810, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverHint]] "Every nest attack leaves residual material for a nest to evolve it's denizens. Kill it quick before it becomes too strong to handle!"),
+				'RolloverText', T(667468555901, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverText]] "How much biomass is in deep storage, presumably to evolve the units it produces!"),
+				'RolloverTitle', T(355662986259, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle]] "Attack Evolution"),
 				'Id', "idNestEvoBar",
-				'HandleMouse', true,
-				'OnContextUpdate', function (self, context, ...)
-					FrameProgress.OnContextUpdate(self, context, ...)
-					self:SetVisible(self.value > 0)
-				end,
 				'BindTo', "ui_evo",
-				'BarColor', RGBA(96, 116, 127, 255),
-				'Text', T(547344869850, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "Biomass dedicated for evolution<right><percent(value, nil, 0)>"),
+				'BarColor', RGBA(118, 122, 124, 255),
+				'Text', T(829117815020, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "Resources stored for evolution<right><percent(value)>"),
+				'AddTargetTickMark', false,
+				'ShowTargetArrows', false,
+				'MarkerAfterSeperatorImage', "UI/Hud/bar_marker_breakdown",
 			}),
 			}),
 	}),
@@ -741,6 +757,7 @@ PlaceObj('ModItemFolder', {
 		Spawn = function (self, target, spawn_class)
 			return SpawnNestInsideMap(target,nil,'ShriekerNest')
 		end,
+		SpawnTimeLimit = false,
 		SurvivorDistMin = 250000,
 		TargetClass = "FallingDebrisMarker",
 		TargetFilter = function (obj) return 0 == MapCount(obj, obj.MaxPrefabRadius, "ScavengeableDebris", "FallingDebris", "Building", "Human", "TerritorialNest") end,
@@ -759,6 +776,7 @@ PlaceObj('ModItemFolder', {
 		Spawn = function (self, target, spawn_class)
 			return SpawnNestInsideMap(target,nil,"ScissorhandsNest")
 		end,
+		SpawnTimeLimit = false,
 		SurvivorDistMin = 250000,
 		TargetClass = "FallingDebrisMarker",
 		TargetFilter = function (obj) return 0 == MapCount(obj, obj.MaxPrefabRadius, "ScavengeableDebris", "FallingDebris", "Building", "Human", "TerritorialNest") end,
@@ -777,6 +795,7 @@ PlaceObj('ModItemFolder', {
 		Spawn = function (self, target, spawn_class)
 			return SpawnNestInsideMap(target,nil,"ConsortiumNest")
 		end,
+		SpawnTimeLimit = false,
 		SurvivorDistMin = 250000,
 		TargetClass = "FallingDebrisMarker",
 		TargetFilter = function (obj) return 0 == MapCount(obj, obj.MaxPrefabRadius, "ScavengeableDebris", "FallingDebris", "Building", "Human", "TerritorialNest") end,
@@ -4034,6 +4053,14 @@ PlaceObj('ModItemAnimalSpawnDef', {
 			end
 		end
 	end,
+	PostSpawn = function (self, obj, target, context)
+		obj:SetInvader(true)
+		print("In mod editors post spawn!")
+		if Hope then
+			obj:Face(Hope)
+		end
+		Msg("SpawnedAnimalThreat", obj)
+	end,
 	SpawnClass = "LightHostileRobot_LVL1",
 	id = "single_spawn_around_loc",
 	save_in = "Mod/TGkJ3Tu",
@@ -4041,5 +4068,167 @@ PlaceObj('ModItemAnimalSpawnDef', {
 PlaceObj('ModItemCode', {
 	'name', "all",
 	'CodeFileName', "Code/all.lua",
+}),
+PlaceObj('ModItemNotificationPreset', {
+	CanChangeGameSpeed = function (self) return GetAccountStorageOptionValue("AnimalAttackEffect") < 3 end,
+	CanChangeGameSpeedLimit = function (self) return GetAccountStorageOptionValue("AnimalAttackEffect") == 1 end,
+	comment = "-- Overrode the FX/music that plays when attacked due to how many attacks the player gets with this mod",
+	dismissable = false,
+	game_speed = "normal",
+	game_speed_limit = "fast",
+	game_speed_limit_duration = 40000,
+	id = "AnimalAttack",
+	msg_reactions = {
+		PlaceObj('MsgReaction', {
+			Event = "InvaderBehaviorAssign",
+			Handler = function (self, animal, new_behavior)
+				if IsKindOfClasses(new_behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") and not animal:IsDead() and not animal.forced_pacification then
+					if animal:IsKindOf("UnitAnimal") then
+						NotificationObjRem("AnimalAttack_Spawned", animal)
+						if self:AddObject(animal) then
+							Msg("AnimalAttackCountChanged", self.id)
+						end
+					end
+				end
+			end,
+		}),
+		PlaceObj('MsgReaction', {
+			Event = "InvaderBehaviorExpire",
+			Handler = function (self, animal, behavior)
+				if not IsKindOfClasses(behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") or animal:IsDead() or animal.forced_pacification then
+					if self:RemoveObject(animal) then
+						Msg("AnimalAttackCountChanged", self.id)
+					end
+				end
+			end,
+		}),
+		PlaceObj('MsgReaction', {
+			Event = "UnitChangeAttackTarget",
+			Handler = function (self, unit, target, old_target)
+				-- This msg handles an animal's transfer between Aggressive animals and Animal attack notifications.
+				if unit:IsKindOf("UnitAnimal") then
+				
+					-- The animal is attacking any human combat group target
+					-- => remove it from Aggressive animals and add it to Animal attack
+					local human_group = Human.CombatGroup
+					if IsValid(target) and target.CombatGroup == human_group and unit.CombatGroup ~= human_group then
+						NotificationObjRem("AnimalAttack_Spawned", unit)
+						if self:AddObject(unit) then
+							Msg("AnimalAttackCountChanged", self.id)
+						end
+						
+					-- The animal is not attacking any human target (anymore) but it will somewhen become aggressive
+					-- => send it back to Aggressive animals notification
+					elseif table.findfirst(unit.invader_behaviours, function(_, behaviour) return IsKindOfClasses(behaviour, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") end) then 
+						NotificationObjAdd("AnimalAttack_Spawned", unit)
+						if self:RemoveObject(unit) then
+							Msg("AnimalAttackCountChanged", self.id)
+						end
+						
+					-- The animal is not attacking any human target and will not become aggressive and IS NOT aggressive anymore
+					-- => just remove (will be removed from everywhere)
+					elseif (unit.forced_aggression_until or 0) < GameTime() or unit.forced_pacification or (unit:IsTamed() and not target) then
+						if self:RemoveObject(unit) then
+							Msg("AnimalAttackCountChanged", self.id)
+						end
+					end
+				end
+			end,
+		}),
+		PlaceObj('MsgReaction', {
+			Event = "UnitDied",
+			Handler = function (self, unit)
+				if IsValid(unit) then
+					if self:RemoveObject(unit) then
+						Msg("AnimalAttackCountChanged", self.id) 
+					end
+				end
+			end,
+		}),
+		PlaceObj('MsgReaction', {
+			Event = "AnimalDone",
+			Handler = function (self, animal)
+				if IsValid(animal) then
+					if self:RemoveObject(animal) then
+						Msg("AnimalAttackCountChanged", self.id)
+					end
+				end
+			end,
+		}),
+		PlaceObj('MsgReaction', {
+			Event = "AnimalTamed",
+			Handler = function (self, unit, animal, success, reason)
+				if success and IsValid(animal) then
+					if self:RemoveObject(animal) then
+						Msg("AnimalAttackCountChanged", self.id)
+					end
+				end
+			end,
+		}),
+	},
+	priority = "AnimalAlert",
+	remove_invalid_objs = true,
+	rollover_text = T(561515660398, --[[ModItemNotificationPreset AnimalAttack rollover_text]] "The following animals are exhibiting hostile behavior towards the camp and its inhabitants.<newline><newline><notif_list_units('AnimalAttack', false, 'by_class_id')>"),
+	rollover_title = T(638488043624, --[[ModItemNotificationPreset AnimalAttack rollover_title]] "Animal attacks"),
+	save_in = "Mod/TGkJ3Tu",
+	suppressable = false,
+	text = T(967680094442, --[[ModItemNotificationPreset AnimalAttack text]] "Animal attack: <em><notif_list_units('AnimalAttack', 'count only')></em>"),
+}),
+PlaceObj('ModItemOptionNumber', {
+	'name', "max_nest",
+	'DisplayName', "Max nests (Per Species)",
+	'Help', "How many nests a single species can have on the map, the higher the nest count the deadlier to you (And your PC)!",
+	'DefaultValue', 13,
+	'MinValue', 8,
+	'MaxValue', 20,
+}),
+PlaceObj('ModItemHealthCondition', {
+	AffectableBodyParts = {
+		PlaceObj('HealthConditionBodyParts', {
+			param_bindings = false,
+		}),
+	},
+	Description = T(911023712614, --[[ModItemHealthCondition nest_attack_speed Description]] "This unit has been given faster movement to ensure that an attack hits."),
+	DisplayName = T(207697159669, --[[ModItemHealthCondition nest_attack_speed DisplayName]] "Nitrus Stim"),
+	FloatingTextType = "Icon only",
+	MovementModifier = 50000,
+	StackLimit = 5,
+	Type = "Buff",
+	UnitTags = set( "Animal" ),
+	id = "nest_attack_speed",
+	save_in = "Mod/TGkJ3Tu",
+	unit_reactions = {
+		PlaceObj('UnitReaction', {
+			Event = "OnObjUpdate",
+			Handler = function (self, target, time, update_interval)
+				decay_speed(target)
+			end,
+			param_bindings = false,
+		}),
+	},
+}),
+PlaceObj('ModItemRobotCondition', {
+	Description = T(232340131393, --[[ModItemRobotCondition nest_attack_speed_robot Description]] "A statistically significant amount of WD-40 has been applied to this units appendages."),
+	DisplayName = T(603190182564, --[[ModItemRobotCondition nest_attack_speed_robot DisplayName]] "Ni7rus Infus3d 4pp3nd4g3s"),
+	Modifiers = {
+		PlaceObj('ModifyRobot', {
+			Id = "autoid_TGkJ3Tu_cpAMuKn",
+			add = 50000,
+			param_bindings = false,
+			prop = "Movement",
+		}),
+	},
+	StackLimit = 5,
+	id = "nest_attack_speed_robot",
+	save_in = "Mod/TGkJ3Tu",
+	unit_reactions = {
+		PlaceObj('UnitReaction', {
+			Event = "OnObjUpdate",
+			Handler = function (self, target, time, update_interval)
+				decay_speed(target)
+			end,
+			param_bindings = false,
+		}),
+	},
 }),
 }

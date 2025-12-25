@@ -7,6 +7,10 @@ DefineClass.ConsortiumNestMarker = {
 	--editor_color = RGB(255,0,0),
 }
 
+local RESPONSE_NONE = const.DelayedResponseNone
+local RESPONSE_DISTRESS = const.DelayedResponseDistress
+local RESPONSE_ATTACK = const.DelayedResponseAttack
+
 DefineClass.ConsortiumSporeDeposit = {
 	__parents = { "MineableRock" },
 	
@@ -60,7 +64,6 @@ DefineClass.ConsortiumNest = {
 -- Overriding to preserve the base class of the robots in adult/elder class
 -- We do not stutterstep down, instead the assaults and crawlers will just get stronger
 function ConsortiumNest:change_nest_herd(force_evo)
-	DebugPrint("Special Consortium Nest herd change function\n")
 	-- Consortium nests will always have the same farmhand robot to simulate them consuming nearby resources
     local elder, adult, hatch = self.elder_class, self.adult_class, self.hatchling_class
 	local new_elder = get_next(elder)
@@ -107,6 +110,13 @@ function ConsortiumNest:change_nest_herd(force_evo)
         self.attacks_done = 0
         self.attacks_to_evo = self.attacks_to_evo + 1
     end
+end
+
+function Human:ShouldFleeUnit(unit, responding_to_attack)
+	if IsKindOf(unit, "Robot") and self.Invader then -- Enemy robots never flee!
+		return false
+	end
+	return self:IsAttackThreat(unit) and not self:IsFriendly(unit) and (responding_to_attack or unit:CanReach(self))
 end
 
 AppendClass.ConsortiumSporeDeposit = {
