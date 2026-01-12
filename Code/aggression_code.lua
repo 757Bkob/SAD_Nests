@@ -114,6 +114,7 @@ function Aggression_up(species)
 	if can_give_evo(species) then
 		choice[#choice + 1] = { event = 'evo', weight = 200 }
 	end
+	choice[#choice + 1] = { event = 'consume', weight = 150 }
 	local count_total = MapCount("map", species)
 	local count_awake = MapCount("map", species, function(this_nest)
 		if this_nest.state == 'sleepy' then
@@ -148,6 +149,22 @@ function Aggression_up(species)
 		else
 			MapVarValues[species_banked_aggr] = MapVarValues[species_banked_aggr] + 5
 		end
+	elseif option == 'consume' then
+		local nests = MapGetFirst("map", species, function(this_nest)
+			if this_nest.state == 'asleep' then
+				return true
+			end
+		end)
+		local lowest_evo_nest
+		local lowest_evo = 10
+		for _,v in nests do
+			local tier = g_Classes[nest.elder_class].unit_tier
+			if tier < lowest_evo then
+				lowest_evo_nest = v
+				lowest_evo = tier
+			end
+		end
+		lowest_evo_nest:consume_closest_node()
 	end
 end
 

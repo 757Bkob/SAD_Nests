@@ -1,0 +1,1061 @@
+sep=,
+ID,Text,Translation,VoiceActor,Context
+501042144899,A nest has become inactive,,,ModItemStoryBit back_to_sleep NotificationTitle
+433873099185,A nest has become inactive,,,ModItemStoryBit back_to_sleep NotificationText
+539239421300,A nest has become inactive,,,ModItemStoryBit back_to_sleep Title
+924669975056,"Twas the night before the attack, when all through the nest.
+Not an insect was stirring, not even a louse.
+
+<em>A nest has either forgotten about us, or ran out of things to eat and sustain their level of aggression.</em>
+
+Regardless, there is one less active threat against us! ",,,ModItemStoryBit back_to_sleep Text
+715181198950,Ok,,,ModItemStoryBit back_to_sleep Text
+275615090059,"That was cute, but no more popups",,,ModItemStoryBit back_to_sleep Text
+411649778347,"That wasn't cute, and don't notify me at all",,,ModItemStoryBit back_to_sleep Text
+908362848310,A nest has become inactive,,,ModItemNotificationPreset back_to_sleep text
+551742581635,A nest has become inactive,,,ModItemNotificationPreset back_to_sleep rollover_text
+568019442711,A nest has activated!,,,ModItemStoryBit waking_up NotificationTitle
+126554022751,A nest has activated!,,,ModItemStoryBit waking_up NotificationText
+945135996075,A nest has activated!,,,ModItemStoryBit waking_up Title
+603041965465,"A nest of predators has been alerted of our presence!
+
+The air around the nest is starting to warm up, and there is a low rumbling in the earth.
+
+The ant species (Our closest reference) of Earth respond aggressively to any other rival species colonies.
+
+<em>This nest will now:
+1. It's spawn cycles will attack the colony
+2. The core nest building will steadily gain HP.</em>",,,ModItemStoryBit waking_up Text
+236737271727,Ok,,,ModItemStoryBit waking_up Text
+647394331432,No more popups please,,,ModItemStoryBit waking_up Text
+760133305481,Don't notify me at all,,,ModItemStoryBit waking_up Text
+868817520708,A nest has learned of our presence!,,,ModItemNotificationPreset waking_up text
+448523028409,A nest has activated!,,,ModItemNotificationPreset waking_up rollover_text
+134460250774,A nest has evolved it's brood!,,,ModItemStoryBit nests_evolving NotificationTitle
+815248275915,A nest has evolved it's brood!,,,ModItemStoryBit nests_evolving NotificationText
+769708346612,A nest has evolved it's brood!,,,ModItemStoryBit nests_evolving Title
+535664889736,"A nearby nest has released a creature that is different than it's prior broods...
+
+This means the nest diverted some resources to improve and evolve it's defenders!
+We must hurry and deal with this nest before the creatures get even stronger!
+<spore_diff_text()>",,,ModItemStoryBit nests_evolving Text
+350519377508,Ok,,,ModItemStoryBit nests_evolving Text
+813034085672,No more popups please,,,ModItemStoryBit nests_evolving Text
+959647789954,Don't notify me at all,,,ModItemStoryBit nests_evolving Text
+277231115910,A nest has evolved it's brood!,,,ModItemNotificationPreset nests_evolving text
+706400074027,A nest has evolved it's brood!,,,ModItemNotificationPreset nests_evolving rollover_text
+421352706613,A meteor is landing nearby,,,ModItemStoryBit new_nest_scissorhand NotificationTitle
+493683430303,A meteor is landing nearby,,,ModItemStoryBit new_nest_scissorhand NotificationText
+206941887720,A meteor is landing nearby,,,ModItemStoryBit new_nest_scissorhand Title
+150518945986,"There is a meteor on course to land close to us.
+Our calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!
+
+We can't make out what it is composed of...
+But it must have some rare minerals inside of it!",,,ModItemStoryBit new_nest_scissorhand Text
+528830908123,A meteor is landing nearby,,,ModItemStoryBit new_nest_shrieker NotificationTitle
+728880909304,A meteor is landing nearby,,,ModItemStoryBit new_nest_shrieker NotificationText
+744697671524,A meteor is landing nearby,,,ModItemStoryBit new_nest_shrieker Title
+480862517656,"There is a meteor on course to land close to us.
+Our calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!
+
+We can't make out what it is composed of...
+But it must have some rare minerals inside of it!",,,ModItemStoryBit new_nest_shrieker Text
+615713043810,A meteor is landing nearby,,,ModItemStoryBit new_nest_consortium NotificationTitle
+395839683430,A meteor is landing nearby,,,ModItemStoryBit new_nest_consortium NotificationText
+992773234973,A meteor is landing nearby,,,ModItemStoryBit new_nest_consortium Title
+485076708155,"There is a meteor on course to land close to us.
+Our calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!
+
+We can't make out what it is composed of...
+But it must have some rare minerals inside of it!",,,ModItemStoryBit new_nest_consortium Text
+744309693644,"<u(EditorName)> <if(not_eq(Duration,0))>for <duration(Duration)></if><if(eq(Duration,0))>infinitely</if>",,,
+744309693644,"<u(EditorName)> <if(not_eq(Duration,0))>for <duration(Duration)></if><if(eq(Duration,0))>infinitely</if>",,,
+669542448673,Work Area,,,ModItemXTemplate tabOverview_200_BuildingHealth Text
+309932974886,Global,,,ModItemXTemplate tabOverview_200_BuildingHealth Text
+908268590289,<IPWorkAreaName>,,,ModItemXTemplate tabOverview_200_BuildingHealth Text
+936317374826,Integrity<right><Progress> / <MaxProgress>,,,ModItemXTemplate tabOverview_200_BuildingHealth Text
+685477114002,What Enhanced Nests do,,,ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle
+987068224940,<em>Kill it quick before it becomes a problem!</em>,,,ModItemXTemplate tabOverview_200_BuildingHealth RolloverHint
+515573972235,Nests Awaken Enhancements (?),,,ModItemXTemplate tabOverview_200_BuildingHealth Title
+395383134651,"An <style TextEmphasis>awoken</style> nest, actively growing and sending attacks.",,,ModItemXTemplate tabOverview_200_BuildingHealth Text
+304647586842,"An <style TextNegative>overactive</style> nest, coordinating with all other nests to grow and attack!",,,ModItemXTemplate tabOverview_200_BuildingHealth Text
+821602814761,"An <style TextPositive>inert</style> nest, slowly growing with some patrolling defenders.",,,ModItemXTemplate tabOverview_200_BuildingHealth Text
+177622343318,"How strong this nests next attack will be!
+The <em>arrow over the bar</em> indicates the current maximum strength this nest can attack with.
+This maximum strength will increase as more nests of this species wake up and the longer this nest stays alive!",,,ModItemXTemplate tabOverview_200_BuildingHealth RolloverText
+887730983296,Attack Strength,,,ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle
+640556952688,Estimated Attack Strength<right><percent(value)>,,,ModItemXTemplate tabOverview_200_BuildingHealth Text
+828707890863,"How strong this nests next attack will be!
+The <em>arrow over the bar</em> indicates the current maximum strength this nest can attack with.
+This maximum strength will increase as more nests of this species wake up and the longer this nest stays alive!",,,ModItemXTemplate tabOverview_200_BuildingHealth RolloverText
+974540735024,Attack Strength,,,ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle
+514131723970,You dun messed up,,,ModItemXTemplate tabOverview_200_BuildingHealth Text
+347900511203,"Our scouts are watching the openings of this nest, and can provide a good estimate on when this nest will release it's next batch! ",,,ModItemXTemplate tabOverview_200_BuildingHealth RolloverText
+706440093934,Attack timing,,,ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle
+133904546142,Time until attack<right><percent(value)>,,,ModItemXTemplate tabOverview_200_BuildingHealth Text
+439859567286,"Our scouts are watching the openings of this nest, and can provide a good estimate on when this nest will release it's next batch! ",,,ModItemXTemplate tabOverview_200_BuildingHealth RolloverText
+867262788940,Attack timing,,,ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle
+812598884528,IMMINENT,,,ModItemXTemplate tabOverview_200_BuildingHealth Text
+667468555901,"How much biomass is in deep storage, presumably to evolve the units it produces!",,,ModItemXTemplate tabOverview_200_BuildingHealth RolloverText
+355662986259,Attack Evolution,,,ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle
+829117815020,Resources stored for evolution<right><percent(value)>,,,ModItemXTemplate tabOverview_200_BuildingHealth Text
+593714970551,New Consortium Base,,,ModItemNotificationPreset ConsortiumNestSpawned text
+133001288045,New Consortium Base,,,ModItemNotificationPreset ConsortiumNestSpawned rollover_title
+212707868936,A large Consortium Automated Base has dropped from orbit!,,,ModItemNotificationPreset ConsortiumNestSpawned rollover_text
+919872346092,Consortium Prefab,,,ModItemTech FieldConsortiumSpore DisplayName
+553422873878,Consortium Prefabs,,,ModItemTech FieldConsortiumSpore DisplayNamePl
+971095329043,"Based on what landed, this seems to be the Consortium's R.E.P.O. (Resource Extraction Prefab Objects) package.
+
+From their advertisement channel:
+<style TextPositive>Ever want to collect and hoard rare minerals but too lazy to leave your planet? Look no further! The R.E.P.O. prefab is a self-replicating automatazapalooza that can strip a planet dry within a decade!</style>
+<style FinePrint>Terms and conditions apply, The Consortium does not guarantee minimum efficiency of prefabs. To see the full disclaimer list, please visit the Consortium Headquarters during it's visitor hours on Mondays between 8 and 9 am.</style>",,,ModItemTech FieldConsortiumSpore Description
+818323081200,A nest has released roaming units!,,,ModItemNotificationPreset nests_disgorged text
+337902645815,A nearby nest has created too many creatures and let some loose!,,,ModItemNotificationPreset nests_disgorged rollover_text
+385391840178,Something is happening!,,,ModItemStoryBit begin_nest_disaster NotificationTitle
+314102780013,An Asteroid is causing the eclipse!,,,ModItemStoryBit begin_nest_disaster Title
+545174437678,"An asteroid is directly above us, and has apparently <em>locked orbit</em> with us!!
+
+After we collected our jaws, we started to investigate....
+
+There are small pieces of it breaking off and falling to the planet.
+Most if not all are expected to land near if not on top of us!
+
+<em>Brace for impact!</em>",,,ModItemStoryBit begin_nest_disaster Text
+149689226931,Update on the Asteroids,,,ModItemStoryBit nest_disaster_phase_2 NotificationTitle
+776896274811,Update on the Asteroids,,,ModItemStoryBit nest_disaster_phase_2 NotificationText
+480031496740,Update on the Asteroids,,,ModItemStoryBit nest_disaster_phase_2 NotificationRolloverTitle
+501750393611,The situation has changed with the Asteroids,,,ModItemStoryBit nest_disaster_phase_2 NotificationRolloverText
+688893463096,Situation has worsened,,,ModItemStoryBit nest_disaster_phase_2 Title
+153431079337,"The orbital bombardment has stopped.
+The asteroid has moved on.
+
+Did it finish raining hell on us?
+The good news is we lived!
+
+Bad news, every asteroid that landed was an alien nest.
+
+Our researcher have surmised they have formed a mesh network.
+Which means they are all actively growing broods and coordinating.
+
+We must destroy <nests_needed()> of these nests to disrupt this network.
+Hopefully that will return the nests to an inactive zit on the planet.",,,ModItemStoryBit nest_disaster_phase_2 Text
+160725137676,It's Over,,,ModItemStoryBit end_nest_disaster Title
+714108855519,"All the nests are deactivating.
+The earth no longer rumbles.
+
+And I can hear the wind and the birds again.
+
+The threat has subsided.... for now.
+
+We must be proactive about cleaning these nests.
+Or else if that asteroid ever returns, it will be easier to start this assault again.
+",,,ModItemStoryBit end_nest_disaster Text
+408001153551,Update on the Asteroids,,,ModItemStoryBit nest_coordination_insane NotificationTitle
+309056483418,Update on the Asteroids,,,ModItemStoryBit nest_coordination_insane NotificationText
+118586802562,Update on the Asteroids,,,ModItemStoryBit nest_coordination_insane NotificationRolloverTitle
+153227302834,Update on the Asteroids,,,ModItemStoryBit nest_coordination_insane NotificationRolloverText
+504022856330,Situation has worsened,,,ModItemStoryBit nest_coordination_insane Title
+649949890941,"The asteroid is still hovering above us.
+The orbital bombardment has stopped... for now.
+
+It was replaced by a cacophony of electromagnetic signals from the asteroid.
+This has disrupted our electric grid like we are under a Solar Flare.
+We are sitting ducks with this... thing looming over us.
+
+The somehow even worse news?
+Every asteroid that landed was an alien nest.
+
+Our researcher have surmised they have formed a mesh network.
+Which means they are all actively growing broods and coordinating.
+
+We must destroy <nests_needed()> of these nests to disrupt this network.
+Hopefully that will return the nests to an inactive zit on the planet.",,,ModItemStoryBit nest_coordination_insane Text
+103290807944,An unexplained Eclipse has started!,,,ModItemStoryBit begin_nest_disaster_shrieker NotificationTitle
+116450847130,An unexplained Eclipse has started!,,,ModItemStoryBit begin_nest_disaster_shrieker NotificationRolloverTitle
+589063501156,An Asteroid is directly above us!,,,ModItemStoryBit begin_nest_disaster_shrieker Title
+266362493553,"An asteroid is directly above us, and has apparently <em>locked orbit</em> with us!!
+
+As we collected our jaws, a small piece breaks off and starts falling.
+It crashes nearby, and through the dust we see a Shrieker Nest unfurl!
+
+Those still watching the asteroid report more objects breaking off.....
+
+<em>Brace for impact!</em>",,,ModItemStoryBit begin_nest_disaster_shrieker Text
+672098277776,Unexplained Earthquakes!,,,ModItemStoryBit begin_nest_disaster_scissor NotificationTitle
+497010627846,Unexplained Earthquakes are now occurring,,,ModItemStoryBit begin_nest_disaster_scissor NotificationRolloverTitle
+707807296355,The planet moves!,,,ModItemStoryBit begin_nest_disaster_scissor Title
+659817074401,"The earth rumbles....
+It groans and creaks.
+
+And when you put your ear to the ground, you can barely make out scraping and clawing.
+
+Just as you recover, your scouts report a Scissorhands nest bursting from the dirt nearby.
+The denizens are quickly cleaning their claws of mud.
+
+This must only be the vanguard... the faster tunnelers...
+<em>Prepare for more!</em>",,,ModItemStoryBit begin_nest_disaster_scissor Text
+286101144728,An unexplained Eclipse has started!,,,ModItemStoryBit begin_nest_disaster_robot NotificationTitle
+359227274176,An unexplained Eclipse has started!,,,ModItemStoryBit begin_nest_disaster_robot NotificationRolloverTitle
+297523086088,An Asteroid is causing the eclipse!,,,ModItemStoryBit begin_nest_disaster_robot Title
+194288232486,"The air is filled with smoke, and the smell of petrol is pungent.
+
+The sound of rotors fills the air, and you barely see the silhouette of hundreds of Consortium ships piercing the atmosphere.
+
+Drones",,,ModItemStoryBit begin_nest_disaster_robot Text
+947183453884,Nest's are Overactive!,,,ModItemNotificationPreset dis_nests_overactive text
+272691265125,The nearby nests are all working together and spawning attack after attack. We need to kill <nests_left()> to break their communications!,,,ModItemNotificationPreset dis_nests_overactive rollover_text
+769211153498,A shooting star,,,ModItemExpeditionPreset NA_Exped_Shrieker_Nest display_name
+219489814974,A meteorite fell in this area.,,,ModItemExpeditionPreset NA_Exped_Shrieker_Nest description
+334501410635,A falling meteor was spotted nearby!,,,ModItemExpeditionPreset NA_Exped_Shrieker_Nest FoundByExplorationDisplayText
+305361382111,<u(StoryBit)> (weight: <Weight>),,,
+305361382111,<u(StoryBit)> (weight: <Weight>),,,
+305361382111,<u(StoryBit)> (weight: <Weight>),,,
+676096752128,Expedition complete: <ExplorationSiteName>,,,ModItemStoryBit Broken_Shrieker_Nest NotificationText
+483107297188,[The Nests Awaken] Broken Nest,,,ModItemStoryBit Broken_Shrieker_Nest Title
+493932761411,"I found the landing site, and lots of dead Shriekers strewn around. And large shards of black and red claylike material! 
+The meteor must have landed on top of a humungous nest of creatures!
+
+All that's left of the nest is two protruding pillars partially exposed that look like horns from a distance.
+
+These must be the strongest pillars of the nest.
+And their vibrations are hurting my head!
+
+What should I do?",,,ModItemStoryBit Broken_Shrieker_Nest Text
+926625800729,"Shoot the pillars, bring them down!",,,ModItemStoryBit Broken_Shrieker_Nest Text
+573170111095,Pillar's are louder!,,,ModItemStoryBit Broken_Shrieker_Nest Title
+329248656624,"I tried to damage the pillars with what I had...
+But these pillars are made of stern stuff!
+
+Worse still, the pillars are now vibrating so loud it is starting to hurt.
+I'm getting out of here before I start to go deaf!
+<style TextNegative>The consequences of this action will occur in due time</style>",,,ModItemStoryBit Broken_Shrieker_Nest Text
+826795568152,Lash the pillars together and silence them!,,,ModItemStoryBit Broken_Shrieker_Nest Text
+250769668217,Pillar's Stopped,,,ModItemStoryBit Broken_Shrieker_Nest Title
+702067002755,"I managed to scavenge some of the nests own material to bind the pillars together.
+Combined with some thick reeds nearby to lash them together.
+
+As soon as there was continuous nest material connecting the pillars, the vibrations stopped.
+
+Hopefully this will get us something we want.
+
+<em>Local Shrieker Nest aggression levels lowered.</em>
+<em>Carbon Nanotubes Gained</em>",,,ModItemStoryBit Broken_Shrieker_Nest Text
+636542954862,Pillar's Not Stopped,,,ModItemStoryBit Broken_Shrieker_Nest Title
+695821266966,"I felled a few small trees and tried to bind them around the pillars.
+
+Even though they are touching, they still vibrate.
+
+I am going to take some of the nest material back with me.
+It feels weird but doesn't look very natural....
+
+<em>Local Shrieker Nest aggression levels raised.</em>
+<em>Carbon Nanotubes Gained</em>",,,ModItemStoryBit Broken_Shrieker_Nest Text
+612377216813,Pillar's not stopped,,,ModItemStoryBit Broken_Shrieker_Nest Title
+442233584296,"I tried to tie them together, but nothing I could move would make them budge!!
+
+I'll gather up some of scraps and shards.
+Hopefully the vibrations don't mean much....
+
+<em>Local Shrieker Nest aggression levels raised twice.</em>
+<em>Carbon Nanotubes Gained</em>",,,ModItemStoryBit Broken_Shrieker_Nest Text
+184256034270,Look for and help the survivors,,,ModItemStoryBit Broken_Shrieker_Nest Text
+341052381042,Found a wounded Shrieker!,,,ModItemStoryBit Broken_Shrieker_Nest Title
+842855697422,"I found a nearby Shrieker that had flung far away from the nest.
+It's tail was bent at a very wrong angle, and it's exoskeleton was leaking fluid, so it was in no position to stop me from doing anything.
+
+I nursed it back to health, and it now follows me!
+Let's see if these things get altitude sickness!
+
+<em>A high tier Shrieker will be brought back from this expedition.</em>
+<em>Local Shrieker Nest aggression levels lowered.</em>",,,ModItemStoryBit Broken_Shrieker_Nest Text
+323773298695,Found a wounded Shrieker!,,,ModItemStoryBit Broken_Shrieker_Nest Title
+814318562989,"It took me a while to find a Shrieker that wasn't hurt so much I couldn't to heal it, but not healthy enough to fight me off.....
+
+I did find one and nursed it back to health.
+But it's not one of the biggest one's I saw.
+
+<em>A medium tier Shrieker will be brought back from this expedition</em>
+<em>Local Shrieker Nest aggression levels lowered.</em>",,,ModItemStoryBit Broken_Shrieker_Nest Text
+935055858908,Did not save any Shriekers,,,ModItemStoryBit Broken_Shrieker_Nest Title
+467152558503,"Most of the Shriekers I found where too far gone to even attempt to help.
+Let alone tame.
+
+That being said, I made sure to butcher and scavenge some of the shards.
+
+<em>Local Shrieker Nest aggression levels raised.</em>
+<em>Carbon Nanotubes Gained</em>
+<em>Insect Meat Gained</em>",,,ModItemStoryBit Broken_Shrieker_Nest Text
+635825711080,Hunt the survivors down!,,,ModItemStoryBit Broken_Shrieker_Nest Text
+334334388120,A dead Shrieker is a good Shrieker,,,ModItemStoryBit Broken_Shrieker_Nest Title
+282308119094,"I hunted and found some Shriekers that survived the crash.
+Dang things put up a fight, but I killed all I could find!
+
+The noises they made when they die makes me realize how apt the name ""Shriekers"" is for em!
+
+I even scrounged and took some of their nest structure to research!
+<em>Local Shrieker Nest aggression levels raised twice.</em>
+<em>Carbon Nanotubes Gained</em>
+<em>Insect Meat Gained</em>",,,ModItemStoryBit Broken_Shrieker_Nest Text
+804168191504,Wounded and retreating,,,ModItemStoryBit Broken_Shrieker_Nest Title
+163964550429,"There were.... too many....
+
+I got the drop on the first thing, but when it yelled I heard them coming from all over.
+
+I started running once I saw the 4th appear.
+Thankfully they weren't smart enough to target the Balloon, or I'd be dead already.
+
+<em>Local Shrieker Nest aggression levels raised.</em>",,,ModItemStoryBit Broken_Shrieker_Nest Text
+289518266882,<style TextPositive>Safely</style> scavenge from a distance,,,ModItemStoryBit Broken_Shrieker_Nest Text
+315621291031,I scavenged,,,ModItemStoryBit Broken_Shrieker_Nest Title
+283986861030,"I scavenged some outlying nest structures.
+
+It's not much, but I didn't get hurt
+
+<em>Carbon Nanotubes Gained</em>",,,ModItemStoryBit Broken_Shrieker_Nest Text
+659084137633,Expedition complete: <ExplorationSiteName>,,,ModItemStoryBit Food_Pile_Shrieker_Nest NotificationText
+320487496148,[The Nests Awaken] A pile of burnt... food?,,,ModItemStoryBit Food_Pile_Shrieker_Nest Title
+432054219238,"I found where the meteor landed, but what greeted me was very pungent.
+
+My nose was assaulted with the smell of burnt-to-a-crisp dog food.
+And there was a conga line of Shriekers running to the pile.
+Each would dive in, and leave with a pile of (often still on fire) this gunk.
+
+What... what should I do?!?!",,,ModItemStoryBit Food_Pile_Shrieker_Nest Text
+752976472411,Observe how the Shriekers work together,,,ModItemStoryBit Food_Pile_Shrieker_Nest Text
+298740240290,Stolen Piece,,,ModItemStoryBit Food_Pile_Shrieker_Nest Title
+106151430908,"The Shriekers moved like a well choreographed dance group.
+Each one flicking it's tail to perfectly move what food drops off it's carapace onto the Shrieker behind it.
+It more I watched, the more enthralled I was.
+
+Eventually after all the food was long gone I was able to collect myself start the return journey.
+But I cannot keep my mind off of what other wonders the universe has....
+
+I must keep looking for more things like this.... I MUST!
+
+<em>This character now has an Intellectual skill of 7 and is interested in Intellectual activities.</em>",,,ModItemStoryBit Food_Pile_Shrieker_Nest Text
+160304860392,Stolen Piece,,,ModItemStoryBit Food_Pile_Shrieker_Nest Title
+335238353172,"The Shriekers where very well coordinated and single focused.
+Nearby Drakas stood in a trance, but the Shriekers did not pursue or attack.
+I could sense the trance encroaching my mind the more I watched the Shriekers.
+
+I did not succumb, and my mind was sharpened by the trial.
+I now feel more capable in all things because of it.
+
+<em>This colonist has gained +1 to all skills, unless the skill is maxxed or indifferent</em>",,,ModItemStoryBit Food_Pile_Shrieker_Nest Text
+835762142336,Quickly grab the best sample you can!,,,ModItemStoryBit Food_Pile_Shrieker_Nest Text
+808455532347,Stolen... Bread?,,,ModItemStoryBit Food_Pile_Shrieker_Nest Title
+327854680802,"I dashed in and when I was close, I bent down to pick up some of the cleaner looking pieces.
+
+I had to stop because that stuff is super slippery! I could barely hold onto it. This also got me a few spikes in the back as the Shriekers started closing in.....
+
+I couldn't exactly run with this slick & slimy stuff, so I did the next best thing..... I ate it.....
+
+My legs managed to get me to my ride home!
+But now I can't help but feel..... wayyyyyy too full. 
+Like I ate 10 meals in those few bites I got.
+Hope this is the only side effect....
+
+<em>This colonist now needs 80% less food but moves 20% slower.</em>
+<em>Local Shrieker Nest aggression levels raised.</em>",,,ModItemStoryBit Food_Pile_Shrieker_Nest Text
+601836334546,Failed to get fresh sample,,,ModItemStoryBit Food_Pile_Shrieker_Nest Title
+880426466168,"Well I ran in as best I could.
+Unfortunately the Shriekers where alerted and started shooting quicker than I could dash in and out.
+
+I couldn't even make it to the pile.....
+
+I did patch myself up as much as I could and waited for the Shriekers to be done.
+So I have a sample... just a very burnt one.
+Bringing it home with me.
+
+<em>Local Shrieker Nest aggression levels raised twice.</em>",,,ModItemStoryBit Food_Pile_Shrieker_Nest Text
+409109555755,Trap the path the Shriekers took and collect the spoils,,,ModItemStoryBit Food_Pile_Shrieker_Nest Text
+191968638200,Got some spoils!,,,ModItemStoryBit Food_Pile_Shrieker_Nest Title
+239211206803,"I made sure to track their path from the comet, and lo and behold there was a small clearing that had a well worn path back to their nest.
+
+No sentries either, dumb bugs don't know how to handle guerrilla warfare.
+There was even a small nest building that I looted after I made sure all the Shriekers where dead!
+
+I'm coming back with some of that really slippery food and enough bug meat to last a winter!
+
+<em>Local Shrieker Nest aggression levels raised twice.</em>
+<em>Carbon Nanotubes Gained</em>
+<em>Insect Meat Gained</em>
+<em>New breakthrough research available</em>",,,ModItemStoryBit Food_Pile_Shrieker_Nest Text
+572094894653,Got a live specimen!,,,ModItemStoryBit Food_Pile_Shrieker_Nest Title
+662410562178,"I used my skills to set up a live trap.
+
+I hid it in a clearing that had a good path from the Shriekers going to the meteor.
+
+I sat with it and got it tamed, and it's coming back with me.
+I didn't get any food, but the Shrieker I did get is a beast. One of the biggest ones I've seen!
+
+<em>A high tier Shrieker will be brought back from this expedition.</em>",,,ModItemStoryBit Food_Pile_Shrieker_Nest Text
+978230562876,Failed to get fresh sample,,,ModItemStoryBit Food_Pile_Shrieker_Nest Title
+365940755626,"Well I ran in as best I could.
+Unfortunately the Shriekers where alerted and started shooting quicker than I could dash in and out.
+
+I couldn't even make it to the pile.....
+
+I did patch myself up as much as I could and waited for the Shriekers to be done.
+So I have a sample... just a very burnt one.
+Bringing it home with me.
+
+<em>Local Shrieker Nest aggression levels raised twice.</em>
+<em>New breakthrough research available</em>",,,ModItemStoryBit Food_Pile_Shrieker_Nest Text
+186402334417,<style TextPositive>Safely</style> scavenge from a distance,,,ModItemStoryBit Food_Pile_Shrieker_Nest Text
+202713456976,I scavenged,,,ModItemStoryBit Food_Pile_Shrieker_Nest Title
+954570739174,"I scavenged some outlying nest structures.
+
+It's not much, but I didn't get hurt
+
+<em>Carbon Nanotubes Gained</em>",,,ModItemStoryBit Food_Pile_Shrieker_Nest Text
+377903967280,Expedition complete: <ExplorationSiteName>,,,ModItemStoryBit World_War_Insect NotificationText
+968759677777,[The Nests Awaken] World War Insect?,,,ModItemStoryBit World_War_Insect Title
+166675964945,"As I flew in the crater left by the meteor is massive!
+It broke into 4 ""smaller"" pieces with each piece being a fully functional Shrieker nest!
+
+I can see in the crash debris what's left of a Deathfly Mating Spire, and the Deathfly's have decided to greet their new neighbors with appropriate force!
+
+Not to leave a new neighbor un-greeted, the commotion has also roused a nearby mound of Scissorhands.
+
+I'm afraid to fly even closer, lest I cannot even get home!
+What do I do?!?!?",,,ModItemStoryBit World_War_Insect Text
+128075964429,"Shoot at who you can, leave when something tries to respond",,,ModItemStoryBit World_War_Insect Text
+338811045314,Combat Increase,,,ModItemStoryBit World_War_Insect CustomOutcomeText
+293846749365,Combat Experience,,,ModItemStoryBit World_War_Insect Title
+394429963567,"This was the closest I will ever get to that Earth saying ""Shooting Fish in a Barrel""!
+
+The Shriekers and Scissorhands didn't know what was killing them off!
+My ammunition is now spent, but I feel like I will do better the next time we are attacked!
+
+<em>This colonists combat skill set to 10 and is now interested in combat.</em>",,,ModItemStoryBit World_War_Insect Text
+630139695694,"Land at a distance, and heal some of the creatures fleeing",,,ModItemStoryBit World_War_Insect Text
+133161655557,Chance to gain random high tier tamed unit,,,ModItemStoryBit World_War_Insect CustomOutcomeText
+717767014088,Found a wounded Shrieker!,,,ModItemStoryBit World_War_Insect Title
+409626888358,"I found a nearby Shrieker that was extremely wounded.
+The Scissorhand blades had sliced thin but very deep gashes in the Shriekers exoskeleton.
+
+It was in no position to fight back and thankfully, I managed to seal the wounds to prevent further liquid loss.
+
+<em>A high tier Shrieker will be brought back from this expedition.</em>
+<em>Local Shrieker Nest aggression levels lowered.</em>
+<em>Local Scissorhand Nest aggression levels increased.</em>",,,ModItemStoryBit World_War_Insect Text
+463533421705,Found a wounded Shrieker!,,,ModItemStoryBit World_War_Insect Title
+200284404991,"I found a nearby Scissorhand that was extremely wounded.
+Shrieker spikes and their venomous payloads easily breach the Scissorhands carapace.
+
+It was in no position to fight back and thankfully, I managed to seal the wounds to prevent further liquid loss.
+
+<em>A high tier Scissorhands will be brought back from this expedition.</em>
+<em>Local Scissorhand Nest aggression levels lowered.</em>
+<em>Local Shrieker Nest aggression levels increased.</em>",,,ModItemStoryBit World_War_Insect Text
+895673775962,Found a wounded Scissorhands,,,ModItemStoryBit World_War_Insect Title
+904667923008,"The Scissorhands are proving to be not much of a match against the Shriekers. Those thin spikes pierce right through their hard to blast shells.
+
+Luckily this means there are ample pinned Scissorhands in various stages of hurt.
+
+I kept away from one's blades and cleaned it up. After it got some food it's ready to follow me home!
+
+<em>A medium tier Scissorhands will be brought back from this expedition</em>
+<em>Local Shrieker Nest aggression levels increased.</em>
+<em>Local Scissorhands Nest aggression levels lowered.</em>",,,ModItemStoryBit World_War_Insect Text
+850355051619,Found a wounded Scissorhands,,,ModItemStoryBit World_War_Insect Title
+913912138672,"There is a lot of wounded, and I could not find any stragglers that I could save.
+
+I waded my way into some of the lighter skirmishes away from the Deathflies.
+Thankfully my scent was masked by the smell of death and guts, and I went largely unnoticed.
+
+I patched up both Scissorhands and Shriekers and slipped out.
+<em>Local Shrieker Nest aggression levels lowered.</em>
+<em>Local Scissorhands Nest aggression levels lowered.</em>
+<em>Colonists Healing Skill increased by 2</em>",,,ModItemStoryBit World_War_Insect Text
+776607328794,Observe the war from a distance,,,ModItemStoryBit World_War_Insect Text
+149456348331,Found a wounded Scissorhands,,,ModItemStoryBit World_War_Insect Title
+579234739056,"You ever watch those old war TV shows?
+I did once or twice, and what I see on the ground looks.... eerily similar.
+
+Blocks of insects are moving together.
+Not as individuals, but like a military squad.
+
+Their spitting, slicing, and shooting are all little blurs from this high. But I see how they are targeting now.
+
+Before I would give the chances of me not getting hit by a Shrieker spike ~10%. But now I think I would fare much better!
+
+<em>This colonist now has a trait that gives them a +15% chance to dodge against incoming Shriekers/Scissorhands/Deathflys attacks</em>",,,ModItemStoryBit World_War_Insect Text
+430308561174,<style TextNegative>DANGEROUS</style> Answer the call to war! Wade in death!,,,ModItemStoryBit World_War_Insect Text
+992211123211,I am become death!,,,ModItemStoryBit World_War_Insect Title
+184098389550,"I do not know how. I do not know why.
+I just know that the second I touched the ground I was overcome by a red rage.
+
+Now that I am back in control, all I see around me is death.
+Shriekers.... Scissorhands... Deathflies....
+
+Nothing moves except me.
+This will be a place 
+
+
+<em>This colonist now has a trait that gives them a high dodge chance against Shriekers/Scissorhands/Deathflys!</em>",,,ModItemStoryBit World_War_Insect Text
+753509255013,I am become death!,,,ModItemStoryBit World_War_Insect Title
+757712491412,"<style TextNegative>You see the balloon rise and start heading your way.
+You have not seen or heard from the colonist who left.</style>
+
+<em>This colonist is gravely wounded, and will be permanently scarred for their attempt to join a war.</em>",,,ModItemStoryBit World_War_Insect Text
+242509817721,<style TextPositive>Safely</style> scavenge from a distance,,,ModItemStoryBit World_War_Insect Text
+380755387109,Burnt Shrieker Scraps,,,ModItemTech Shrieker_food_scraps DisplayName
+406017788342,"Even though the samples we had where burnt beyond a crisp, we have made some progress on analyzing the foodstuff.
+
+This stuff reacts with the unique acid in Shrieker stomachs to increase in mass and coat the stomach lining. What this means is the Shriekers stay fuller for longer!
+
+We will include in our meals a small portion of both this and Shrieker acid to replicate this or us!
+<em>Colonists will need to eat 20% less food each day</em>
+<em>Colonists will now need to eat 20% less food each day</em>",,,ModItemTech Shrieker_food_scraps Description
+655543368461,World War Observer,,,ModItemTrait war_observer DisplayName |gender-variants
+123449376263,"This colonist has seen Scissorhands,Shriekers, & Deathflies fight en masse. Has a 15% increased dodge chance against their attacks.",,,ModItemTrait war_observer Description
+497221506948,World War Ender,,,ModItemTrait became_death DisplayName |gender-variants
+879196938667,"Ended an entire insect world war... though they are quiet to explain how. 40% harder to hit, attacks 75% faster",,,ModItemTrait became_death Description
+414856051314,Near-Death Experience,,,ModItemTrait Almost_died DisplayName |gender-variants
+237010685334,Noone knows how this colonist lived on near suicide mission.... but they are now reminded of their attempt every day.,,,ModItemTrait Almost_died Description
+828366165529,Ate Shrieker Food,,,ModItemTrait ate_shrieker_food_bad DisplayName |gender-variants
+159309559536,We have triangulated localized seismic activity to a nearby tropical region.,,,ModItemExpeditionPreset NestAwaken_Exp_Scissorhand_Nest description
+305361382111,<u(StoryBit)> (weight: <Weight>),,,
+305361382111,<u(StoryBit)> (weight: <Weight>),,,
+305361382111,<u(StoryBit)> (weight: <Weight>),,,
+516957375298,Expedition complete: <ExplorationSiteName>,,,ModItemStoryBit Single_Occupant_Scissor_Nest NotificationText
+110135522538,[The Nests Awaken] A Betrayer,,,ModItemStoryBit Single_Occupant_Scissor_Nest Title
+452416333956,"We tracked the earthquake to the largest Shrieker Nest I have ever seen!
+
+My nose was met with the stench of death.
+The only living creature is a lone 10 ft tall Scissorhands, surrounded by dead Scissorhands.
+It's shell is marred with.... slashes?!?
+
+What should I do?",,,ModItemStoryBit Single_Occupant_Scissor_Nest Text
+348134983269,Set fire to the nest and deadly mega-creature,,,ModItemStoryBit Single_Occupant_Scissor_Nest Text
+317666994399,[The Nests Awaken] A Betrayer,,,ModItemStoryBit Single_Occupant_Scissor_Nest Title
+952630229771,"I collected some kindling and started a small bonfire close to the nest.
+Thankfully Scissorhand nests are flammable, and it quickly became a roaring inferno.
+
+The Scissorhands just watched the fire approach and continued to consume it's kills. Even after it was clearly burning alive, it seemed unfazed.
+The smoke and falling nests eventually obscured my view, but there's no way it survived.... right?
+
+<em>Local Scissorhand Nest aggression levels lowered.
+Silicon Gained</em>",,,ModItemStoryBit Single_Occupant_Scissor_Nest Text
+937138689778,Try to appease it and scavenge the nests,,,ModItemStoryBit Single_Occupant_Scissor_Nest Text
+874737609244,[The Nests Awaken] A Betrayer,,,ModItemStoryBit Single_Occupant_Scissor_Nest Title
+423176444969,"After catching the Scissorhands attention; I placed some of my belongings in front of me and stepped back.
+I then pointed to the giant nest behind it.
+The Scissorhands promptly rushed and pinned me down with a stab in the leg. It then to bleed me near dry.
+
+In my now delirious state, it then tried to finish the job!
+But without much blood to offset my body releasing adrenaline, I found myself able to dodge better!
+
+After what felt like an eternity of misses, the Scissorhands abruptly went back to it's kills.
+I had to crawl back to my ride home, but I lived....
+
+<em>Colonist gains a trait granting dodge chance in close combat.</em>",,,ModItemStoryBit Single_Occupant_Scissor_Nest Text
+197408347660,Attempt to tame it,,,ModItemStoryBit Single_Occupant_Scissor_Nest Text
+495257948772,[The Nests Awaken] A Betrayer,,,ModItemStoryBit Single_Occupant_Scissor_Nest Title
+925598054324,"I managed to find some food to tame it (That wasn't it's fellow Scissorhands), and started to slowly convince it life with me was better.
+
+I was interrupted when another group of Scissorhands returned to the nest; but the betrayer (The name I gave it) killed a few and ran the rest off.
+
+It then almost gave me a look like it was ready to go.
+I'm not sure Scissorhands aren't smarter than they initially appeared.... at least this one.
+
+Bringing it on home!
+
+<em>A high tier Scissorhands will be brought back from this expedition.
+Local Scissorhand Nest aggression levels raised.</em>",,,ModItemStoryBit Single_Occupant_Scissor_Nest Text
+283482400818,[The Nests Awaken] A Betrayer,,,ModItemStoryBit Single_Occupant_Scissor_Nest Title
+755280989645,"I couldn't find anything that wasn't a Scissorhand corpse to try and tame the scissorhand with.
+
+The Scissohand seemed pretty insulted and started getting aggressive!
+To make matters worse, a whole group of Scissorhands showed up and interrupted the taming.
+
+I got out of their before I ended up as either groups dinner! 
+
+<em>Local Scissorhand Nest aggression levels raised.</em>",,,ModItemStoryBit Single_Occupant_Scissor_Nest Text
+452993994446,"Scavenge around the site, and avoid the beast",,,ModItemStoryBit Single_Occupant_Scissor_Nest Text
+658257153764,[The Nests Awaken] A Betrayer,,,ModItemStoryBit Single_Occupant_Scissor_Nest Title
+763948926440,"I made sure to always avoid that big bug, and it wandered around eating it's kills.
+
+Luckily that let me break down some nest structures for some Silicon.
+
+<em>Silicon Gained</em>",,,ModItemStoryBit Single_Occupant_Scissor_Nest Text
+266833903346,Expedition complete: <ExplorationSiteName>,,,ModItemStoryBit Scissorhand_Mating_event NotificationText
+526098361340,[The Nests Awaken] Scissorhand Mating Site,,,ModItemStoryBit Scissorhand_Mating_event Title
+828743778286,"I floated over the disturbance.
+It a Scissorhand mega-colony!
+
+As I continued to watch, each Scissorhand would stand in the center and dance. Sometimes turning to face another Scissorhand, or always look towards one.
+
+Sometimes after one finishes dancing, it will pair off.
+This must be the mating dance and possibly even ritual they do!
+
+What should I do?",,,ModItemStoryBit Scissorhand_Mating_event Text
+387523332031,Observe the Insects for any insights,,,ModItemStoryBit Scissorhand_Mating_event Text
+543906784848,[The Nests Awaken] Mating Dance Discovered,,,ModItemStoryBit Scissorhand_Mating_event Title
+555886404386,"I watched with attention as each Scissorhands came to the center, and tried my best to sketch the different forms that they paused on.
+
+My art skills meant it was a bunch of stick people with extra arms didn't help, but I think I have what I need.
+
+If we have nearby Scissorhands (Or are attacked by them), I think I will better chance of taming them with the help of these!
+
+<em>This colonist now has a trait giving them greater efficiency when taming Scissorhands</em>",,,ModItemStoryBit Scissorhand_Mating_event Text
+161042252208,Start a fire and destroy the site!,,,ModItemStoryBit Scissorhand_Mating_event Text
+748425566629,[The Nests Awaken] Mating Dance Discovered,,,ModItemStoryBit Scissorhand_Mating_event Title
+714448102929,"I collected some kindling nearby, and then lined up dry wood to burn towards the site.
+
+The fire quickly spread and engulfed everything!
+
+I must have left some sort of trail, because I've spotted Scissorhands behind my trail back home!
+
+<em><style TextNegative>The consequences of this action will occur in due time</style>",,,ModItemStoryBit Scissorhand_Mating_event Text
+350747133885,Interrupt a mating and tame them instead!,,,ModItemStoryBit Scissorhand_Mating_event Text
+403295593988,[The Nests Awaken] Scissorhand Mating Site,,,ModItemStoryBit Scissorhand_Mating_event Title
+568620839950,"Well I did interrupt the farthest pair from the nest.
+Not sure if this is how it works for all Scissorhands, but when they noticed me, one killed the other.
+
+Something about being started and sharp blades are in awkward positions.....
+
+Regardless, I managed to convince the last one I was a friend and not food!
+
+So hoisting it and bringing it back home!
+
+<em>A high tier Scissorhands will be brought back from this expedition.
+Local Scissorhand Nest aggression levels raised.</em>",,,ModItemStoryBit Scissorhand_Mating_event Text
+806289281069,[The Nests Awaken] Scissorhand Mating Site,,,ModItemStoryBit Scissorhand_Mating_event Title
+455547906131,"I thought I picked a pair that was far away from the nest.
+What I did not know was that there where other pairs nearby that spotted me while I was approaching.
+
+I barely had enough distance between me and the group of mega-predators to make it back to my ride home!
+
+I'm sure the Scissorhands did not like a random human wandering in....
+
+<em>Local Scissorhand Nest aggression levels raised twice.</em>",,,ModItemStoryBit Scissorhand_Mating_event Text
+874392966327,Scavenge what you can after everyone is paired,,,ModItemStoryBit Scissorhand_Mating_event Text
+391981441246,[The Nests Awaken] Scissorhand Mating Site,,,ModItemStoryBit Scissorhand_Mating_event Title
+986784585722,"I waited until the festivities died down and most of the Scissorhands where resting.
+Thankfully the noise of the nest did not lower, so I could be a little more aggressive breaking down some of the larger pieces of nest that had fallen off.
+
+After filling my bags full multiple times, I am leaving feeling pretty pleased with myself!
+
+<em>Large trove of Silicon Gained</em>",,,ModItemStoryBit Scissorhand_Mating_event Text
+331213279531,Expedition complete: <ExplorationSiteName>,,,ModItemStoryBit Weak_scissor_hunting_pack NotificationText
+189024014004,[The Nests Awaken] Scissorhand Ambush Site,,,ModItemStoryBit Weak_scissor_hunting_pack Title
+728012514068,"I spotted a pack of weak Scissorhands laying in wait near a mountain tunnel.
+All other Scissorhands most likely cannot ambush hunt due to evolution warping their carapace into vibrant colors.
+
+They are perfectly still, and look relatively underfed.
+They would be easy marks for a well equipped colonist, or respond well to food.
+
+How to proceed?",,,ModItemStoryBit Weak_scissor_hunting_pack Text
+342086451258,Kill these weaklings!,,,ModItemStoryBit Weak_scissor_hunting_pack Text
+807015172525,[The Nests Awaken] Scissorhand Ambush Site,,,ModItemStoryBit Weak_scissor_hunting_pack Title
+721113194455,"It was quite easy to deal with them.
+I landed, then threw rocks to distract each one individually.
+Then repeat, repeat, repeat.
+
+Usually the buggers know where we are, and we can't really hide.
+But in this case I had to use more stealth than I'm used too.
+And I think that has gotten me better at fighting in general!
+
+<em>Colonists Combat Skill increased by 2.
+Local Scissorhands Nest aggression levels raised.</em>",,,ModItemStoryBit Weak_scissor_hunting_pack Text
+122220266452,Scare some nearby Draka through the tunnel,,,ModItemStoryBit Weak_scissor_hunting_pack Text
+523964104823,[The Nests Awaken] Scissorhand Ambush Site,,,ModItemStoryBit Weak_scissor_hunting_pack Title
+562560472062,"Once in position, all the scared Drakas immediately sprinted towards the tunnel.
+Which looked safer than a new creature that's making scary noises!
+
+I lost count of how many I sent to their fate, because this was the best fun I've had in a long time!
+
+On my way back I did noticed a MUCH larger group moving their kills... 
+I wonder what that's about?
+
+<em>Local Scissorhands Nest aggression levels lowered.</em>",,,ModItemStoryBit Weak_scissor_hunting_pack Text
+375340601818,Observe their hunting patterns,,,ModItemStoryBit Weak_scissor_hunting_pack Text
+100473465854,[The Nests Awaken] Scissorhand Ambush Site,,,ModItemStoryBit Weak_scissor_hunting_pack Title
+111565662082,"I watched closely to how the Scissorhands hunt. 
+Even the little ones seem to ""know"" when a Draka is about to come into vision.
+
+The more I watched.... the more I could start to send it as well.
+It is very hard to express in words.
+But you can tell from the way the trees and grass move.
+Very faint, but once you notice the signs it is hard not too.
+
+I will do a better write up for a researcher to put fancy names to it!
+
+<em>A special research is unlocked which will grant powerful combat bonuses.</em>",,,ModItemStoryBit Weak_scissor_hunting_pack Text
+528761251147,Drop food while leaving so they follow you,,,ModItemStoryBit Weak_scissor_hunting_pack Text
+121387107697,[The Nests Awaken] Scissorhand Ambush Site,,,ModItemStoryBit Weak_scissor_hunting_pack Title
+780712990055,"I then flew right over them and dropped some fresh meat from some kills I made prior.
+The little things seemed confused why food was literally dropping from the sky.
+
+I then started flying back home, and dropped piece after piece.
+The Scissorhands followed, and are still following me!
+
+Hopefully one or two are friendly and full by the time I get back!
+
+<em>A high tier Scissorhands will be brought back from this expedition.
+Local Scissorhand Nest aggression levels raised.</em>",,,ModItemStoryBit Weak_scissor_hunting_pack Text
+181182190895,Survival of the Fittest,,,ModItemTrait scissor_mentored DisplayName |gender-variants
+390084024290,"Having survived a close ordeal with a mega-Scissorhands, this colonist has a +30% chance to dodge attacks in melee combat!",,,ModItemTrait scissor_mentored Description
+436358241914,Animal Dance Interpretor,,,ModItemTrait Scissor_Exp_Animal_tamer DisplayName |gender-variants
+741269100400,"This colonist has gained a better understanding of mating rituals on this planet, and is better at taming creatures.",,,ModItemTrait Scissor_Exp_Animal_tamer Description
+383868277397,Ambush Fire,,,ModItemTech scissor_ambush DisplayName
+221381325388,"A survivor watched how Scissorhands hunt, and the Scissorhands don't need to see their enemy to act. This lets them land hits right as the enemy walks into sight.
+
+Let's start practicing this!
+
+<em>Researching this will grant all colonists 1.2x times vision range and 20% added accuracy to attacks.</em>",,,ModItemTech scissor_ambush Description
+307155733989,An escape pod!,,,ModItemExpeditionPreset NA_Exped_Robot_Nest display_name
+449459407683,An escape pod with flashing hazard lights landed nearby!,,,ModItemExpeditionPreset NA_Exped_Robot_Nest description
+305361382111,<u(StoryBit)> (weight: <Weight>),,,
+305361382111,<u(StoryBit)> (weight: <Weight>),,,
+305361382111,<u(StoryBit)> (weight: <Weight>),,,
+801489114182,Expedition complete: <ExplorationSiteName>,,,ModItemStoryBit Robot_Degraded_Prefab NotificationText
+275666857275,[The Nests Awaken] Consortium Mining Site,,,ModItemStoryBit Robot_Degraded_Prefab Title
+613753515045,"I landed and found a group of tattered Consortium buildings.
+Bite, claw, and acid burns are on everything.
+Robots with missing arms and limbs are trying to fell trees and break nearby stone.
+
+This looks like a small automated mining base, and I see a drop box. We can get this base back up and running... or salvage it... 
+
+What should I do?",,,ModItemStoryBit Robot_Degraded_Prefab Text
+467832956904,Break and Salvage these clankers!,,,ModItemStoryBit Robot_Degraded_Prefab Text
+702156236008,[The Nests Awaken] Consortium Mining Site,,,ModItemStoryBit Robot_Degraded_Prefab Title
+507494139370,"I stomped on what robots were still moving.
+The buildings where so broken down a single solid kick toppled them.
+
+There are a lot of blinking red lights that I couldn't break though.
+Not sure what that's about, but I'm coming back with quite a haul!
+
+<em>Local Consortium Nest aggression levels raised.
+Large trove of Silicon Gained</em>
+",,,ModItemStoryBit Robot_Degraded_Prefab Text
+516413203378,Get this base some resources!,,,ModItemStoryBit Robot_Degraded_Prefab Text
+986660128866,[The Nests Awaken] Consortium Mining Site,,,ModItemStoryBit Robot_Degraded_Prefab Title
+949651270910,"I broke all the nearby trees and rocks down.
+Took me the better part of a day, and I'm going to be sore for days.
+
+After the 3rd rock I dropped into the drop box, the building started to whir to life!
+And out came a brand new robot with a brand new teal pickaxe.
+
+It glanced my way, but then went right to work picking up the rest of what I broke down. 
+
+I left before the now buzzing base changed it's mind.
+
+<em>Colonists Physical Skill increased by 2.
+Local Consortium Nest aggression levels lowered.</em>",,,ModItemStoryBit Robot_Degraded_Prefab Text
+110741350059,Try and communicate with the base,,,ModItemStoryBit Robot_Degraded_Prefab Text
+841480103934,[The Nests Awaken] Consortium Mining Site,,,ModItemStoryBit Robot_Degraded_Prefab Title
+778287045052,"I walked into the center of the town and said:
+""Oh man this base looks rough, I am willing to help for the right reward!""
+
+A nearby loudspeaker stated ""ASSISTANCE OFFER ACCEPTED. PLEASE PLACE ALL ROBOTS TOGETHER AND RECEIVE MAINTENANCE PROTOCOLS""
+
+I did as asked, and the robots swapped parts around until there was a single functional one.
+
+<em>All survivors equipment now degrades 50% slower.
+Local Consortium Nest aggression levels lowered.</em>",,,ModItemStoryBit Robot_Degraded_Prefab Text
+444232261491,Sneak into the main base and explore!,,,ModItemStoryBit Robot_Degraded_Prefab Text
+618631955174,[The Nests Awaken] Consortium Mining Site,,,ModItemStoryBit Robot_Degraded_Prefab Title
+505610405835,"There is a rumor that all Consortium Tech has a self destruct button hidden away.
+And in the middle of the main building was a big red button labeled ""SDB"". 
+After a brisk jog away from the base, I felt the explosion and saw the smoke cloud.
+
+We need to wait for it to cool down.
+But after can strip that site of its metal!
+
+<em>This site becomes a repeatable metal expedition.</em>",,,ModItemStoryBit Robot_Degraded_Prefab Text
+541119697209,Expedition complete: <ExplorationSiteName>,,,ModItemStoryBit Robot_Diplo_Miscomm NotificationText
+773066943050,[The Nests Awaken] Consortium First Contact,,,ModItemStoryBit Robot_Diplo_Miscomm Title
+930081331336,"As I flew in, a Consortium drone flew up to me and said in multiple languages:
+
+""GREETINGS NATIVES, PLEASE LAND SO WE CAN DISCUSS FIRST CONTACT""
+After landing, the main building spat out a Robot in a fancy hat and monocle.
+It stated ""WELCOME, LET US NEGOTIATE MINING RIGHTS""
+
+Should I tell him? Or keep this charade up?",,,ModItemStoryBit Robot_Diplo_Miscomm Text
+479422209092,"Play along, make a good ""deal""",,,ModItemStoryBit Robot_Diplo_Miscomm Text
+985336167809,[The Nests Awaken] Consortium Mining Site,,,ModItemStoryBit Robot_Diplo_Miscomm Title
+769090058911,"It appears I have convinced them.
+Even though they wanted the full planet, I made sure to only give them this small quadrant.
+
+They seemed quite pleased, and negotiated me down to ""only"" 100,000 Galacticoins!
+
+<em>500,000 Galacticoins gained</em>
+<style TextNegative>The Consortium will be upset if they ever discovers this betrayal.</style> ",,,ModItemStoryBit Robot_Diplo_Miscomm Text
+578007899959,Resolve the miscommunication without dying,,,ModItemStoryBit Robot_Diplo_Miscomm Text
+678850191758,[The Nests Awaken] Consortium Mining Site,,,ModItemStoryBit Robot_Diplo_Miscomm Title
+122637601652,"I politely but firmly tried to explain that I and noone I know has the authority to trade away mining rights.
+After the 10th time, the Robots seemed to understand.
+
+The posh Robot finally stated ""IF YOU CANNOT TRADE THEN LEAVE US BE. WE SHALL GRANT YOU A STANDARD ORGANIC RATION PACK FOR WASTING YOUR TIME"".
+
+When I got back to my ride, I only saw a bunch of oil, fat, and umbrellas.... Organic Ration pack my ***
+
+<em>Collected assorted resources</em>",,,ModItemStoryBit Robot_Diplo_Miscomm Text
+543771149310,This is an illegal mining base!,,,ModItemStoryBit Robot_Diplo_Miscomm Text
+117855560734,[The Nests Awaken] Consortium Mining Site,,,ModItemStoryBit Robot_Diplo_Miscomm Title
+646013289734,"Before I ended up on this planet, I knew that the Consortium was just a robotics company. And they certainly did not have any authority to even send space ships, let alone mine!
+
+As I explained, I was cutoff by the robot....
+""DIPLOMATIC COMMUNICATIONS HAVE BROKEN DOWN. LEAVE THE PREMISES BEFORE YOUR DIPLOMATIC IMMUNITY IS NULL AND VOID, AND ALERT YOUR CIVILIZATION WE DECLARE WAR.""
+
+<style TextNegative>The consequences of this action will occur in due time</style>",,,ModItemStoryBit Robot_Diplo_Miscomm Text
+512022465446,Stall the talks and sabotage the base,,,ModItemStoryBit Robot_Diplo_Miscomm Text
+966655008822,[The Nests Awaken] Consortium Mining Site,,,ModItemStoryBit Robot_Diplo_Miscomm Title
+673450905611,"I asked to see a tour before we started to negotiate to 'make sure their stuff was top quality'.
+
+I also made sure to stress how culturally, I must ""bless"" everything that sparks with water.
+And those buckets of bolts just let me..... like their self-preservation code got turned off!
+
+No sooner had I toured 2 buildings than everything was shorting, and a few fires broke out!
+Needless to say, I got to pick what I wanted to bring home from the negotiations!
+
+<em>Hoard of silicon and metal acquired.
+Local Consortium Aggression increased</em>",,,ModItemStoryBit Robot_Diplo_Miscomm Text
+624375902685,Expedition complete: <ExplorationSiteName>,,,ModItemStoryBit Robot_Fake_Settlement NotificationText
+139755321033,[The Nests Awaken] A totally human settlement,,,ModItemStoryBit Robot_Fake_Settlement Title
+400841303990,"I landed in a ""town"" called ""TOTALLYHUMANVILLE"" according to its giant banner.
+Clearly Consortium Robots in tattered clothes are standing still saying ""I need to file my taxes this year"".
+Cages with animals (some dead, some alive) are all stacked on top each. With a giant sign above it reading ""PLEASE AWW AT OUR PETS"".
+
+One of the Robots eventually wanders up and says ""HELLO, WE NEED TO TEST YOU TO MAKE SURE YOUR NOT A ROBOT. PLEAS ANSWER OUR QUESTIONS""",,,ModItemStoryBit Robot_Fake_Settlement Text
+609619301121,Save those animals!,,,ModItemStoryBit Robot_Fake_Settlement Text
+608221526455,[The Nests Awaken] Consortium Mining Site,,,ModItemStoryBit Robot_Fake_Settlement Title
+781495852780,"Through a combination of trickery, flattery, and acting like I believed the robots, I managed to break some cages.
+The animals that were healthy enough started to rampage across the ""town"".
+The animal whose cage I opened first seemed to take a liking to me, and it seems to want to come home with me.
+
+<em>High Tier animal will be brought back from this expedition.
+Local Consortium Aggression levels increased.</em>",,,ModItemStoryBit Robot_Fake_Settlement Text
+699209724742,"Ask to trade your sheep for their wood, you need to build a road",,,ModItemStoryBit Robot_Fake_Settlement Text
+313243747144,[The Nests Awaken] Consortium Mining Site,,,ModItemStoryBit Robot_Fake_Settlement Title
+177283289978,"The robots seemed almost happy that their ""disguise"" is working.
+They quickly placed buckets of wood on my vehicle, and seemed to forget that I offered them anything at all.
+
+<em>Hoard of wood acquired.
+Local Consortium Aggression levels lowered.</em>",,,ModItemStoryBit Robot_Fake_Settlement Text
+446566193510,Try and get them to break character,,,ModItemStoryBit Robot_Fake_Settlement Text
+514021971038,[The Nests Awaken] Consortium Mining Site,,,ModItemStoryBit Robot_Fake_Settlement Title
+252610986332,"I politely informed the ""humans"" that I need no test, because I'm bad at math!
+I told them to ask me one, and they gave me an exponential calculus that I couldn't even do it regularly....
+
+I then asked them what 2 + 2 is, and I could literally hear their computers try and not answer correctly.
+Luckily they kept whirring until every single bot short circuited.
+Leaving me free to loot the place!
+
+<em>Hoard of metal and silicon.
+Local Consortium Aggression levels unchanged.</em>",,,ModItemStoryBit Robot_Fake_Settlement Text
+557173702604,"Offer to help their ""town""",,,ModItemStoryBit Robot_Fake_Settlement Text
+715332642423,[The Nests Awaken] Consortium Mining Site,,,ModItemStoryBit Robot_Fake_Settlement Title
+559411836035,"After passing their ""test"" (drinking water), I offered to help them with their lives.
+I said I could cook, hunt, do research.....
+
+While still speaking my language, they discussed how they should respond. 
+They mentioned how a Consortium signal is beaming them most of the energy they need, and they don't need help really.
+
+At that point, I decided to leave before they realized what they just told me.
+
+<em>Technology unlocked granting powerful benefits.</em>",,,ModItemStoryBit Robot_Fake_Settlement Text
+888103019740,Consortium Deception Discovered,,,ModItemStoryBit ConstortiumDeceived Title
+515394180803,"A large airship flies above your base. 
+After stabilizing, it announces:
+
+""WE HAVE FINALLY LOCATED YOU, THE DECEIVERS!
+WE WILL NOW COMMENCE OUR REVENGE FOR THE FINANCIAL PENALTIES WE SUFFERED BECAUSE OF OUR FALSIFIED MINING RIGHTS!""
+
+<style TextNegative>Local Consortium Nest aggression levels increased 5x.
+The Consortium will also send an attack.</style>",,,ModItemStoryBit ConstortiumDeceived Text
+756256372571,Consortium Power Beaming,,,ModItemTech NA_consort_power_efficiency DisplayName
+498459637401,"An expedition to a Consortium mining base has revealed a secret frequency that the Consortium is beaming power through!
+
+Let's hack into this signal, and learn how to harness it for our own purposes!
+
+<em>All buildings consume 25% less power</em>",,,ModItemTech NA_consort_power_efficiency Description
+189159299236,A meteorite fell in this area.,,,ModItemExpeditionPreset NestAwaken_Exp_Ritual_Site description
+305361382111,<u(StoryBit)> (weight: <Weight>),,,
+788927740183,Doombringer,,,ModItemTrait NA_DoomSelecter DisplayName |gender-variants
+745960059960,"This colonists sleep is plagued with nightmares of <disaster_species>. THey think it is a portent of doom, and need more sleep.",,,ModItemTrait NA_DoomSelecter Description
+790456924082,Expedition complete: <ExplorationSiteName>,,,ModItemStoryBit NA_Ritual_Site NotificationText
+689773556964,[The Nests Awaken] Ritual Site,,,ModItemStoryBit NA_Ritual_Site Title
+427346054794,"In the middle of all the pillars was a giant circular hewn staircase going down into the earth.
+
+I cautiously ventured down, and at the bottom was a grueling sight.
+
+A Shrieker, a Scissorhand, and a Robot have vines growing through them.
+They are all weak and bleeding (or leaking) into a dark pit in the middle of the room.
+
+What should I do?",,,ModItemStoryBit NA_Ritual_Site Text
+509651737486,Free one (Or all),,,ModItemStoryBit NA_Ritual_Site Text
+588416265092,Throw one into the pit,,,ModItemStoryBit NA_Ritual_Site Text
+131050927229,Expedition complete: <ExplorationSiteName>,,,ModItemStoryBit NA_Ritual_Site_free NotificationText
+461204223176,[The Nests Awaken] Ritual Site,,,ModItemStoryBit NA_Ritual_Site_free Title
+301381575679,"In the middle of all the pillars was a giant circular hewn staircase going down into the earth.
+
+I cautiously ventured down, and at the bottom was a grueling sight.
+
+A Shrieker, a Scissorhand, and a Robot have vines growing through them.
+They are all weak and bleeding (or leaking) into a dark pit in the middle of the room.
+
+What should I do?",,,ModItemStoryBit NA_Ritual_Site_free Text
+896837737328,Free the Shrieker,,,ModItemStoryBit NA_Ritual_Site_free Text
+647915288024,[The Nests Awaken] Ritual Site,,,ModItemStoryBit NA_Ritual_Site_free Title
+804506643042,"I took the Shrieker down, it was too weak to even fight back.
+
+As I started to try and drag it back to the entrance, the body turned to dust within 5 seconds! 
+When I glanced back to the other creatures, they were also nowhere to be seen...
+
+What does this mean?
+
+<em>Local Shrieker Nests aggression lowered 10x.</em>",,,ModItemStoryBit NA_Ritual_Site_free Text
+734574143654,Free the Scissorhands!,,,ModItemStoryBit NA_Ritual_Site_free Text
+711358804043,[The Nests Awaken] Ritual Site,,,ModItemStoryBit NA_Ritual_Site_free Title
+884431128636,"I took the Scissorhand down, it was too weak to even fight back.
+
+As I started to try and drag it back to the entrance, the body turned to dust within 5 seconds! 
+When I glanced back to the other creatures, they were also nowhere to be seen...
+
+What does this mean?
+
+<em>Local Scisorhands Nests aggression lowered 10x.</em>",,,ModItemStoryBit NA_Ritual_Site_free Text
+952819764857,Free the Robot!,,,ModItemStoryBit NA_Ritual_Site_free Text
+768459043788,Guardian DLC,,,ModItemStoryBit NA_Ritual_Site_free PrerequisiteText
+716360395676,[The Nests Awaken] Ritual Site,,,ModItemStoryBit NA_Ritual_Site_free Title
+989967729384,"I took the Robot down, it was too weak to even fight back.
+
+As I started to try and drag it back to the entrance, the body turned to dust within 5 seconds! 
+When I glanced back to the other creatures, they were also nowhere to be seen...
+
+What does this mean?
+
+<em>Local Consortium Nests aggression lowered 10x.</em>",,,ModItemStoryBit NA_Ritual_Site_free Text
+966956978298,Free them all!,,,ModItemStoryBit NA_Ritual_Site_free Text
+973183624745,[The Nests Awaken] Ritual Site,,,ModItemStoryBit NA_Ritual_Site_free Title
+831193755728,"I took the Shrieker down first.
+It didn't have the energy to even hiss at me!
+
+I quickly cut the others down.
+The second the last one hit the floor, they all crumbled into dust...
+
+What does this mean?
+
+<em>All nests are no longer alert.</em>",,,ModItemStoryBit NA_Ritual_Site_free Text
+977820525654,Wait I changed my mind,,,ModItemStoryBit NA_Ritual_Site_free Text
+532895415046,Expedition complete: <ExplorationSiteName>,,,ModItemStoryBit NA_Ritual_Site_throw NotificationText
+445367552988,[The Nests Awaken] Ritual Site,,,ModItemStoryBit NA_Ritual_Site_throw Title
+490463520105,"In the middle of all the pillars was a giant circular hewn staircase going down into the earth.
+
+I cautiously ventured down, and at the bottom was a grueling sight.
+
+A Shrieker, a Scissorhand, and a Robot have vines growing through them.
+They are all weak and bleeding (or leaking) into a dark pit in the middle of the room.
+
+What should I do?",,,ModItemStoryBit NA_Ritual_Site_throw Text
+918659265639,Throw the Shrieker into the pit,,,ModItemStoryBit NA_Ritual_Site_throw Text
+918388632888,[The Nests Awaken] Ritual Site,,,ModItemStoryBit NA_Ritual_Site_throw Title
+543080352657,"I bound the Shrieker with vines and cut it down.
+Slowly I dragged it closer and closer to the pit.
+When I glanced down into the darkness, I was instead met with tiny dots of light from far below.
+
+With a swift kick, the body started to descend.
+I stuck around waiting to hear a thud.
+
+Imagine my surprise when I saw those lights start getting bigger!
+And Shriekers started climbing up the pit!
+
+Needless to say, I left immediately. 
+As I fly back it all feels like a fever dream.....
+
+<style TextNegative>You will feel the consequences of this in due time</style>
+<em>This colonist has gained a trait from this decision.</em>",,,ModItemStoryBit NA_Ritual_Site_throw Text
+834551438719,Throw the Scissorhand into the pit,,,ModItemStoryBit NA_Ritual_Site_throw Text
+705703771455,[The Nests Awaken] Ritual Site,,,ModItemStoryBit NA_Ritual_Site_throw Title
+359731480412,"I bound the Scissorhands with vines and cut it down.
+Slowly I dragged it closer and closer to the pit.
+When I glanced down into the darkness, I was instead met with tiny dots of light from far below.
+
+With a swift kick, the body started to descend.
+I stuck around waiting to hear a thud.
+
+Imagine my surprise when I saw those lights start getting bigger!
+And Scissorhands started climbing up the pit!
+
+Needless to say, I left immediately. 
+As I fly back it all feels like a fever dream.....
+
+<style TextNegative>You will feel the consequences of this in due time</style>
+<em>This colonist has gained a trait from this decision.</em>",,,ModItemStoryBit NA_Ritual_Site_throw Text
+788670638652,Throw the Robot into the pit,,,ModItemStoryBit NA_Ritual_Site_throw Text
+727391762808,Guardians DLC,,,ModItemStoryBit NA_Ritual_Site_throw PrerequisiteText
+533275306483,[The Nests Awaken] Ritual Site,,,ModItemStoryBit NA_Ritual_Site_throw Title
+614255163882,"I bound the Robot with vines and cut it down.
+Slowly I dragged it closer and closer to the pit.
+When I glanced down into the darkness, I was instead met with bright red laser pointers from far below.
+
+With a swift kick, the body started to descend.
+I stuck around waiting to hear a thud.
+
+Imagine my surprise when I saw those lights start getting bigger!
+And Robots started climbing up the pit!
+
+Needless to say, I left immediately. 
+As I fly back it all feels like a fever dream.....
+
+<style TextNegative>You will feel the consequences of this in due time</style>
+<em>This colonist has gained a trait from this decision.</em>",,,ModItemStoryBit NA_Ritual_Site_throw Text
+610379090772,Wait I changed my mind,,,ModItemStoryBit NA_Ritual_Site_throw Text
+672980932239,"SchemeBk, 9",,,ModItemTextStyle FinePrint TextFont
+359172351610,Nearby Pylon,,,ModItemRobotCondition FamiliarGroundRobo DisplayName
+963092369040,"A nearby Pylon is granting this unit a temporary shield giving <style TextPositive>50% damage reduction</style> and regeneration.
+This shield lasts for 1 day after combat starts and takes 7 days to recharge.",,,ModItemRobotCondition FamiliarGroundRobo Description
+204424421469,Nests Awaken Tutorial,,,ModItemTutorialHint nests_awaken_tutorial display_name
+732273893108,START TUTORIAL,,,
+375361284496,"<em>1 of 5</em>
+Scissorhands & Shrieker Nests are now <style TextNegative>deadly hazards</style>!
+Meaning they will now:
+1. React to your presence
+2. Consume nearby resources.
+3. Launch scout patrols or launch their own attacks
+4. Spawn more often, and based on how you play.",,,ModItemTutorialHint nests_awaken_tutorial Text
+283738735418,"<em>2 of 5</em>
+Once alerted to your presence, the nests will go into overdrive.
+This means they will consume nearby resources faster.
+Any units released will be sent right to your base!
+
+<style TextNegative>Beware, lest you leave the nests be.....</style>
+For in that path lies a literal disaster.
+And the planet's denizens will realize and attempt to take out a ""rival"" species (YOU)!",,,ModItemTutorialHint nests_awaken_tutorial Text
+760322908319,"<em>3 of 5</em>
+If you have the Guardians DLC, there is <style TextPositive>something extra in here as well!</style>
+
+<em>The Consortium is now hyperactive in this region of space.</em>.
+One thing they now do is hurl automated mining bases to prospective locations.
+What makes a prospective location you say? Rare metals, alloys, most things a burgeoning colony needs.....",,,ModItemTutorialHint nests_awaken_tutorial Text
+400960854348,"<em>4 of 5</em>
+
+You will also find <em>4 new Expedition Sites</em>, each with at least 3 possible outcomes!
+These Expeditions can reward you with <style TextPositive>high tier pre-Tamed animals!</style>
+they can also rewards you with <style TextNegative>even more new and unfriendly neighbors!</style>
+After the expedition, you will find your new friend right next to the Balloon!",,,ModItemTutorialHint nests_awaken_tutorial Text
+864350757194,"<em>5 of 5</em>
+
+If you see this in any images from this mod (Or in any other mod I built/maintain) or by itself....
+Consider it an <em>active commission</em> to make a Stranded Alien Dawn version of the image.
+I am not a graphic artist or artistic in any way, and have had to resort to AI images or already made ones.
+Which can really mess with my immersion.
+
+You can reach out to me on the Git repo, Steam mod page, or Nexus mods. And let me know what image you would like to replace and your fee for use in the mod.",,,ModItemTutorialHint nests_awaken_tutorial Text
+967680094442,"Animal attack: <em><notif_list_units('AnimalAttack', 'count only')></em>",,,ModItemNotificationPreset AnimalAttack text
+638488043624,Animal attacks,,,ModItemNotificationPreset AnimalAttack rollover_title
+561515660398,"The following animals are exhibiting hostile behavior towards the camp and its inhabitants.<newline><newline><notif_list_units('AnimalAttack', false, 'by_class_id')>",,,ModItemNotificationPreset AnimalAttack rollover_text
+207697159669,Nitrus Stim,,,ModItemHealthCondition nest_attack_speed DisplayName
+911023712614,This unit has been given faster movement to ensure that an attack hits.,,,ModItemHealthCondition nest_attack_speed Description
+259323106762,Heal,,,
+603190182564,Ni7rus Infus3d 4pp3nd4g3s,,,ModItemRobotCondition nest_attack_speed_robot DisplayName
+232340131393,A statistically significant amount of WD-40 has been applied to this units appendages.,,,ModItemRobotCondition nest_attack_speed_robot Description
+488692563652,Burned Homeland,,,ModItemAnimalPerk Default scissorhand_burned DisplayName
+457344385808,"Due to your actions, this species is weaker (20% less max hp)",,,ModItemAnimalPerk Default scissorhand_burned Description
+411437712425,Well fed,,,ModItemAnimalPerk Default scissorhand_full DisplayName
+285043734535,"Due to your actions, this species is stronger (20% higher max hp)",,,ModItemAnimalPerk Default scissorhand_full Description

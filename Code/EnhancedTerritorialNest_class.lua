@@ -2,7 +2,7 @@ local hour_duration = const.HourDuration
 local day_duration = const.DayDuration
 local hours_per_day = day_duration / hour_duration
 
-MapVar('Nest_Notifications', 1)
+--MapVar('Nest_Notifications', 1)
 
 function SpawnNestInsideMap(marker, seed, nest_type, danger_lvl)
 	DebugPrint("Spawning a nest\n")
@@ -338,10 +338,13 @@ function EnhancedTerritorialNest:change_nest_herd(force_evo)
 	DebugPrint("Was this a forced evo?\n")
 	DebugPrint(force_evo)
 	DebugPrint('\n')
-    local elder, adult, baby = self.elder_class, self.adult_class, self.hatchling_class
+    local elder = self.elder_class
     local evo, _, _ = check_count_and_upgrade(elder,{},100)
     if evo == elder and not force_evo then return
     else
+		-- reset evolution if the players score naturally evolves the units
+        self.attacks_done = 0
+        self.attacks_to_evo = self.attacks_to_evo + 1
 		self:get_proximity()
 		self.attacks_done = 0
 		local notif_level = Nest_Notifications or 1
@@ -350,9 +353,9 @@ function EnhancedTerritorialNest:change_nest_herd(force_evo)
 		elseif notif_level == 1 then
 			AddGameNotification("nests_evolving", nil, nil, {self})
 		end
-        self.hatchling_class = adult
-        self.adult_class = elder
-        self.elder_class = evo
+        self.hatchling_class = self.adult_class
+        self.adult_class = self.elder_class
+		self.elder_class = Find_evolution(elder)
         -- remove any newly-invalid creatures from nest_creatures
         local removed = false
         for _, unit in ipairs(self.nest_members) do

@@ -25,6 +25,7 @@ function Setup_nest_mod()
 	CheckAndSet('nests_needed',false)
 	CheckAndSet('nests_killed',false)
 	CheckAndSet('per_species_nest_max',13)
+	CheckAndSet('shownNestTutorial',false)
 end
 
 ------------------------------ HELPER FUNCTIONS ------------------------------

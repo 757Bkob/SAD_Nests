@@ -1,3 +1,4 @@
+--[[ disabling until it's cleaner
 function End_Disaster(nest_id, force_sleep)
 	DebugPrint("Ending the Nest Disaster\n")
     -- To enable me to place multiple types of nests in a single map
@@ -64,3 +65,4 @@ function Start_Nest_Disaster()
         ForceActivateStoryBit("nest_disaster_phase_2")
 	end,nest_class,nest_storybit_spawner)
 end
+--]]
