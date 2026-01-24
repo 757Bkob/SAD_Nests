@@ -12,7 +12,7 @@ local RESPONSE_DISTRESS = const.DelayedResponseDistress
 local RESPONSE_ATTACK = const.DelayedResponseAttack
 
 DefineClass.ConsortiumSporeDeposit = {
-	__parents = { "MineableRock" },
+	__parents = { "MineableRock", "NestSpore" },
 	
 	MineResource = "ScrapMetal",
 	MineAmount = 300 * const.ResourceScale,
@@ -66,50 +66,61 @@ DefineClass.ConsortiumNest = {
 function ConsortiumNest:change_nest_herd(force_evo)
 	-- Consortium nests will always have the same farmhand robot to simulate them consuming nearby resources
     local elder, adult, hatch = self.elder_class, self.adult_class, self.hatchling_class
-	local new_elder = get_next(elder)
-	local new_adult = get_next(adult)
-	local new_hatch = get_next(hatch)
-	local upgraded_flag = false
+	local new_elder, new_adult, new_hatch
+	--local new_elder = Find_evolution(g_Classes[elder])
+	--local new_adult = Find_evolution(g_Classes[adult])
+	--local new_hatch = Find_evolution(g_Classes[hatch])
+	local upgraded_flag = force_evo or false
 	local _
 	local __
-	if not force_evo then
-		new_elder, _, __ = check_count_and_upgrade(elder,{},100)
-		if new_elder ~= elder then 
+	if force_evo then
+		self.elder_class = Find_evolution(g_Classes[elder])
+		self.adult_class = Find_evolution(g_Classes[adult])
+		self.hatchling_class = Find_evolution(g_Classes[hatch])
+	else
+		-- We rebuild the additional class list, so the output is always the evolved form of the unit we care about.
+		local AdditionalClassList = {}
+		AdditionalClassList[#AdditionalClassList+1] = {adult,150}
+		AdditionalClassList[#AdditionalClassList+1] = {hatch,50}
+		new_elder, _, __ = check_count_and_upgrade(elder,AdditionalClassList,100)
+		if new_elder ~= elder then
 			self.elder_class = new_elder
 			upgraded_flag = true
 		end
-		new_adult, _, __ = check_count_and_upgrade(adult,{},100)
+		local AdditionalClassList = {}
+		AdditionalClassList[#AdditionalClassList+1] = {elder,DivRound(100*3,2)}
+		AdditionalClassList[#AdditionalClassList+1] = {hatch,DivRound(50*3,2)}
+		new_adult, _, __ = check_count_and_upgrade(adult,AdditionalClassList,100)
 		if new_adult ~= adult then
 			self.adult_class = new_adult
 			upgraded_flag = true
 		end
-		new_hatch, _, __ = check_count_and_upgrade(hatch,{},100)
+		local AdditionalClassList = {}
+		AdditionalClassList[#AdditionalClassList+1] = {elder,100 * 2}
+		AdditionalClassList[#AdditionalClassList+1] = {adult,150 * 2}
+		new_hatch, _, __ = check_count_and_upgrade(hatch,AdditionalClassList,100)
 		if new_hatch ~= hatch then
 			self.hatchling_class = new_hatch
 			upgraded_flag = true
 		end
 	end
-	if not MapVarValues.nest_upgraded and (force_evo or upgraded_flag) then --first time is essentially a flag
-		ForceActivateStoryBit("Nests_evolving")
-		MapVar("nest_upgraded",true)
-	end
-	-- remove any newly-invalid creatures from nest_creatures
-	local removed = false
-	for _, unit in ipairs(self.nest_members) do
-		local class = unit.class
-		if not class == self.elder_class and not class == self.adult_class and not class == self.hatchling_class then
-			self:RemoveNestMember(unit)
-			-- This will force spawn a new set of higher tier nests. 
-			-- If Nests are left unnattended they can get quite large groups defending it
+	if upgraded_flag then
+		self.attacks_done = 0
+		self.attacks_to_evo = self.attacks_to_evo + 1
+		local removed = false
+		NA_log_nest_evolved(self)
+		for _, unit in ipairs(self.nest_members) do
+			local class = unit.class
+			if not class == self.elder_class and not class == self.adult_class and not class == self.hatchling_class then
+				self:RemoveNestMember(unit)
+				removed = true
+			end
+		end
+		if removed then
+			self:UpdateNextSpawnTime()
 		end
 	end
-	if removed then
-		self:UpdateNextSpawnTime()
-	end
-    if force_evo then
-        self.attacks_done = 0
-        self.attacks_to_evo = self.attacks_to_evo + 1
-    end
+	return upgraded_flag
 end
 
 function Human:ShouldFleeUnit(unit, responding_to_attack)

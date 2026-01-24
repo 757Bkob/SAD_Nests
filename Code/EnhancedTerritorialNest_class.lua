@@ -213,24 +213,22 @@ function EnhancedTerritorialNest:expand()
     self.hatchlings_max_count = self.hatchlings_max_count + grows
     self.adults_max_count = self.adults_max_count + grows
 end
-
+--#
 function EnhancedTerritorialNest:give_ep_to_struct(ep)
     if not ep then return end
+	local my_species = find_nest_species(self.class)
+	if not my_species then return end
 	DebugPrint("Nest storing EP in support structures\n")
-    local spore_count = MapGet(self,self.territorial_range,function(thing)
-    if IsKindOf(thing,'NestSpore') then return true end end)
-    local spore = spore_count[1]
-    local spore_res = Resources[spore.MineResource]
+	local spores_near = MapGet(self,self.max_range,my_species.spore_buildings)
+    local progress_each = DivRound(ep,#spores_near)
+
+    local spore_res = Resources[spores_near[1]]
     local spore_res_prog = spore_res.progress
-	spore_count = #spore_count
-    local progress_each = DivRound(ep,spore_count)
     local units_to_give = Max(1,DivRound(progress_each,spore_res_prog))
-    --("Giving each of the ",spore_count,' nearby nest nodes ', units_to_give,' ',spore_res.id)
-    MapForEach(self,self,self.territorial_range,function(thing)
-        if IsKindOf(thing,'ShriekerSporeDeposit') or IsKindOf(thing,'ScissorhandSporeDeposit') or IsKindOf('ConsortiumSporeDeposit') or IsKindOf('ConsortiumSporeDeposit') then
-            thing.MineAmount = thing.MineAmount + (units_to_give * const.ResourceScale)
-        end
-    end,units_to_give)
+    Bkob_Log("Nest giving each nearby spore building this much resource units: ",units_to_give)
+    for _,spore in ipairs(spores_near) do
+            spore.MineAmount = spore.MineAmount + (units_to_give * const.ResourceScale)
+    end
 end
 
 function EnhancedTerritorialNest:consume_closest_node()
@@ -312,7 +310,6 @@ function EnhancedTerritorialNest:Getui_attack_cap()
 	return DivRound(cap*100,max_possible)
 end
 
-
 function EnhancedTerritorialNest:Getui_attack_percent()
 	DebugPrint("Getting the UI % of how close an attack from the nest is\n")
 	local time_till_attack = self.attack_time - GameTime()
@@ -334,46 +331,46 @@ function EnhancedTerritorialNest:IsSleepy()
 end
 
 function EnhancedTerritorialNest:change_nest_herd(force_evo)
-	DebugPrint("Nest calculating if it needs to upgrade\n")
-	DebugPrint("Was this a forced evo?\n")
-	DebugPrint(force_evo)
-	DebugPrint('\n')
+	Bkob_Log("Nest calculating if it needs to upgrade\n")
+	Bkob_Log("Forced Evo: ",force_evo)
     local elder = self.elder_class
-    local evo, _, _ = check_count_and_upgrade(elder,{},100)
-    if evo == elder and not force_evo then return
-    else
-		-- reset evolution if the players score naturally evolves the units
-        self.attacks_done = 0
-        self.attacks_to_evo = self.attacks_to_evo + 1
-		self:get_proximity()
-		self.attacks_done = 0
-		local notif_level = Nest_Notifications or 1
-		if notif_level == 2 then
-			ForceActivateStoryBit('nests_evolving',self,true)
-		elseif notif_level == 1 then
-			AddGameNotification("nests_evolving", nil, nil, {self})
-		end
-        self.hatchling_class = self.adult_class
-        self.adult_class = self.elder_class
-		self.elder_class = Find_evolution(elder)
-        -- remove any newly-invalid creatures from nest_creatures
-        local removed = false
-        for _, unit in ipairs(self.nest_members) do
-		    local class = unit.class
-		    if not class == self.elder_class and not class == self.adult_class and not class == self.hatchling_class then
-                self:RemoveNestMember(unit)
-                -- This will force spawn a new set of higher tier nests. 
-                -- If Nests are left unnattended they can get quite large groups defending it
-		    end
-        end
-        if removed then
-            self:UpdateNextSpawnTime()
-        end
+	local upgraded_flag = false
+	local evo,_,__
+	if force_evo then
+		evo = Find_evolution(g_Classes[elder])
+	else
+		local AdditionalClassList = {}
+		AdditionalClassList[#AdditionalClassList+1] = {self.adult_class,150}
+		AdditionalClassList[#AdditionalClassList+1] = {self.hatchling_class,50}
+	    evo, _, __ = check_count_and_upgrade(elder,AdditionalClassList,100)
 	end
-    if force_evo then
+    if evo == elder then return upgraded_flag end
+	-- base nests will just chain their units down
+	upgraded_flag = true
+	self.hatchling_class = self.adult_class
+	self.adult_class = self.elder_class
+	self.elder_class = evo
+	-- remove any newly-invalid creatures from nest_creatures
+	local removed = false
+	for _, unit in ipairs(self.nest_members) do
+		local class = unit.class
+		if not class == self.elder_class and not class == self.adult_class and not class == self.hatchling_class then
+			self:RemoveNestMember(unit)
+			-- This will force spawn a new set of higher tier nests. 
+			-- If Nests are left unnattended they can get quite large groups defending it
+		end
+	end
+	if removed then
+		self:UpdateNextSpawnTime()
+	end
+    if upgraded_flag then
+		-- just to make sure we know how close the player is now that they have more stuff
+		self:get_proximity()
+		NA_log_nest_evolved(self)
         self.attacks_done = 0
         self.attacks_to_evo = self.attacks_to_evo + 1
     end
+	return upgraded_flag
 end
 
 function EnhancedTerritorialNest:RegisterTarget(unit, time)
@@ -402,7 +399,6 @@ function EnhancedTerritorialNest:set_new_max_hp()
         self.MaxHealth = base_hp
     end
 end
-
 
 function EnhancedTerritorialNest:SwitchState(new_state)
 	DebugPrint("Nest switching it's internal state!\n")
@@ -483,63 +479,74 @@ function EnhancedTerritorialNest:calculate_attack_strength(fake_flag)
     return filtered_strength
 end
 
-local find_spawn_fake = function(self, spawn_class, target)
-			local def = spawn_class and g_Classes[spawn_class]
-			local pfclass = def.pfclass
-			local radius = self.nest.territorial_range
-			local target_retry = 7
-			for i=1,target_retry do
-				local rand = InteractionRandCreate("SpawnFindTarget")
-				local pos_nearish_nest = terrain.FindPassable(self.nest, pfclass, radius)
-				if pos_nearish_nest then
-					return pos_nearish_nest
-				end
-				DebugPrint("Nest via a passive attack failed spawnloc. radius now: ")
-				DebugPrint(spawn_radius)
-				DebugPrint(" meter radius\n")
-				DebugPrint("pfclass was: ")
-				DebugPrint(pfclass)
-				DebugPrint("\n")
-			end
-			::continue::
-			dbg(self:DbgMarkFailedSpawn(self.nest,7))
+function nest_find_spawn_fake(spawndef_instance, spawn_class, target)
+	local def = spawn_class and g_Classes[spawn_class]
+	local pfclass = def.pfclass
+	local range = spawndef_instance.nest.max_range
+	local target_retry = 7
+	local x,y
+	local pos = terrain.FindPassableTile(spawndef_instance.nest, const.tfpPassClass, pfclass)
+	local playbox = GetPlayBox()
+	local nest_entity_radius = spawndef_instance.nest:GetRadius()
+	for i=1,target_retry do
+		x, y = GetRandomPlayablePos(spawndef_instance.nest, range, guim, AsyncRand(), pfclass, def.radius)
+		local temp_pos = point(x,y)
+		local playbox_check = playbox:Dist2(temp_pos) > 1
+		local under_nest = IsCloser2D(pos, temp_pos, nest_entity_radius)
+		if playbox_check or under_nest then
+			x = nil
+			target_retry = target_retry - 1
+			range = range * 2
+		else
+			local possible_pos = point(x,y)
+			return possible_pos
 		end
+	end
+	::continue::
+	dbg(spawndef_instance:DbgMarkFailedSpawn(spawndef_instance.nest,7))
+end
 
-
-
-
-local find_spawn_real = function(self, spawn_class, target)
-			local playbox = GetPlayBox()
-			local def = spawn_class and g_Classes[spawn_class]
-			local pfclass = def.pfclass
-			local pos = terrain.FindPassableTile(self.nest, const.tfpPassClass, pfclass)
-			local nest_entity_radius = self.nest:GetRadius()
-			local x,y
-			local retry = 10
-			local range = self.nest.max_range
-			local target_radius = 30*guim
-			while not x and retry > 0 do
-				local spot_closest_to_target =  terrain.FindPassable(target, pfclass, target_radius)
-				x, y = GetRandomPlayablePos(pos, range, guim, AsyncRand(), pfclass, def.radius)
-				local temp_pos = point(x,y)
-				local playbox_check = playbox:Dist2(temp_pos) > 1
-				local under_nest = IsCloser2D(pos, temp_pos, nest_entity_radius)
-				if playbox_check or under_nest then
-					x = nil
+function nest_find_attack_spawn(spawndef_instance, spawn_class, target)
+	local playbox = GetPlayBox()
+	if not target then
+		target = spawndef_instance:ResolveTarget()
+	end
+	local def = spawn_class and g_Classes[spawn_class]
+	local pfclass = def.pfclass
+	local pos = terrain.FindPassableTile(spawndef_instance.nest, const.tfpPassClass, pfclass)
+	if not pos then print("no pos found!") end
+	local nest_entity_radius = spawndef_instance.nest:GetRadius()
+	local x,y
+	local retry = 10
+	local range = spawndef_instance.nest.max_range
+	local target_radius = 30*guim
+	while not x and retry > 0 do
+		local spot_closest_to_target =  terrain.FindPassable(target, pfclass, target_radius)
+		if not spot_closest_to_target then
+			target_radius = target_radius * 2
+			
+		else
+			x, y = GetRandomPlayablePos(pos, range, guim, AsyncRand(), pfclass, def.radius)
+			local temp_pos = point(x,y)
+			local playbox_check = playbox:Dist2(temp_pos) > 1
+			local under_nest = IsCloser2D(pos, temp_pos, nest_entity_radius)
+			if playbox_check or under_nest then
+				x = nil
+				retry = retry - 1
+				range = range * 2
+			else
+				local possible_pos = point(x,y)
+				if ConnectivityCheck(possible_pos,spot_closest_to_target,pfclass) then
+					return possible_pos
+				else
 					retry = retry - 1
 					range = range * 2
-				else
-					local possible_pos = point(x,y)
-					if ConnectivityCheck(possible_pos,spot_closest_to_target,pfclass) then
-						return possible_pos
-					else
-						retry = retry - 1
-						range = range * 2
-					end
 				end
 			end
-			return nil
 		end
+	return nil
+	end
+end
 
 local post_spawn_animal = function(self,obj,target,context)
 		obj.CombatHostile = true
@@ -549,9 +556,6 @@ local post_spawn_animal = function(self,obj,target,context)
 
 local post_spawn_robot = function(self,obj,target,context)
 		obj:SetInvader(true)
-		if Hope then
-			obj:Face(Hope)
-		end
 		Msg("SpawnedAnimalThreat", obj)
 		give_nest_speed_effect(obj,self.nest.proximity)
 	end
@@ -578,34 +582,24 @@ function EnhancedTerritorialNest:attack(fake_flag)
     self:UpdateNextAttackTime()
     self:change_nest_herd() -- In case player has enough EP
     local spawn_def
-	local find_spawn
-	local post_spawn
 	local atk_str = self:calculate_attack_strength(fake_flag)
 	local def = self.elder_class and g_Classes[self.elder_class]
 	if not def then return end
 	-- determine what spawndef to use, and how we ware finding the spawn point
 	if fake_flag then
         spawn_def = SpawnDefs['nest_overflow']
-		find_spawn = find_spawn_fake
-	elseif IsKindOf(def,'Robot') then
-		spawn_def = SpawnDefs['nest_attack']
-		find_spawn = find_spawn_real
-		post_spawn = post_spawn_robot
 	else
 		spawn_def = SpawnDefs['nest_attack']
-		find_spawn = find_spawn_real
-		post_spawn = post_spawn_animal
-    end
-	--{id=final_full_table[i]['now'],weight=final_full_table[i]['weight']}
-	-- Manually creating instance, similar to how dropships manually create an instance
+	end
     local instance = {}
     instance.nest = self
-    instance.SpawnClass = self.hatchling_class
+    instance.SpawnClass = self.elder_class
 	instance.AdditionalClassList = {}
-	instance.AdditionalClassList[#instance.AdditionalClassList+1] = {self.adult_class,75}
-	instance.AdditionalClassList[#instance.AdditionalClassList+1] = {self.elder_class,50}
-    instance.FindSpawnLoc = find_spawn
-	instance.PostSpawn = post_spawn
+	instance.AdditionalClassList[#instance.AdditionalClassList+1] = {self.adult_class,150}
+	instance.AdditionalClassList[#instance.AdditionalClassList+1] = {self.hatchling_class,50}
+    --instance.FindSpawnLoc = find_spawn
+	--instance.PostSpawn = post_spawn
+	--instance.CountMod = nest_count
     spawn_def = spawn_def:CreateInstance(instance)
 	local t = spawn_def:ResolveTarget()
     spawn_def:ActivateSpawn(t,{},atk_str)
@@ -614,7 +608,6 @@ function EnhancedTerritorialNest:attack(fake_flag)
         self:change_nest_herd(true)
     end
 end
-
 
 function EnhancedTerritorialNest:UpdateNextAttackTime()
 	DebugPrint("Nest updating when to attack next\n")
@@ -642,7 +635,6 @@ function EnhancedTerritorialNest:UpdateNextAttackTime()
 	DebugPrint(GameTime())
 	DebugPrint("\n")
 end
-
 
 function EnhancedTerritorialNest:OnObjUpdate(time, update_interval)
 	local health = self.Health
@@ -710,12 +702,6 @@ function UnitNesting:give_nest_effect()
 		self:RemoveHealthConditions(self.NestEffect or "", "nest")
 
 	end
-end
-
-function TerritorialNest:test_spawn(class, range, instant, burrowed)
-	local play_area = GetPlayBox()
-	local x,y = GetRandomPlayablePos(SelectedObj,SelectedObj:CalcTerritorialRange()*3,DivRound(SelectedObj:GetRadius()*3,2),InteractionRand(nil,'thing'),_G[SelectedObj.hatchling_class].pfclass)
-	local point = point(x,y)
 end
 
 function is_inside_of(box,pos)
@@ -806,6 +792,7 @@ AppendClass.TerritorialNest = {
 }
 
 -- meta class grouping all spore buildings for easier searching
+-- We do not append ConsortiumSporeDeposit because we define it in the other file with this as a parent already
 DefineClass.NestSpore = {
 	properties = {}
 }
@@ -817,11 +804,6 @@ AppendClass.ShriekerSporeDeposit = {
 AppendClass.ScissorhandSporeDeposit = {
 	__parents = { "NestSpore" }
 }
---[[
-ppendClass.ConsortiumSporeDeposit = {
-	__parents = { "NestSpore" }
-}
---]]
 
 local function count_effects_by_id(target,effect_id)
 	local count = 0
@@ -837,15 +819,20 @@ function decay_speed(target)
 	local effect_id = 'nest_attack_speed'
 	if IsKindOf(target,'Robot') then
 		effect_id = 'nest_attack_speed_robot'
+		target:RemoveRobotConditions(effect_id, "ReplaceOldest")
 	end
 	local prox = DivRound(AveragePoint2D(GetValidSurvivorsOnMap()):Dist2D(target),150*guim)
 	local count = count_effects_by_id(target,effect_id)
 	while count > prox do
-		target:RemoveRobotConditions(effect_id, "ReplaceOldest")
-		count = count_effects_by_id(target,effect_id)
+		if IsKindOf(target,'Robot') then
+			target:RemoveRobotConditions(effect_id, "ReplaceOldest")
+			count = count_effects_by_id(target,effect_id)
+		else
+			target:RemoveHealthConditions(effect_id, "ReplaceOldest")
+			count = count_effects_by_id(target,effect_id)
+		end
 	end
 end
-
 
 function add_delay_to_nests()
 	MapForEach(true,"TerritorialNest", function(nest)
@@ -854,7 +841,6 @@ function add_delay_to_nests()
 		end
 	end)
 end
-
 
 function clean_up_robots()
 	MapForEach(true,"Robot", function(robot)

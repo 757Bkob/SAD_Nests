@@ -36,10 +36,7 @@ function GiveExpeditionSpeciesEffectToSurvivor:GetError()
 	end
 end
 
-
-
---local old_init = UnitAnimal.Init
-
+--[[
 function set_scissorhand_burned()
 	local animals = ClassDescendantsList('UnitAnimal')
 	for _,v in animals do
@@ -74,23 +71,5 @@ function set_scissorhand_eaten()
 			unit.MaxHealth = new_max
 		end
 	end)
-end
-
---[[
-function UnitAnimal:Init()
-	old_init()
-	if UnitAnimal.SpeciesGroup == 'species_scissorhand' and g_Classes[UnitAnimal.id].MaxHealth == UnitAnimal.MaxHealththen then
-		if MapVarValues["Scissorhands_burned"] then
-			local new_max = DivRound(unit.MaxHealth*8,10)
-			if self.Health > new_max then
-				self.Health = new_max
-			end
-			self.MaxHealth = new_max
-		elseif MapVarValues["Scissorhands_full"] then
-			local new_max = DivRound(unit.MaxHealth*12,10)
-			self.MaxHealth = new_max
-			self.Health = new_max
-		end
-	end
 end
 --]]
