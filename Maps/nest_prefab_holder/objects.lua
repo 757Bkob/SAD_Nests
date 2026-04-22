@@ -6,15 +6,15 @@ PlaceObj('PrefabMarker', {
 	'MarkerName', "SpawnConsortiumNest_03",
 	'ClassToCount', {
 		ConsortiumNestMarker = 1,
-		PXSatelite = 1,
-		PXTeslaRod = 4,
+		ConsortiumSporeDeposit2 = 4,
+		ConsortiumSporeDeposit3 = 1,
 	},
 	'source', {
 		handle = 1725445525,
 		map = "nest_prefab_holder",
 	},
 	'ExportedName', "Any.SpawnConsortiumNest_03",
-	'ExportedHash', -1934449408694917449,
+	'ExportedHash', 3041846299786586056,
 	'AssetsRevision', 29265,
 	'Tags', set( "ConsortiumNest" ),
 	'PoiType', "ConsortiumNest",
@@ -55,15 +55,15 @@ PlaceObj('PrefabMarker', {
 	'MarkerName', "SpawnConsortiumNest_02",
 	'ClassToCount', {
 		ConsortiumNestMarker = 1,
-		PXSatelite = 2,
-		PXTeslaRod = 2,
+		ConsortiumSporeDeposit2 = 2,
+		ConsortiumSporeDeposit3 = 2,
 	},
 	'source', {
 		handle = 1353441996,
 		map = "nest_prefab_holder",
 	},
 	'ExportedName', "Any.SpawnConsortiumNest_02",
-	'ExportedHash', -6863084763251148546,
+	'ExportedHash', -5784223780377171972,
 	'AssetsRevision', 29265,
 	'Tags', set( "ConsortiumNest" ),
 	'PoiType', "ConsortiumNest",
@@ -98,14 +98,14 @@ PlaceObj('PrefabMarker', {
 	'MarkerName', "SpawnConsortiumNest_01",
 	'ClassToCount', {
 		ConsortiumNestMarker = 1,
-		PXSatelite = 4,
+		ConsortiumSporeDeposit3 = 4,
 	},
 	'source', {
 		handle = 1354319414,
 		map = "nest_prefab_holder",
 	},
 	'ExportedName', "Any.SpawnConsortiumNest_01",
-	'ExportedHash', 1144278545109099966,
+	'ExportedHash', -2835052706437093650,
 	'AssetsRevision', 29265,
 	'Tags', set( "ConsortiumNest" ),
 	'PoiType', "ConsortiumNest",
@@ -312,19 +312,19 @@ PlaceObj('ScissorhandsNestMarker', {
 LoadPersistFlagTables({8388608,16384,4096,256,18014398509481984,36028797018963968,1152921504606846976,2305843009213693952,4611686018427387904},{16384,524288,1048576,8,32,16,8388608,65536,32768})
 local p = PlaceAndInit_v5
 
-p("PXTeslaRod",19574,26502,0)
-p("PXSatelite",32330,20314,11086,2097152)
-p("PXTeslaRod",20179,35867,0)
-p("PXSatelite",24496,63978,8274,2097152)
-p("PXTeslaRod",45519,27892,0)
-p("PXSatelite",63604,20769,8274,2097152)
-p("PXTeslaRod",45399,37358,0)
-p("PXTeslaRod",47027,61866,0)
-p("PXSatelite",63417,45726,1866,2097152)
-p("PXTeslaRod",21852,88506,0)
-p("PXSatelite",46391,87882,18298,2097152)
-p("PXSatelite",87379,21136,13057,2097152)
-p("PXSatelite",87058,45421,18298,2097152)
+p("ConsortiumSporeDeposit2",19736,28335,0)
+p("ConsortiumSporeDeposit3",32505,19315,10904,2097152)
+p("ConsortiumSporeDeposit2",20457,46297,0)
+p("ConsortiumSporeDeposit3",23609,61928,18900,2097152)
+p("ConsortiumSporeDeposit2",45926,25846,0)
+p("ConsortiumSporeDeposit3",63551,22280,7637,2097152)
+p("ConsortiumSporeDeposit2",46759,45256,0)
+p("ConsortiumSporeDeposit2",47314,63393,0)
+p("ConsortiumSporeDeposit3",63203,45829,2425,2097152)
+p("ConsortiumSporeDeposit2",22622,88931,0)
+p("ConsortiumSporeDeposit3",46637,88309,8100,2097152)
+p("ConsortiumSporeDeposit3",88147,21867,13623,2097152)
+p("ConsortiumSporeDeposit3",87600,47188,19334,2097152)
 p("AlienHive_02",126553,83860,0)
 p("AlienHive_09",126202,91421,0)
 p("AlienHive_08",134187,75142,0)

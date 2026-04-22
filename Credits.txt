@@ -1,0 +1,77 @@
+-----------------------------------------------------------------------------------------------------
+Model Information:
+* title: 	Cut branches grass campfire
+* source: 	https://sketchfab.com/3d-models/cut-branches-grass-campfire-ee0fbd88730e40fa8ea1a2cbc314f50f
+* author: 	matousekfoto (https://sketchfab.com/matousekfoto)
+* use: 		Main nest building Shogu
+
+Model License:
+* license type: CC-BY-4.0 https://creativecommons.org/licenses/by/4.0/
+* requirements: Author credited, statement of changes, no additional restrictions
+
+-----------------------------------------------------------------------------------------------------
+Model Information:
+* title:	Blue Tower SCI-FI
+* source:	https://sketchfab.com/3d-models/blue-tower-sci-fi-b604fb1bd2a1471592c5100ad7dc687e
+* author:	Lancelot.Dignon (https://sketchfab.com/Lancelot.Dignon)
+* use:	 	main nest building consortium
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+-----------------------------------------------------------------------------------------------------
+Model Information:
+* title:	Sci_Fi Antenna
+* source:	https://sketchfab.com/3d-models/sci-fi-antenna-dcfd54e46fcd4cf48ec331bb79b209de
+* author:	Zambur (https://sketchfab.com/Zambur)
+* use:	 	ancillery nest building consortium
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.+
+
+-----------------------------------------------------------------------------------------------------
+Model Information:
+* title:	Power - Tesla Coil
+* source:	https://sketchfab.com/3d-models/power-tesla-coil-c3c788a1c0e54fdf8d9d94f6aaec7848
+* author:	N-GONE (https://sketchfab.com/fdfxd2)
+* use:	 	ancillery nest building consortium
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+-----------------------------------------------------------------------------------------------------
+Model Information:
+* title:	"Devils Puffball"
+* source:	https://sketchfab.com/3d-models/devils-puffball-81c8029b7e304e0bbc69dcd06b0e4a9c
+* author:	gavinpgamer1 (https://sketchfab.com/gavinpgamer1)
+* use:	 	ancillery nest building shogu
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+-----------------------------------------------------------------------------------------------------
+Model Information:
+* title:	Fantasy Mushrooms
+* source:	https://sketchfab.com/3d-models/devils-puffball-81c8029b7e304e0bbc69dcd06b0e4a9c
+* author:	samluke (https://sketchfab.com/samluke)
+* use:	 	ancillery nest building shogu
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.
+
+-----------------------------------------------------------------------------------------------------
+Model Information:
+* title:	Crabsquid Egg
+* source:	https://sketchfab.com/3d-models/crabsquid-egg-42358b13a50a4eb6b9f89aa9faee63f9
+* author:	gavinpgamer1 (https://sketchfab.com/gavinpgamer1)
+* use:	 	Shogu Egg
+* Edited: Yes, animation slowed down and minimized
+
+Model License:
+* license type:	CC-BY-4.0 (http://creativecommons.org/licenses/by/4.0/)
+* requirements:	Author must be credited. Commercial use is allowed.

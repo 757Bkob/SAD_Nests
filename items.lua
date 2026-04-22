@@ -1,31 +1,39 @@
 return {
 PlaceObj('ModItemCode', {
-	'name', "EnhancedTerritorialNest_class",
-	'CodeFileName', "Code/EnhancedTerritorialNest_class.lua",
+	'name', "NA_NestExpansion",
+	'CodeFileName', "Code/NA_NestExpansion.lua",
 }),
 PlaceObj('ModItemCode', {
-	'name', "Consortium_nest_class",
-	'CodeFileName', "Code/Consortium_nest_class.lua",
+	'name', "NA_Consortium",
+	'CodeFileName', "Code/NA_Consortium.lua",
 }),
 PlaceObj('ModItemCode', {
-	'name', "Disaster_functions",
-	'CodeFileName', "Code/Disaster_functions.lua",
+	'name', "NA_Disaster",
+	'CodeFileName', "Code/NA_Disaster.lua",
 }),
 PlaceObj('ModItemCode', {
-	'name', "Nest_Expedition_Functions",
-	'CodeFileName', "Code/Nest_Expedition_Functions.lua",
+	'name', "NA_ExpeditionStuff",
+	'CodeFileName', "Code/NA_ExpeditionStuff.lua",
 }),
 PlaceObj('ModItemCode', {
-	'name', "aggression_code",
-	'CodeFileName', "Code/aggression_code.lua",
+	'name', "NA_Aggression",
+	'CodeFileName', "Code/NA_Aggression.lua",
 }),
 PlaceObj('ModItemCode', {
-	'name', "NestingSpeciesPreset",
-	'CodeFileName', "Code/NestingSpeciesPreset.lua",
+	'name', "NA_NestPreset",
+	'CodeFileName', "Code/NA_NestPreset.lua",
 }),
 PlaceObj('ModItemCode', {
-	'name', "helper_functions",
-	'CodeFileName', "Code/helper_functions.lua",
+	'name', "NA_Helper",
+	'CodeFileName', "Code/NA_Helper.lua",
+}),
+PlaceObj('ModItemCode', {
+	'name', "NA_ShoguNest",
+	'CodeFileName', "Code/NA_ShoguNest.lua",
+}),
+PlaceObj('ModItemCode', {
+	'name', "NA_Unit_Invader_Expansion",
+	'CodeFileName', "Code/NA_Unit_Invader_Expansion.lua",
 }),
 PlaceObj('ModItemFolder', {
 	'name', "Notifications",
@@ -228,6 +236,361 @@ PlaceObj('ModItemFolder', {
 		save_in = "Mod/TGkJ3Tu",
 		text = T(277231115910, --[[ModItemNotificationPreset nests_evolving text]] "A nest has evolved it's brood!"),
 	}),
+	PlaceObj('ModItemNotificationPreset', {
+		CanChangeGameSpeed = function (self) return GetAccountStorageOptionValue("AnimalAttackEffect") < 3 end,
+		CanChangeGameSpeedLimit = function (self) return GetAccountStorageOptionValue("AnimalAttackEffect") == 1 end,
+		comment = "-- Overrode the FX/music that plays when attacked due to how many attacks the player gets with this mod",
+		dismissable = false,
+		game_speed = "normal",
+		game_speed_limit = "fast",
+		game_speed_limit_duration = 40000,
+		id = "AnimalAttack",
+		msg_reactions = {
+			PlaceObj('MsgReaction', {
+				Event = "InvaderBehaviorAssign",
+				Handler = function (self, animal, new_behavior)
+					if IsKindOfClasses(new_behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") and not animal:IsDead() and not animal.forced_pacification then
+						if animal:IsKindOf("UnitAnimal") then
+							NotificationObjRem("AnimalAttack_Spawned", animal)
+							if self:AddObject(animal) then
+								Msg("AnimalAttackCountChanged", self.id)
+							end
+						end
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "InvaderBehaviorExpire",
+				Handler = function (self, animal, behavior)
+					if not IsKindOfClasses(behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") or animal:IsDead() or animal.forced_pacification then
+						if self:RemoveObject(animal) then
+							Msg("AnimalAttackCountChanged", self.id)
+						end
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "UnitChangeAttackTarget",
+				Handler = function (self, unit, target, old_target)
+					-- This msg handles an animal's transfer between Aggressive animals and Animal attack notifications.
+					if unit:IsKindOf("UnitAnimal") then
+					
+						-- The animal is attacking any human combat group target
+						-- => remove it from Aggressive animals and add it to Animal attack
+						local human_group = Human.CombatGroup
+						if IsValid(target) and target.CombatGroup == human_group and unit.CombatGroup ~= human_group then
+							NotificationObjRem("AnimalAttack_Spawned", unit)
+							if self:AddObject(unit) then
+								Msg("AnimalAttackCountChanged", self.id)
+							end
+							
+						-- The animal is not attacking any human target (anymore) but it will somewhen become aggressive
+						-- => send it back to Aggressive animals notification
+						elseif table.findfirst(unit.invader_behaviours, function(_, behaviour) return IsKindOfClasses(behaviour, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") end) then 
+							NotificationObjAdd("AnimalAttack_Spawned", unit)
+							if self:RemoveObject(unit) then
+								Msg("AnimalAttackCountChanged", self.id)
+							end
+							
+						-- The animal is not attacking any human target and will not become aggressive and IS NOT aggressive anymore
+						-- => just remove (will be removed from everywhere)
+						elseif (unit.forced_aggression_until or 0) < GameTime() or unit.forced_pacification or (unit:IsTamed() and not target) then
+							if self:RemoveObject(unit) then
+								Msg("AnimalAttackCountChanged", self.id)
+							end
+						end
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "UnitDied",
+				Handler = function (self, unit)
+					if IsValid(unit) then
+						if self:RemoveObject(unit) then
+							Msg("AnimalAttackCountChanged", self.id) 
+						end
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "AnimalDone",
+				Handler = function (self, animal)
+					if IsValid(animal) then
+						if self:RemoveObject(animal) then
+							Msg("AnimalAttackCountChanged", self.id)
+						end
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "AnimalTamed",
+				Handler = function (self, unit, animal, success, reason)
+					if success and IsValid(animal) then
+						if self:RemoveObject(animal) then
+							Msg("AnimalAttackCountChanged", self.id)
+						end
+					end
+				end,
+			}),
+		},
+		priority = "AnimalAlert",
+		remove_invalid_objs = true,
+		rollover_text = T(561515660398, --[[ModItemNotificationPreset AnimalAttack rollover_text]] "The following animals are exhibiting hostile behavior towards the camp and its inhabitants.<newline><newline><notif_list_units('AnimalAttack', false, 'by_class_id')>"),
+		rollover_title = T(638488043624, --[[ModItemNotificationPreset AnimalAttack rollover_title]] "Animal attacks"),
+		save_in = "Mod/TGkJ3Tu",
+		suppressable = false,
+		text = T(967680094442, --[[ModItemNotificationPreset AnimalAttack text]] "Animal attack: <em><notif_list_units('AnimalAttack', 'count only')></em>"),
+	}),
+	PlaceObj('ModItemNotificationPreset', {
+		dismissable = false,
+		group = "Default",
+		id = "AnimalAttack_Spawned",
+		msg_reactions = {
+			PlaceObj('MsgReaction', {
+				Event = "InvaderBehaviorEnqueued",
+				Handler = function (self, animal, behavior)
+					if IsValid(animal) and IsKindOfClasses(behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") then
+						if animal:IsKindOf("UnitAnimal") then
+							self:AddObject(animal)
+						end
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "InvaderBehaviorAssign",
+				Handler = function (self, animal, new_behavior)
+					if IsKindOfClasses(new_behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") then
+						self:RemoveObject(animal)
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "UnitDied",
+				Handler = function (self, unit)
+					if IsValid(unit) then
+						self:RemoveObject(unit)
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "AnimalTamed",
+				Handler = function (self, unit, animal, success, reason)
+					if success and IsValid(animal) then
+						self:RemoveObject(animal)
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "AnimalDone",
+				Handler = function (self, animal)
+					if IsValid(animal) then
+						self:RemoveObject(animal)
+					end
+				end,
+			}),
+		},
+		priority = "AnimalAlert",
+		remove_invalid_objs = true,
+		rollover_text = T(244905598533, --[[ModItemNotificationPreset AnimalAttack_Spawned rollover_text]] "The following animals have noticed the camp and are preparing to attack in several hours.<newline><newline><notif_list_units('AnimalAttack_Spawned', false, 'by_class_id')>"),
+		rollover_title = T(900684981804, --[[ModItemNotificationPreset AnimalAttack_Spawned rollover_title]] "Aggressive animals"),
+		save_in = "Mod/TGkJ3Tu",
+		suppressable = false,
+		text = T(473127939178, --[[ModItemNotificationPreset AnimalAttack_Spawned text]] "Aggressive animals: <em><notif_list_units('AnimalAttack_Spawned', 'count only')></em>"),
+	}),
+	PlaceObj('ModItemNotificationPreset', {
+		CanChangeGameSpeed = function (self) return GetAccountStorageOptionValue("AnimalAttackEffect") < 3 end,
+		CanChangeGameSpeedLimit = function (self) return GetAccountStorageOptionValue("AnimalAttackEffect") == 1 end,
+		dismissable = false,
+		game_speed = "normal",
+		game_speed_limit = "fast",
+		game_speed_limit_duration = 40000,
+		group = "Default",
+		id = "RobotAttack",
+		msg_reactions = {
+			PlaceObj('MsgReaction', {
+				Event = "InvaderBehaviorAssign",
+				Handler = function (self, animal, new_behavior)
+					if not animal:IsKindOf("Robot") then return end
+					 
+					if IsKindOfClasses(new_behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") and not animal:IsDead() and not animal.forced_pacification then
+						NotificationObjRem("RobotAttack_Spawned", animal)
+						if self:AddObject(animal) then
+							Msg("AnimalAttackCountChanged", self.id)
+						end
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "InvaderBehaviorExpire",
+				Handler = function (self, animal, behavior)
+					if not IsKindOfClasses(behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") or animal:IsDead() or animal.forced_pacification then
+						if self:RemoveObject(animal) then
+							Msg("AnimalAttackCountChanged", self.id)
+						end
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "UnitChangeAttackTarget",
+				Handler = function (self, unit, target, old_target)
+					-- This msg handles a robot's transfer between Search party landed and Consortium attack notifications.
+					if unit:IsKindOf("Robot") then
+					
+						-- The robot is attacking any human combat group target
+						-- => remove it from Search party landed and add it to  Consortium attack
+						local human_group = Human.CombatGroup
+						if IsValid(target) and target.CombatGroup == human_group and unit.CombatGroup ~= human_group then
+							NotificationObjRem("RobotAttack_Spawned", unit)
+							if self:AddObject(unit) then
+								Msg("AnimalAttackCountChanged", self.id)
+							end
+							
+						-- The robot is not attacking any human target (anymore) but it will somewhen become aggressive
+						-- => send it back to Search party landed notification
+						elseif table.findfirst(unit.invader_behaviours, function(_, behaviour) return IsKindOfClasses(behaviour, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") end) then 
+							NotificationObjAdd("RobotAttack_Spawned", unit)
+							if self:RemoveObject(unit) then
+								Msg("AnimalAttackCountChanged", self.id)
+							end
+							
+						-- The robot is not attacking any human target and will not become aggressive and IS NOT aggressive anymore
+						-- => just remove (will be removed from everywhere)
+						elseif (unit.forced_aggression_until or 0) < GameTime() or unit.forced_pacification then
+							if self:RemoveObject(unit) then
+								Msg("AnimalAttackCountChanged", self.id)
+							end
+						end
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "UnitDied",
+				Handler = function (self, unit)
+					if IsValid(unit) then
+						if self:RemoveObject(unit) then
+							Msg("AnimalAttackCountChanged", self.id) 
+						end
+					end
+				end,
+			}),
+		},
+		priority = "AnimalAlert",
+		remove_invalid_objs = true,
+		rollover_text = T(156872672493, --[[ModItemNotificationPreset RobotAttack rollover_text]] "The following automated consortium assault robots have been tasked to destroy Hope and everything that stays on their way.<newline><newline><notif_list_units('RobotAttack', false, 'by_class_id')>"),
+		rollover_title = T(636154201211, --[[ModItemNotificationPreset RobotAttack rollover_title]] "Consortium attack"),
+		save_in = "Mod/TGkJ3Tu",
+		suppressable = false,
+		text = T(815574955109, --[[ModItemNotificationPreset RobotAttack text]] "Consortium attack: <em><notif_list_units('RobotAttack', 'count only')></em>"),
+	}),
+	PlaceObj('ModItemNotificationPreset', {
+		dismissable = false,
+		group = "Default",
+		id = "RobotAttack_Spawned",
+		msg_reactions = {
+			PlaceObj('MsgReaction', {
+				Event = "InvaderBehaviorEnqueued",
+				Handler = function (self, animal, behavior)
+					if not animal:IsKindOf("Robot") then return end
+					
+					if IsValid(animal) and IsKindOfClasses(behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") then
+						self:AddObject(animal)
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "InvaderBehaviorAssign",
+				Handler = function (self, animal, new_behavior)
+					if IsKindOfClasses(new_behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") then
+						self:RemoveObject(animal)
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "UnitDied",
+				Handler = function (self, unit)
+					if IsValid(unit) then
+						self:RemoveObject(unit)
+					end
+				end,
+			}),
+		},
+		priority = "AnimalAlert",
+		remove_invalid_objs = true,
+		rollover_text = T(197694743001, --[[ModItemNotificationPreset RobotAttack_Spawned rollover_text]] "The following automated consortium assault robots have detected us and are preparing to attack in several hours.<newline><newline><notif_list_units('RobotAttack_Spawned', false, 'by_class_id')>"),
+		rollover_title = T(202493608080, --[[ModItemNotificationPreset RobotAttack_Spawned rollover_title]] "Search party"),
+		save_in = "Mod/TGkJ3Tu",
+		suppressable = false,
+		text = T(715728216572, --[[ModItemNotificationPreset RobotAttack_Spawned text]] "Search party landed: <em><notif_list_units('RobotAttack_Spawned', 'count only')></em>"),
+	}),
+	PlaceObj('ModItemNotificationPreset', {
+		CanChangeGameSpeedLimit = function (self) return GetAccountStorageOptionValue("AnimalAttackEffect") == 1 end,
+		dismissable = false,
+		fx_action = "UINotificationAnimalAttack",
+		game_speed = "normal",
+		id = "UnitsScouting",
+		msg_reactions = {
+			PlaceObj('MsgReaction', {
+				Event = "InvaderBehaviorAssign",
+				Handler = function (self, animal, new_behavior)
+					if IsKindOfClasses(new_behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") and not animal:IsDead() and not animal.forced_pacification then
+						if animal:IsKindOf("UnitAnimal") then
+							NotificationObjRem("AnimalAttack_Spawned", animal)
+							if self:AddObject(animal) then
+								Msg("AnimalAttackCountChanged", self.id)
+							end
+						end
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "InvaderBehaviorExpire",
+				Handler = function (self, animal, behavior)
+					if not IsKindOfClasses(behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") or animal:IsDead() or animal.forced_pacification then
+						if self:RemoveObject(animal) then
+							Msg("AnimalAttackCountChanged", self.id)
+						end
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "UnitDied",
+				Handler = function (self, unit)
+					if IsValid(unit) then
+						if self:RemoveObject(unit) then
+							Msg("AnimalAttackCountChanged", self.id) 
+						end
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "AnimalDone",
+				Handler = function (self, animal)
+					if IsValid(animal) then
+						if self:RemoveObject(animal) then
+							Msg("AnimalAttackCountChanged", self.id)
+						end
+					end
+				end,
+			}),
+			PlaceObj('MsgReaction', {
+				Event = "AnimalTamed",
+				Handler = function (self, unit, animal, success, reason)
+					if success and IsValid(animal) then
+						if self:RemoveObject(animal) then
+							Msg("AnimalAttackCountChanged", self.id)
+						end
+					end
+				end,
+			}),
+		},
+		priority = "AnimalAlert",
+		remove_invalid_objs = true,
+		rollover_text = T(405116275636, --[[ModItemNotificationPreset UnitsScouting rollover_text]] "The following animals are alone and scouting the nearby area.<newline>Kill them before returning to their home and report what they find!<newline><newline><notif_list_units('UnitsScouting', false, 'by_class_id')>"),
+		rollover_title = T(163183732848, --[[ModItemNotificationPreset UnitsScouting rollover_title]] "Nests are scouting!"),
+		save_in = "Mod/TGkJ3Tu",
+		suppressable = false,
+		text = T(578516300472, --[[ModItemNotificationPreset UnitsScouting text]] "Animal attack: <em><notif_list_units('UnitsScouting', 'count only')></em>"),
+	}),
 	}),
 PlaceObj('ModItemFolder', {
 	'name', "Spawner storybits (Nests/Attacks)",
@@ -258,6 +621,7 @@ PlaceObj('ModItemFolder', {
 		Sets = set( "Negative" ),
 		Text = T(150518945986, --[[ModItemStoryBit new_nest_scissorhand Text]] "There is a meteor on course to land close to us.\nOur calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!\n\nWe can't make out what it is composed of...\nBut it must have some rare minerals inside of it!"),
 		Title = T(206941887720, --[[ModItemStoryBit new_nest_scissorhand Title]] "A meteor is landing nearby"),
+		group = "Default",
 		id = "new_nest_scissorhand",
 		max_reply_id = 3,
 		qa_info = PlaceObj('PresetQAInfo', {
@@ -291,6 +655,7 @@ PlaceObj('ModItemFolder', {
 		Sets = set( "Negative" ),
 		Text = T(480862517656, --[[ModItemStoryBit new_nest_shrieker Text]] "There is a meteor on course to land close to us.\nOur calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!\n\nWe can't make out what it is composed of...\nBut it must have some rare minerals inside of it!"),
 		Title = T(744697671524, --[[ModItemStoryBit new_nest_shrieker Title]] "A meteor is landing nearby"),
+		group = "Default",
 		id = "new_nest_shrieker",
 		max_reply_id = 2,
 		qa_info = PlaceObj('PresetQAInfo', {
@@ -324,7 +689,42 @@ PlaceObj('ModItemFolder', {
 		Sets = set( "Negative" ),
 		Text = T(485076708155, --[[ModItemStoryBit new_nest_consortium Text]] "There is a meteor on course to land close to us.\nOur calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!\n\nWe can't make out what it is composed of...\nBut it must have some rare minerals inside of it!"),
 		Title = T(992773234973, --[[ModItemStoryBit new_nest_consortium Title]] "A meteor is landing nearby"),
+		group = "Default",
 		id = "new_nest_consortium",
+		max_reply_id = 3,
+		qa_info = PlaceObj('PresetQAInfo', {
+			Log = "Modified by Svetlio on 2020-Mar-04\nModified by Lina on 2020-Mar-04\nModified by Lina on 2020-Mar-06\nModified by Lina on 2020-Mar-26\nModified by Lina on 2020-Jun-25\nModified by Lina on 2020-Jul-15\nModified by Lina on 2020-Sep-28\nModified by Lina on 2020-Oct-26\nModified by Lina on 2021-Jan-12\nModified by Ivan on 2021-Feb-05\nModified by Ivan on 2021-Feb-24\nModified by Gaby on 2021-Mar-02\nModified by Ivan on 2021-Mar-02\nModified by Ivan on 2021-Mar-22\nModified by Gaby on 2021-Mar-25\nModified by Bobby on 2021-Aug-02\nModified by Ivan on 2021-Sep-20\nModified by Ivan on 2021-Nov-04\nModified by Xaerial on 2022-Sep-05\nModified by Xaerial on 2022-Oct-10",
+			param_bindings = false,
+		}),
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemStoryBit', {
+		Category = "Tick",
+		Effects = {
+			PlaceObj('ActivateSpawnDef', {
+				SpawnDefId = "ShoguNest",
+				param_bindings = false,
+			}),
+			PlaceObj('ExecuteCode', {
+				Code = function (self, obj)
+					mark_spawned_nest('ShoguNesting')
+				end,
+				param_bindings = false,
+			}),
+		},
+		Enabled = true,
+		HasNotification = false,
+		HasPopup = false,
+		NotificationPriority = "Important",
+		NotificationText = T(350988880615, --[[ModItemStoryBit new_nest_shogu NotificationText]] "A meteor is landing nearby"),
+		NotificationTitle = T(898228788625, --[[ModItemStoryBit new_nest_shogu NotificationTitle]] "A meteor is landing nearby"),
+		OneTime = false,
+		SelectObject = false,
+		Sets = set( "Negative" ),
+		Text = T(319726521854, --[[ModItemStoryBit new_nest_shogu Text]] "There is a meteor on course to land close to us.\nOur calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!\n\nWe can't make out what it is composed of...\nBut it must have some rare minerals inside of it!"),
+		Title = T(975870355206, --[[ModItemStoryBit new_nest_shogu Title]] "A meteor is landing nearby"),
+		group = "Default",
+		id = "new_nest_shogu",
 		max_reply_id = 3,
 		qa_info = PlaceObj('PresetQAInfo', {
 			Log = "Modified by Svetlio on 2020-Mar-04\nModified by Lina on 2020-Mar-04\nModified by Lina on 2020-Mar-06\nModified by Lina on 2020-Mar-26\nModified by Lina on 2020-Jun-25\nModified by Lina on 2020-Jul-15\nModified by Lina on 2020-Sep-28\nModified by Lina on 2020-Oct-26\nModified by Lina on 2021-Jan-12\nModified by Ivan on 2021-Feb-05\nModified by Ivan on 2021-Feb-24\nModified by Gaby on 2021-Mar-02\nModified by Ivan on 2021-Mar-02\nModified by Ivan on 2021-Mar-22\nModified by Gaby on 2021-Mar-25\nModified by Bobby on 2021-Aug-02\nModified by Ivan on 2021-Sep-20\nModified by Ivan on 2021-Nov-04\nModified by Xaerial on 2022-Sep-05\nModified by Xaerial on 2022-Oct-10",
@@ -551,38 +951,6 @@ PlaceObj('ModItemFolder', {
 				'HideOnEmpty', true,
 			}),
 			PlaceObj('XTemplateWindow', {
-				'comment', "Under 100% attack strength next",
-				'__context_of_kind', "EnhancedTerritorialNest",
-				'__condition', function (parent, context) return context:Getui_attack_strength() <= 100 end,
-				'__class', "UIBar",
-				'RolloverTemplate', "Rollover",
-				'RolloverText', T(177622343318, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverText]] "How strong this nests next attack will be!\nThe <em>arrow over the bar</em> indicates the current maximum strength this nest can attack with.\nThis maximum strength will increase as more nests of this species wake up and the longer this nest stays alive!"),
-				'RolloverTitle', T(887730983296, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle]] "Attack Strength"),
-				'Id', "idNestAttackStrBar",
-				'BindTo', "ui_attack_strength",
-				'BarColor', RGBA(96, 116, 127, 255),
-				'Text', T(640556952688, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "Estimated Attack Strength<right><percent(value)>"),
-				'AddTargetTickMark', false,
-				'ShowTargetArrows', false,
-				'MarkerAfterSeperatorImage', "UI/Hud/bar_marker_breakdown",
-			}),
-			PlaceObj('XTemplateWindow', {
-				'comment', "Above 100% attack strength next",
-				'__context_of_kind', "EnhancedTerritorialNest",
-				'__condition', function (parent, context) return context:Getui_attack_strength() > 100 end,
-				'__class', "UIBar",
-				'RolloverTemplate', "Rollover",
-				'RolloverText', T(828707890863, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverText]] "How strong this nests next attack will be!\nThe <em>arrow over the bar</em> indicates the current maximum strength this nest can attack with.\nThis maximum strength will increase as more nests of this species wake up and the longer this nest stays alive!"),
-				'RolloverTitle', T(974540735024, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle]] "Attack Strength"),
-				'Id', "idNestAttackStrBar",
-				'BindTo', "ui_attack_strength",
-				'BarColor', RGBA(235, 13, 13, 255),
-				'Text', T(514131723970, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "You dun messed up"),
-				'AddTargetTickMark', false,
-				'ShowTargetArrows', false,
-				'MarkerAfterSeperatorImage', "UI/Hud/bar_marker_breakdown",
-			}),
-			PlaceObj('XTemplateWindow', {
 				'comment', "Attack is far away",
 				'__context_of_kind', "EnhancedTerritorialNest",
 				'__condition', function (parent, context) return context:Getui_attack_percent() < 90 end,
@@ -615,8 +983,71 @@ PlaceObj('ModItemFolder', {
 				'MarkerAfterSeperatorImage', "UI/Hud/bar_marker_breakdown",
 			}),
 			PlaceObj('XTemplateWindow', {
+				'comment', "Under 100% attack strength next",
+				'__context_of_kind', "EnhancedTerritorialNest",
+				'__condition', function (parent, context) return context:Getui_attack_strength() <= 100 end,
+				'__class', "UIBar",
+				'RolloverTemplate', "Rollover",
+				'RolloverText', T(177622343318, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverText]] "How strong this nests next attack will be!\nThe <em>arrow over the bar</em> indicates the current maximum strength this nest can attack with.\nThis maximum strength will increase as more nests of this species wake up and the longer this nest stays alive!"),
+				'RolloverTitle', T(887730983296, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle]] "Attack Strength"),
+				'Id', "idNestAttackStrBar",
+				'BindTo', "ui_attack_strength",
+				'BarColor', RGBA(96, 116, 127, 255),
+				'Text', T(640556952688, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "Attack strength vs our defenses<right><percent(value)>"),
+				'AddTargetTickMark', false,
+				'ShowTargetArrows', false,
+				'MarkerAfterSeperatorImage', "UI/Hud/bar_marker_breakdown",
+			}),
+			PlaceObj('XTemplateWindow', {
+				'comment', "Above 100% attack strength next",
+				'__context_of_kind', "EnhancedTerritorialNest",
+				'__condition', function (parent, context) return context:Getui_attack_strength() > 100 end,
+				'__class', "UIBar",
+				'RolloverTemplate', "Rollover",
+				'RolloverText', T(828707890863, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverText]] "How strong this nests next attack will be!\nThe <em>arrow over the bar</em> indicates the current maximum strength this nest can attack with.\nThis maximum strength will increase as more nests of this species wake up and the longer this nest stays alive!"),
+				'RolloverTitle', T(974540735024, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle]] "Attack Strength"),
+				'Id', "idNestAttackStrBar",
+				'BindTo', "ui_attack_strength",
+				'BarColor', RGBA(235, 13, 13, 255),
+				'Text', T(514131723970, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "This nests attack will overwhelm us!"),
+				'AddTargetTickMark', false,
+				'ShowTargetArrows', false,
+				'MarkerAfterSeperatorImage', "UI/Hud/bar_marker_breakdown",
+			}),
+			PlaceObj('XTemplateWindow', {
+				'__context_of_kind', "EnhancedTerritorialNest",
+				'__condition', function (parent, context) return context:Getui_attack_cap()  ~= context:calculate_attack_strength('player') end,
+				'__class', "UIBar",
+				'RolloverTemplate', "Rollover",
+				'RolloverText', T(190081229485, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverText]] "How strong this nests next attack will be!\nThe <em>arrow over the bar</em> indicates the current maximum strength this nest can attack with.\nThis maximum strength will increase as more nests of this species wake up and the longer this nest stays alive!"),
+				'RolloverTitle', T(115596171582, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle]] "Attack Strength"),
+				'Id', "idNestAttackCapBar",
+				'BindTo', "ui_attack_cap",
+				'BarColor', RGBA(96, 116, 127, 255),
+				'Text', T(628825576765, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "Attack strength vs Max strength possible <right><percent(value)>"),
+				'AddTargetTickMark', false,
+				'ShowTargetArrows', false,
+				'MarkerAfterSeperatorImage', "UI/Hud/bar_marker_breakdown",
+			}),
+			PlaceObj('XTemplateWindow', {
+				'__context_of_kind', "EnhancedTerritorialNest",
+				'__condition', function (parent, context) return context:Getui_attack_cap()  == context:calculate_attack_strength('player') end,
+				'__class', "UIBar",
+				'RolloverTemplate', "Rollover",
+				'RolloverText', T(349056940582, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverText]] "How strong this nests next attack will be!\nThe <em>arrow over the bar</em> indicates the current maximum strength this nest can attack with.\nThis maximum strength will increase as more nests of this species wake up and the longer this nest stays alive!"),
+				'RolloverTitle', T(880572893284, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle]] "Attack Strength"),
+				'Id', "idNestAttackCapBar",
+				'BindTo', "ui_attack_cap",
+				'BarColor', RGBA(216, 7, 36, 255),
+				'Text', T(130129034622, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "Nest Attacking with Max Strength!"),
+				'AddTargetTickMark', false,
+				'ShowTargetArrows', false,
+				'MarkerAfterSeperatorImage', "UI/Hud/bar_marker_breakdown",
+			}),
+			PlaceObj('XTemplateWindow', {
 				'comment', "How close to evolving",
 				'__context_of_kind', "EnhancedTerritorialNest",
+				'__condition', function (parent, context) return context.hatchling_class ~= Find_evolution(g_Classes[context.hatchling_class]) end,
 				'__class', "UIBar",
 				'RolloverTemplate', "Rollover",
 				'RolloverText', T(667468555901, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverText]] "How much biomass is in deep storage, presumably to evolve the units it produces!"),
@@ -624,11 +1055,161 @@ PlaceObj('ModItemFolder', {
 				'Id', "idNestEvoBar",
 				'BindTo', "ui_evo",
 				'BarColor', RGBA(118, 122, 124, 255),
-				'Text', T(829117815020, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "Resources stored for evolution<right><percent(value)>"),
+				'Text', T(829117815020, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "Progress until Evolution <right><percent(value)>"),
 				'AddTargetTickMark', false,
 				'ShowTargetArrows', false,
 				'MarkerAfterSeperatorImage', "UI/Hud/bar_marker_breakdown",
 			}),
+			PlaceObj('XTemplateWindow', {
+				'comment', "How close to evolving",
+				'__context_of_kind', "EnhancedTerritorialNest",
+				'__condition', function (parent, context) return context.hatchling_class == Find_evolution(g_Classes[context.hatchling_class]) end,
+				'__class', "UIBar",
+				'RolloverTemplate', "Rollover",
+				'RolloverText', T(923171248379, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverText]] "How much biomass is in deep storage, presumably to evolve the units it produces!"),
+				'RolloverTitle', T(554662230116, --[[ModItemXTemplate tabOverview_200_BuildingHealth RolloverTitle]] "Attack Evolution"),
+				'Id', "idNestEvoBar",
+				'Progress', 100,
+				'BarColor', RGBA(216, 7, 36, 255),
+				'Text', T(972022516966, --[[ModItemXTemplate tabOverview_200_BuildingHealth Text]] "Nest has fully evolved!"),
+				'AddTargetTickMark', false,
+				'ShowTargetArrows', false,
+				'MarkerAfterSeperatorImage', "UI/Hud/bar_marker_breakdown",
+			}),
+			}),
+	}),
+	PlaceObj('ModItemAttachedUIPreset', {
+		SortKey = 31,
+		id = "NestRoleFar",
+		max_cam_dist_m = 120,
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemAttachedUIPreset', {
+		SortKey = 31,
+		id = "NestRoleClose",
+		max_cam_dist_m = 20,
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemAttachedUIPreset', {
+		SortKey = 31,
+		id = "NestRolePermanent",
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemXTemplate', {
+		__is_kind_of = "XDialog",
+		group = "Stranded",
+		id = "NestRoleHighZoom",
+		save_in = "Mod/TGkJ3Tu",
+		PlaceObj('XTemplateWindow', {
+			'__class', "XDrawCacheDialog",
+			'HAlign', "left",
+			'VAlign', "top",
+			'UseClipBox', false,
+			'FocusOnOpen', "",
+		}, {
+			PlaceObj('XTemplateWindow', {
+				'__class', "XContextWindow",
+				'Margins', box(-75, -45, 0, 0),
+				'OnLayoutComplete', function (self)
+					XContextWindow.OnLayoutComplete(self)
+					local width = MulDivRound(self.box:sizex(), 1000, self.scale:x())
+					local height = MulDivRound(self.box:sizey(), 1000, self.scale:y())
+					self:SetMargins(box((-width / 2), -height + 1, 0, 0))
+				end,
+				'LayoutMethod', "VList",
+				'UseClipBox', false,
+			}, {
+				PlaceObj('XTemplateWindow', {
+					'__class', "XText",
+					'Clip', false,
+					'UseClipBox', false,
+					'FoldWhenHidden', true,
+					'TextStyle', "HUDText",
+					'Translate', true,
+					'Text', T(742581644233, --[[ModItemXTemplate NestRoleHighZoom Text]] "<UIRole>"),
+					'HideOnEmpty', true,
+					'TextHAlign', "center",
+				}),
+				}),
+			}),
+	}),
+	PlaceObj('ModItemXTemplate', {
+		__is_kind_of = "XDialog",
+		group = "Stranded",
+		id = "NestRoleMediumZoom",
+		save_in = "Mod/TGkJ3Tu",
+		PlaceObj('XTemplateWindow', {
+			'__class', "XDrawCacheDialog",
+			'HAlign', "left",
+			'VAlign', "top",
+			'UseClipBox', false,
+			'FocusOnOpen', "",
+		}, {
+			PlaceObj('XTemplateWindow', {
+				'__class', "XContextWindow",
+				'Margins', box(-75, -45, 0, 0),
+				'OnLayoutComplete', function (self)
+					XContextWindow.OnLayoutComplete(self)
+					local width = MulDivRound(self.box:sizex(), 1000, self.scale:x())
+					local height = MulDivRound(self.box:sizey(), 1000, self.scale:y())
+					self:SetMargins(box((-width / 2), -height + 1, 0, 0))
+				end,
+				'LayoutMethod', "VList",
+				'UseClipBox', false,
+			}, {
+				PlaceObj('XTemplateWindow', {
+					'__class', "XText",
+					'Clip', false,
+					'UseClipBox', false,
+					'FoldWhenHidden', true,
+					'TextStyle', "HUDText",
+					'Translate', true,
+					'Text', T(961128649087, --[[ModItemXTemplate NestRoleMediumZoom Text]] "<UIRole>"),
+					'HideOnEmpty', true,
+					'TextHAlign', "center",
+				}),
+				}),
+			}),
+	}),
+	PlaceObj('ModItemXTemplate', {
+		__is_kind_of = "XDialog",
+		group = "Stranded",
+		id = "NestRolePermanent",
+		save_in = "Mod/TGkJ3Tu",
+		PlaceObj('XTemplateWindow', {
+			'__class', "XDrawCacheDialog",
+			'Margins', box(0, -100, 0, 0),
+			'HAlign', "left",
+			'VAlign', "top",
+			'UseClipBox', false,
+			'FocusOnOpen', "",
+		}, {
+			PlaceObj('XTemplateWindow', {
+				'__class', "XContextWindow",
+				'Margins', box(-75, -45, 0, 0),
+				'Padding', box(0, 10, 0, 0),
+				'OnLayoutComplete', function (self)
+					XContextWindow.OnLayoutComplete(self)
+					local width = MulDivRound(self.box:sizex(), 1000, self.scale:x())
+					local height = MulDivRound(self.box:sizey(), 1000, self.scale:y())
+					local model_height = self:GetContext():GetHeight() or 0
+					self:SetMargins(box((-width / 2), 1 - height, 0, 0))
+				end,
+				'LayoutMethod', "VList",
+				'UseClipBox', false,
+			}, {
+				PlaceObj('XTemplateWindow', {
+					'__class', "XText",
+					'Clip', false,
+					'UseClipBox', false,
+					'FoldWhenHidden', true,
+					'TextStyle', "HUDText",
+					'Translate', true,
+					'Text', T(463168741115, --[[ModItemXTemplate NestRolePermanent Text]] "<UIRole>"),
+					'HideOnEmpty', true,
+					'TextHAlign', "center",
+				}),
+				}),
 			}),
 	}),
 	}),
@@ -691,6 +1272,25 @@ PlaceObj('ModItemFolder', {
 		TargetFilter = function (obj) return 0 == MapCount(obj, obj.MaxPrefabRadius, "ScavengeableDebris", "FallingDebris", "Building", "Human", "TerritorialNest") end,
 		group = "StoryBits",
 		id = "ConsortiumNest",
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemSpawnDef', {
+		Cond = return_true,
+		FindSpawnLoc = function (self, spawn_class, target)
+			return self:ResolveTarget()
+		end,
+		PostSpawn = function (self, obj, target, context)
+			AddGameNotification("ShoguNestSpawned", nil, nil, {obj})
+		end,
+		Spawn = function (self, target, spawn_class)
+			return SpawnNestInsideMap(target,nil,"shogu_nest")
+		end,
+		SpawnTimeLimit = false,
+		SurvivorDistMin = 250000,
+		TargetClass = "FallingDebrisMarker",
+		TargetFilter = function (obj) return 0 == MapCount(obj, obj.MaxPrefabRadius, "ScavengeableDebris", "FallingDebris", "Building", "Human", "TerritorialNest") end,
+		group = "StoryBits",
+		id = "ShoguNest",
 		save_in = "Mod/TGkJ3Tu",
 	}),
 	PlaceObj('ModItemPrefabTag', {
@@ -891,10 +1491,10 @@ PlaceObj('ModItemFolder', {
 		MaxObjRadius = 33812,
 		MaxSurfRadius2D = 7210,
 		ModEditor = true,
-		NetHash = 9010960979011690416,
-		ObjectsHash = -5275805457219513278,
+		NetHash = -547307059918928002,
+		ObjectsHash = -3256584299244471452,
 		OrgLuaRevision = 373414,
-		TerrainHash = 5957367570479299252,
+		TerrainHash = 4333834435235192014,
 		group = "PrefabMap",
 		id = "nest_prefab_holder",
 		markers = {
@@ -904,7 +1504,7 @@ PlaceObj('ModItemFolder', {
 				'map', "nest_prefab_holder",
 				'handle', 1354319414,
 				'pos', point(55200, 14400),
-				'data', 'return {name="SpawnConsortiumNest_01",marker={handle = 1354319414,map = "nest_prefab_holder"},hash=1144278545109099966,revision=29265,tags=set( "ConsortiumNest" ),poi_type="ConsortiumNest",poi_area="Default",size=point(40800, 40800),height_hash=-2928276238898405165,height_offset=-1380,min=point(29, 1, 0),max=point(30, 1, 0),type_hash=2577293333366477412,type_names={Sand_01 = 0},grass_hash=3102784033714780765,mask_hash=-4434506287469529529,total_area=3521,min_radius=33,max_radius=33,obj_count=5,obj_min_radius=7806,obj_max_radius=17187,obj_avg_radius=9682,}',
+				'data', 'return {name="SpawnConsortiumNest_01",marker={handle = 1354319414,map = "nest_prefab_holder"},hash=-2835052706437093650,revision=29265,tags=set( "ConsortiumNest" ),poi_type="ConsortiumNest",poi_area="Default",size=point(40800, 40800),height_hash=-2928276238898405165,height_offset=-1380,min=point(29, 1, 0),max=point(30, 1, 0),type_hash=2577293333366477412,type_names={Sand_01 = 0},grass_hash=3102784033714780765,mask_hash=-4434506287469529529,total_area=3521,min_radius=33,max_radius=33,obj_count=5,obj_min_radius=7806,obj_max_radius=17187,obj_avg_radius=9682,}',
 				'data_version', "1",
 			}),
 			PlaceObj('Marker', {
@@ -913,7 +1513,7 @@ PlaceObj('ModItemFolder', {
 				'map', "nest_prefab_holder",
 				'handle', 1353441996,
 				'pos', point(14400, 55200),
-				'data', 'return {name="SpawnConsortiumNest_02",marker={handle = 1353441996,map = "nest_prefab_holder"},hash=-6863084763251148546,revision=29265,tags=set( "ConsortiumNest" ),poi_type="ConsortiumNest",poi_area="Default",size=point(43200, 43200),height_hash=-6554566506273212218,height_offset=-1380,min=point(31, 3, 0),max=point(32, 3, 0),type_hash=7823967666307924114,type_names={Sand_01 = 0},grass_hash=-7711233824600437866,mask_hash=941958136439644175,total_area=3513,min_radius=33,max_radius=33,obj_count=5,obj_min_radius=7806,obj_max_radius=17187,obj_avg_radius=10929,}',
+				'data', 'return {name="SpawnConsortiumNest_02",marker={handle = 1353441996,map = "nest_prefab_holder"},hash=-5784223780377171972,revision=29265,tags=set( "ConsortiumNest" ),poi_type="ConsortiumNest",poi_area="Default",size=point(43200, 43200),height_hash=-6554566506273212218,height_offset=-1380,min=point(31, 3, 0),max=point(32, 3, 0),type_hash=7823967666307924114,type_names={Sand_01 = 0},grass_hash=-7711233824600437866,mask_hash=941958136439644175,total_area=3513,min_radius=33,max_radius=33,obj_count=5,obj_min_radius=7806,obj_max_radius=17187,obj_avg_radius=10929,}',
 				'data_version', "1",
 			}),
 			PlaceObj('Marker', {
@@ -922,7 +1522,7 @@ PlaceObj('ModItemFolder', {
 				'map', "nest_prefab_holder",
 				'handle', 1725445525,
 				'pos', point(14400, 14400),
-				'data', 'return {name="SpawnConsortiumNest_03",marker={handle = 1725445525,map = "nest_prefab_holder"},hash=-1934449408694917449,revision=29265,tags=set( "ConsortiumNest" ),poi_type="ConsortiumNest",poi_area="Default",size=point(40800, 40800),height_hash=-2928276238898405165,height_offset=-1380,min=point(29, 1, 0),max=point(30, 1, 0),type_hash=2577293333366477412,type_names={Sand_01 = 0},grass_hash=3102784033714780765,mask_hash=-4434506287469529529,total_area=3521,min_radius=33,max_radius=33,obj_count=6,obj_min_radius=7806,obj_max_radius=17187,obj_avg_radius=11448,}',
+				'data', 'return {name="SpawnConsortiumNest_03",marker={handle = 1725445525,map = "nest_prefab_holder"},hash=3041846299786586056,revision=29265,tags=set( "ConsortiumNest" ),poi_type="ConsortiumNest",poi_area="Default",size=point(40800, 40800),height_hash=-2928276238898405165,height_offset=-1380,min=point(29, 1, 0),max=point(30, 1, 0),type_hash=2577293333366477412,type_names={Sand_01 = 0},grass_hash=3102784033714780765,mask_hash=-4434506287469529529,total_area=3521,min_radius=33,max_radius=33,obj_count=6,obj_min_radius=7806,obj_max_radius=17187,obj_avg_radius=11448,}',
 				'data_version', "1",
 			}),
 			PlaceObj('Marker', {
@@ -1034,6 +1634,91 @@ PlaceObj('ModItemFolder', {
 			"6995014",
 		},
 	}),
+	PlaceObj('ModItemAnimalSpawnDef', {
+		Cond = function (self, target, context, progress)
+			if self.location then return true else return false end
+		end,
+		FindSpawnLoc = function (self, spawn_class, target, context)
+			local def = spawn_class and g_Classes[spawn_class]
+			print('The input spawn_class was: ',spawn_class.class,' which resolved too: ', def)
+			print("The actual spawn class is: ",self:ResolveSpawnClass().class)
+			local center = self.location
+			print(center)
+			local pfclass = def.pfclass
+			local radius = self.radius
+			print(radius)
+			local pos = terrain.FindPassableTile(center, const.tfpPassClass, pfclass)
+			local target_retry = 4
+			for i=1,target_retry do
+				local x, y = GetRandomPlayablePos(pos, radius, guim, self.location:RandSeed("SpawnNestMember"), pfclass, def.radius)
+				if x then
+					print("Found a spot!")
+					print(point(x,y))
+					return point(x, y)
+				end
+			end
+		end,
+		PostSpawn = function (self, obj, target, context)
+			obj:SetInvader(true)
+			print("In mod editors post spawn!")
+			if Hope then
+				obj:Face(Hope)
+			end
+			Msg("SpawnedAnimalThreat", obj)
+		end,
+		SpawnClass = "LightHostileRobot_LVL1",
+		id = "single_spawn_around_loc",
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemHealthCondition', {
+		AffectableBodyParts = {
+			PlaceObj('HealthConditionBodyParts', {
+				param_bindings = false,
+			}),
+		},
+		Description = T(911023712614, --[[ModItemHealthCondition nest_attack_speed Description]] "This unit has been given faster movement to ensure that an attack hits."),
+		DisplayName = T(207697159669, --[[ModItemHealthCondition nest_attack_speed DisplayName]] "Nitrus Stim"),
+		FloatingTextType = "Icon only",
+		MovementModifier = 50000,
+		StackLimit = 5,
+		Type = "Buff",
+		UnitTags = set( "Animal" ),
+		id = "nest_attack_speed",
+		save_in = "Mod/TGkJ3Tu",
+		unit_reactions = {
+			PlaceObj('UnitReaction', {
+				Event = "OnObjUpdate",
+				Handler = function (self, target, time, update_interval)
+					decay_speed(target)
+				end,
+				param_bindings = false,
+			}),
+		},
+	}),
+	PlaceObj('ModItemRobotCondition', {
+		Description = T(232340131393, --[[ModItemRobotCondition nest_attack_speed_robot Description]] "A statistically significant amount of WD-40 has been applied to this units appendages."),
+		DisplayName = T(603190182564, --[[ModItemRobotCondition nest_attack_speed_robot DisplayName]] "Ni7rus Infus3d 4pp3nd4g3s"),
+		Modifiers = {
+			PlaceObj('ModifyRobot', {
+				Id = "autoid_TGkJ3Tu_cpAMuKn",
+				add = 50000,
+				param_bindings = false,
+				prop = "Movement",
+			}),
+		},
+		StackLimit = 5,
+		id = "nest_attack_speed_robot",
+		save_in = "Mod/TGkJ3Tu",
+		unit_reactions = {
+			PlaceObj('UnitReaction', {
+				Event = "OnObjUpdate",
+				Handler = function (self, target, time, update_interval)
+					decay_speed(target)
+				end,
+				param_bindings = false,
+			}),
+		},
+	}),
 	}),
 PlaceObj('ModItemFolder', {
 	'name', "Expeditions",
@@ -1127,28 +1812,6 @@ PlaceObj('ModItemFolder', {
 				unique_id = 10,
 			}),
 			PlaceObj('StoryBitOutcome', {
-				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
-				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ShriekerHorns.jpg",
 				Text = T(329248656624, --[[ModItemStoryBit Broken_Shrieker_Nest Text]] "I tried to damage the pillars with what I had...\nBut these pillars are made of stern stuff!\n\nWorse still, the pillars are now vibrating so loud it is starting to hurt.\nI'm getting out of here before I start to go deaf!\n<style TextNegative>The consequences of this action will occur in due time</style>"),
 				Title = T(573170111095, --[[ModItemStoryBit Broken_Shrieker_Nest Title]] "Pillar's are louder!"),
@@ -1166,11 +1829,6 @@ PlaceObj('ModItemFolder', {
 						Amount = 100000,
 						Resource = "CarbonNanotubes",
 						param_bindings = false,
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						effect = "aggression down",
-						param_bindings = false,
-						species = "species_shrieker",
 					}),
 				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ShriekerHorns.jpg",
@@ -1203,10 +1861,6 @@ PlaceObj('ModItemFolder', {
 						Amount = 50000,
 						Resource = "CarbonNanotubes",
 						param_bindings = false,
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
 					}),
 				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ShriekerHorns.jpg",
@@ -1257,14 +1911,6 @@ PlaceObj('ModItemFolder', {
 						Amount = 50000,
 						Resource = "CarbonNanotubes",
 						param_bindings = false,
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
 					}),
 				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ShriekerHorns.jpg",
@@ -1317,11 +1963,7 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('StoryBitOutcome', {
 				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						effect = "aggression down",
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
+					nil,
 					PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 						SpawnClass = "Shrieker_T4",
 						param_bindings = false,
@@ -1354,11 +1996,7 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('StoryBitOutcome', {
 				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						effect = "aggression down",
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
+					nil,
 					PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 						SpawnClass = "Shrieker_T3",
 						param_bindings = false,
@@ -1401,10 +2039,6 @@ PlaceObj('ModItemFolder', {
 						Resource = "CarbonNanotubes",
 						param_bindings = false,
 					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
 				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ShriekerHorns.jpg",
 				Text = T(467152558503, --[[ModItemStoryBit Broken_Shrieker_Nest Text]] "Most of the Shriekers I found where too far gone to even attempt to help.\nLet alone tame.\n\nThat being said, I made sure to butcher and scavenge some of the shards.\n\n<em>Local Shrieker Nest aggression levels raised.</em>\n<em>Carbon Nanotubes Gained</em>\n<em>Insect Meat Gained</em>"),
@@ -1443,14 +2077,6 @@ PlaceObj('ModItemFolder', {
 						HealthCond = "CrackedSkull_Common",
 						HealthCondType = "Injury",
 						param_bindings = false,
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
 					}),
 				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ShriekerHorns.jpg",
@@ -1492,10 +2118,6 @@ PlaceObj('ModItemFolder', {
 						HealthCond = "Shrieker_SpikePuncture",
 						HealthCondType = "Injury",
 						param_bindings = false,
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
 					}),
 				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ShriekerHorns.jpg",
@@ -1652,10 +2274,6 @@ PlaceObj('ModItemFolder', {
 						HealthCondType = "Injury",
 						param_bindings = false,
 					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
 				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/pileoffood.jpg",
 				Prerequisites = {
@@ -1673,14 +2291,8 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('StoryBitOutcome', {
 				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
+					nil,
+					nil,
 					PlaceObj('RemoveLockedState', {
 						Class = "Tech",
 						Group = "Breakthroughs",
@@ -1731,10 +2343,6 @@ PlaceObj('ModItemFolder', {
 						Amount = 40000,
 						Resource = "CarbonNanotubes",
 						param_bindings = false,
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
 					}),
 				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/pileoffood.jpg",
@@ -1819,10 +2427,6 @@ PlaceObj('ModItemFolder', {
 						HealthCond = "Shrieker_SpikePuncture",
 						HealthCondType = "Injury",
 						param_bindings = false,
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
 					}),
 				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/pileoffood.jpg",
@@ -1915,15 +2519,8 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('StoryBitOutcome', {
 				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						effect = "aggression down",
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
+					nil,
+					nil,
 					PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 						SpawnClass = "Shrieker_T4",
 						param_bindings = false,
@@ -1956,15 +2553,8 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('StoryBitOutcome', {
 				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						effect = "aggression down",
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
+					nil,
+					nil,
 					PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 						SpawnClass = "Scissorhands_T4",
 						param_bindings = false,
@@ -1997,15 +2587,8 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('StoryBitOutcome', {
 				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_shrieker",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						effect = "aggression down",
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
+					nil,
+					nil,
 					PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 						SpawnClass = "Shrieker_T3",
 						param_bindings = false,
@@ -2043,16 +2626,6 @@ PlaceObj('ModItemFolder', {
 						Level = 2,
 						Skill = "Healing",
 						param_bindings = false,
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						effect = "aggression down",
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						effect = "aggression down",
-						param_bindings = false,
-						species = "species_shrieker",
 					}),
 				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/Insect_War.jpg",
@@ -2148,7 +2721,7 @@ PlaceObj('ModItemFolder', {
 			Description = T(406017788342, --[[ModItemTech Shrieker_food_scraps Description]] "Even though the samples we had where burnt beyond a crisp, we have made some progress on analyzing the foodstuff.\n\nThis stuff reacts with the unique acid in Shrieker stomachs to increase in mass and coat the stomach lining. What this means is the Shriekers stay fuller for longer!\n\nWe will include in our meals a small portion of both this and Shrieker acid to replicate this or us!\n<em>Colonists will need to eat 20% less food each day</em>\n<em>Colonists will now need to eat 20% less food each day</em>"),
 			DisplayName = T(380755387109, --[[ModItemTech Shrieker_food_scraps DisplayName]] "Burnt Shrieker Scraps"),
 			Icon = "Mod/TGkJ3Tu/PicsOritDidntHappen/BurntFood.jpg",
-			LockState = "locked",
+			LockState = "hidden",
 			MinSkillLevel = 5,
 			ResearchPoints = 10000,
 			StartingBreakthrough = false,
@@ -2306,11 +2879,7 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('StoryBitOutcome', {
 				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						effect = "aggression down",
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
+					nil,
 					PlaceObj('GiveExpeditionRewardToSurvivor', {
 						Amount = 50000,
 						Resource = "Silicon",
@@ -2353,10 +2922,7 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('StoryBitOutcome', {
 				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
+					nil,
 					PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 						SpawnClass = "Scissorhands_T5",
 						param_bindings = false,
@@ -2385,12 +2951,6 @@ PlaceObj('ModItemFolder', {
 				param_bindings = false,
 			}),
 			PlaceObj('StoryBitOutcome', {
-				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
-				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/Scissor_Sage_Nest_.PNG",
 				Text = T(755280989645, --[[ModItemStoryBit Single_Occupant_Scissor_Nest Text]] "I couldn't find anything that wasn't a Scissorhand corpse to try and tame the scissorhand with.\n\nThe Scissohand seemed pretty insulted and started getting aggressive!\nTo make matters worse, a whole group of Scissorhands showed up and interrupted the taming.\n\nI got out of their before I ended up as either groups dinner! \n\n<em>Local Scissorhand Nest aggression levels raised.</em>"),
 				Title = T(283482400818, --[[ModItemStoryBit Single_Occupant_Scissor_Nest Title]] "[The Nests Awaken] A Betrayer"),
@@ -2451,32 +3011,6 @@ PlaceObj('ModItemFolder', {
 				unique_id = 2,
 			}),
 			PlaceObj('StoryBitOutcome', {
-				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
-				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/Scissor_Mating.PNG",
 				Text = T(714448102929, --[[ModItemStoryBit Scissorhand_Mating_event Text]] "I collected some kindling nearby, and then lined up dry wood to burn towards the site.\n\nThe fire quickly spread and engulfed everything!\n\nI must have left some sort of trail, because I've spotted Scissorhands behind my trail back home!\n\n<em><style TextNegative>The consequences of this action will occur in due time</style>"),
 				Title = T(748425566629, --[[ModItemStoryBit Scissorhand_Mating_event Title]] "[The Nests Awaken] Mating Dance Discovered"),
@@ -2489,10 +3023,7 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('StoryBitOutcome', {
 				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
+					nil,
 					PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 						SpawnClass = "Scissorhands_T4",
 						param_bindings = false,
@@ -2521,16 +3052,6 @@ PlaceObj('ModItemFolder', {
 				param_bindings = false,
 			}),
 			PlaceObj('StoryBitOutcome', {
-				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
-				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/Scissor_Mating.PNG",
 				Text = T(455547906131, --[[ModItemStoryBit Scissorhand_Mating_event Text]] "I thought I picked a pair that was far away from the nest.\nWhat I did not know was that there where other pairs nearby that spotted me while I was approaching.\n\nI barely had enough distance between me and the group of mega-predators to make it back to my ride home!\n\nI'm sure the Scissorhands did not like a random human wandering in....\n\n<em>Local Scissorhand Nest aggression levels raised twice.</em>"),
 				Title = T(806289281069, --[[ModItemStoryBit Scissorhand_Mating_event Title]] "[The Nests Awaken] Scissorhand Mating Site"),
@@ -2587,10 +3108,7 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('StoryBitOutcome', {
 				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
+					nil,
 					PlaceObj('ModifySkill', {
 						Id = "autoid_TGkJ3Tu_CNdLf4S",
 						Level = 2,
@@ -2611,16 +3129,8 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('StoryBitOutcome', {
 				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						effect = "aggression down",
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						effect = "aggression down",
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
+					nil,
+					nil,
 					PlaceObj('ModifySkill', {
 						Id = "autoid_TGkJ3Tu_jdLYJzG",
 						Level = 2,
@@ -2673,10 +3183,7 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('StoryBitOutcome', {
 				Effects = {
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_scissorhand",
-					}),
+					nil,
 					PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 						SpawnClass = "Scissorhands_T4",
 						param_bindings = false,
@@ -2807,10 +3314,6 @@ PlaceObj('ModItemFolder', {
 						Amount = 200000,
 						Resource = "Silicon",
 						param_bindings = false,
-					}),
-					PlaceObj('GiveExpeditionSpeciesEffectToSurvivor', {
-						param_bindings = false,
-						species = "species_consortium",
 					}),
 				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/temporary.png",
@@ -2966,20 +3469,6 @@ PlaceObj('ModItemFolder', {
 				unique_id = 3,
 			}),
 			PlaceObj('StoryBitOutcome', {
-				Effects = {
-					PlaceObj('ExecuteCode', {
-						Code = function (self, obj)
-							MapVar("nest_disaster_species","ConsortiumNest")
-							CreateGameTimeThread(function()
-							local delay_days = AsyncRand(3)
-							local d_dur = const.DayDuration
-							Sleep(delay_hours * d_dur)
-							ForceActivateStoryBit('begin_nest_disaster')
-							return end)
-						end,
-						param_bindings = false,
-					}),
-				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/temporary.png",
 				Text = T(646013289734, --[[ModItemStoryBit Robot_Diplo_Miscomm Text]] 'Before I ended up on this planet, I knew that the Consortium was just a robotics company. And they certainly did not have any authority to even send space ships, let alone mine!\n\nAs I explained, I was cutoff by the robot....\n"DIPLOMATIC COMMUNICATIONS HAVE BROKEN DOWN. LEAVE THE PREMISES BEFORE YOUR DIPLOMATIC IMMUNITY IS NULL AND VOID, AND ALERT YOUR CIVILIZATION WE DECLARE WAR."\n\n<style TextNegative>The consequences of this action will occur in due time</style>'),
 				Title = T(117855560734, --[[ModItemStoryBit Robot_Diplo_Miscomm Title]] "[The Nests Awaken] Consortium Mining Site"),
@@ -2991,20 +3480,6 @@ PlaceObj('ModItemFolder', {
 				unique_id = 4,
 			}),
 			PlaceObj('StoryBitOutcome', {
-				Effects = {
-					PlaceObj('ExecuteCode', {
-						Code = function (self, obj)
-							MapVar("nest_disaster_species","ShriekerNest")
-							CreateGameTimeThread(function()
-							local delay_days = AsyncRand(3)
-							local d_dur = const.DayDuration
-							Sleep(delay_hours * d_dur)
-							ForceActivateStoryBit('begin_nest_disaster')
-							return end)
-						end,
-						param_bindings = false,
-					}),
-				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/temporary.png",
 				Text = T(673450905611, --[[ModItemStoryBit Robot_Diplo_Miscomm Text]] "I asked to see a tour before we started to negotiate to 'make sure their stuff was top quality'.\n\nI also made sure to stress how culturally, I must \"bless\" everything that sparks with water.\nAnd those buckets of bolts just let me..... like their self-preservation code got turned off!\n\nNo sooner had I toured 2 buildings than everything was shorting, and a few fires broke out!\nNeedless to say, I got to pick what I wanted to bring home from the negotiations!\n\n<em>Hoard of silicon and metal acquired.\nLocal Consortium Aggression increased</em>"),
 				Title = T(966655008822, --[[ModItemStoryBit Robot_Diplo_Miscomm Title]] "[The Nests Awaken] Consortium Mining Site"),
@@ -3029,19 +3504,38 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('StoryBitOutcome', {
 				Effects = {
-					PlaceObj('ExecuteCode', {
-						Code = function (self, obj)
-							local anim = {'Rage_Focused_Scissorhand','Camel_T5','Ulfen_T5',''}
-							local give = AsyncRand(#anim)
-							set_expedition_tame(anim[give])
-							Aggression_up('ConsortiumNest')
-						end,
+					PlaceObj('GiveExpeditionTameRewardToSurvivor', {
+						SpawnClass = "Scissorhands_T5",
 						param_bindings = false,
 					}),
 				},
 				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/temporary.png",
 				Text = T(781495852780, --[[ModItemStoryBit Robot_Fake_Settlement Text]] 'Through a combination of trickery, flattery, and acting like I believed the robots, I managed to break some cages.\nThe animals that were healthy enough started to rampage across the "town".\nThe animal whose cage I opened first seemed to take a liking to me, and it seems to want to come home with me.\n\n<em>High Tier animal will be brought back from this expedition.\nLocal Consortium Aggression levels increased.</em>'),
 				Title = T(608221526455, --[[ModItemStoryBit Robot_Fake_Settlement Title]] "[The Nests Awaken] Consortium Mining Site"),
+				param_bindings = false,
+			}),
+			PlaceObj('StoryBitOutcome', {
+				Effects = {
+					PlaceObj('GiveExpeditionTameRewardToSurvivor', {
+						SpawnClass = "Camel_T5",
+						param_bindings = false,
+					}),
+				},
+				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/temporary.png",
+				Text = T(283543309898, --[[ModItemStoryBit Robot_Fake_Settlement Text]] 'Through a combination of trickery, flattery, and acting like I believed the robots, I managed to break some cages.\nThe animals that were healthy enough started to rampage across the "town".\nThe animal whose cage I opened first seemed to take a liking to me, and it seems to want to come home with me.\n\n<em>High Tier animal will be brought back from this expedition.\nLocal Consortium Aggression levels increased.</em>'),
+				Title = T(610497723071, --[[ModItemStoryBit Robot_Fake_Settlement Title]] "[The Nests Awaken] Consortium Mining Site"),
+				param_bindings = false,
+			}),
+			PlaceObj('StoryBitOutcome', {
+				Effects = {
+					PlaceObj('GiveExpeditionTameRewardToSurvivor', {
+						SpawnClass = "Ulfen_T5",
+						param_bindings = false,
+					}),
+				},
+				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/temporary.png",
+				Text = T(713255838775, --[[ModItemStoryBit Robot_Fake_Settlement Text]] 'Through a combination of trickery, flattery, and acting like I believed the robots, I managed to break some cages.\nThe animals that were healthy enough started to rampage across the "town".\nThe animal whose cage I opened first seemed to take a liking to me, and it seems to want to come home with me.\n\n<em>High Tier animal will be brought back from this expedition.\nLocal Consortium Aggression levels increased.</em>'),
+				Title = T(982790465498, --[[ModItemStoryBit Robot_Fake_Settlement Title]] "[The Nests Awaken] Consortium Mining Site"),
 				param_bindings = false,
 			}),
 			PlaceObj('StoryBitReply', {
@@ -3051,12 +3545,7 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('StoryBitOutcome', {
 				Effects = {
-					PlaceObj('ExecuteCode', {
-						Code = function (self, obj)
-							Aggression_down('ConsortiumNest')
-						end,
-						param_bindings = false,
-					}),
+					nil,
 					PlaceObj('GiveExpeditionRewardToSurvivor', {
 						Amount = 500000,
 						Resource = "Wood",
@@ -3545,8 +4034,8 @@ PlaceObj('ModItemFolder', {
 				Event = "RecipeCrafted",
 				Handler = function (self, production_device, recipe, count, survivor)
 					--print(production_device.unfinished_item_data.used_resources)
-					local tab = production_device.unfinished_item_data.used_resources
-					Resource_aggression_check(tab)
+					--local tab = production_device.unfinished_item_data.used_resources
+					--Resource_aggression_check(tab)
 				end,
 			}),
 		},
@@ -3562,418 +4051,147 @@ PlaceObj('ModItemFolder', {
 			"Do not Alert me (<style TextNegative>Warning Dangerous</style>)",
 		},
 	}),
+	PlaceObj('ModItemOptionNumber', {
+		'name', "max_global_nests",
+		'DisplayName', "Max Nests on Map",
+		'Help', "More total nests allowed == worse performance",
+		'DefaultValue', 20,
+		'MinValue', 10,
+		'MaxValue', 50,
 	}),
-PlaceObj('ModItemTutorialHint', {
-	Hints = {
-		PlaceObj('TutorialHintItem', {
-			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/NestUI.JPG",
-			Text = T(375361284496, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>1 of 5</em>\nScissorhands & Shrieker Nests are now <style TextNegative>deadly hazards</style>!\nMeaning they will now:\n1. React to your presence\n2. Consume nearby resources.\n3. Launch scout patrols or launch their own attacks\n4. Spawn more often, and based on how you play."),
-		}),
-		PlaceObj('TutorialHintItem', {
-			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/AngryNest.PNG",
-			Text = T(283738735418, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>2 of 5</em>\nOnce alerted to your presence, the nests will go into overdrive.\nThis means they will consume nearby resources faster.\nAny units released will be sent right to your base!\n\n<style TextNegative>Beware, lest you leave the nests be.....</style>\nFor in that path lies a literal disaster.\nAnd the planet's denizens will realize and attempt to take out a \"rival\" species (YOU)!"),
-		}),
-		PlaceObj('TutorialHintItem', {
-			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ConsortiumNestVariant.PNG",
-			Text = T(760322908319, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>3 of 5</em>\nIf you have the Guardians DLC, there is <style TextPositive>something extra in here as well!</style>\n\n<em>The Consortium is now hyperactive in this region of space.</em>.\nOne thing they now do is hurl automated mining bases to prospective locations.\nWhat makes a prospective location you say? Rare metals, alloys, most things a burgeoning colony needs....."),
-		}),
-		PlaceObj('TutorialHintItem', {
-			Image = "Mod/TGkJ3Tu/notifications.PNG",
-			Text = T(400960854348, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>4 of 5</em>\n\nYou will also find <em>4 new Expedition Sites</em>, each with at least 3 possible outcomes!\nThese Expeditions can reward you with <style TextPositive>high tier pre-Tamed animals!</style>\nthey can also rewards you with <style TextNegative>even more new and unfriendly neighbors!</style>\nAfter the expedition, you will find your new friend right next to the Balloon!"),
-		}),
-		PlaceObj('TutorialHintItem', {
-			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/temporary.png",
-			Text = T(864350757194, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>5 of 5</em>\n\nIf you see this in any images from this mod (Or in any other mod I built/maintain) or by itself....\nConsider it an <em>active commission</em> to make a Stranded Alien Dawn version of the image.\nI am not a graphic artist or artistic in any way, and have had to resort to AI images or already made ones.\nWhich can really mess with my immersion.\n\nYou can reach out to me on the Git repo, Steam mod page, or Nexus mods. And let me know what image you would like to replace and your fee for use in the mod."),
-		}),
-	},
-	Tutorial = "",
-	display_name = T(204424421469, --[[ModItemTutorialHint nests_awaken_tutorial display_name]] "Nests Awaken Tutorial"),
-	id = "nests_awaken_tutorial",
-	mod_version_major = 1,
-	msg_reactions = {
-		PlaceObj('MsgReaction', {
-			Event = "GameStarted",
-			Handler = function (self)
-				NA_tutorial()
-			end,
-		}),
-	},
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemAnimalSpawnDef', {
-	Cond = function (self, target, context, progress)
-		if self.location then return true else return false end
-	end,
-	FindSpawnLoc = function (self, spawn_class, target, context)
-		local def = spawn_class and g_Classes[spawn_class]
-		print('The input spawn_class was: ',spawn_class.class,' which resolved too: ', def)
-		print("The actual spawn class is: ",self:ResolveSpawnClass().class)
-		local center = self.location
-		print(center)
-		local pfclass = def.pfclass
-		local radius = self.radius
-		print(radius)
-		local pos = terrain.FindPassableTile(center, const.tfpPassClass, pfclass)
-		local target_retry = 4
-		for i=1,target_retry do
-			local x, y = GetRandomPlayablePos(pos, radius, guim, self.location:RandSeed("SpawnNestMember"), pfclass, def.radius)
-			if x then
-				print("Found a spot!")
-				print(point(x,y))
-				return point(x, y)
-			end
-		end
-	end,
-	PostSpawn = function (self, obj, target, context)
-		obj:SetInvader(true)
-		print("In mod editors post spawn!")
-		if Hope then
-			obj:Face(Hope)
-		end
-		Msg("SpawnedAnimalThreat", obj)
-	end,
-	SpawnClass = "LightHostileRobot_LVL1",
-	id = "single_spawn_around_loc",
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemNotificationPreset', {
-	CanChangeGameSpeed = function (self) return GetAccountStorageOptionValue("AnimalAttackEffect") < 3 end,
-	CanChangeGameSpeedLimit = function (self) return GetAccountStorageOptionValue("AnimalAttackEffect") == 1 end,
-	comment = "-- Overrode the FX/music that plays when attacked due to how many attacks the player gets with this mod",
-	dismissable = false,
-	game_speed = "normal",
-	game_speed_limit = "fast",
-	game_speed_limit_duration = 40000,
-	id = "AnimalAttack",
-	msg_reactions = {
-		PlaceObj('MsgReaction', {
-			Event = "InvaderBehaviorAssign",
-			Handler = function (self, animal, new_behavior)
-				if IsKindOfClasses(new_behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") and not animal:IsDead() and not animal.forced_pacification then
-					if animal:IsKindOf("UnitAnimal") then
-						NotificationObjRem("AnimalAttack_Spawned", animal)
-						if self:AddObject(animal) then
-							Msg("AnimalAttackCountChanged", self.id)
-						end
-					end
-				end
-			end,
-		}),
-		PlaceObj('MsgReaction', {
-			Event = "InvaderBehaviorExpire",
-			Handler = function (self, animal, behavior)
-				if not IsKindOfClasses(behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") or animal:IsDead() or animal.forced_pacification then
-					if self:RemoveObject(animal) then
-						Msg("AnimalAttackCountChanged", self.id)
-					end
-				end
-			end,
-		}),
-		PlaceObj('MsgReaction', {
-			Event = "UnitChangeAttackTarget",
-			Handler = function (self, unit, target, old_target)
-				-- This msg handles an animal's transfer between Aggressive animals and Animal attack notifications.
-				if unit:IsKindOf("UnitAnimal") then
-				
-					-- The animal is attacking any human combat group target
-					-- => remove it from Aggressive animals and add it to Animal attack
-					local human_group = Human.CombatGroup
-					if IsValid(target) and target.CombatGroup == human_group and unit.CombatGroup ~= human_group then
-						NotificationObjRem("AnimalAttack_Spawned", unit)
-						if self:AddObject(unit) then
-							Msg("AnimalAttackCountChanged", self.id)
-						end
-						
-					-- The animal is not attacking any human target (anymore) but it will somewhen become aggressive
-					-- => send it back to Aggressive animals notification
-					elseif table.findfirst(unit.invader_behaviours, function(_, behaviour) return IsKindOfClasses(behaviour, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") end) then 
-						NotificationObjAdd("AnimalAttack_Spawned", unit)
-						if self:RemoveObject(unit) then
-							Msg("AnimalAttackCountChanged", self.id)
-						end
-						
-					-- The animal is not attacking any human target and will not become aggressive and IS NOT aggressive anymore
-					-- => just remove (will be removed from everywhere)
-					elseif (unit.forced_aggression_until or 0) < GameTime() or unit.forced_pacification or (unit:IsTamed() and not target) then
-						if self:RemoveObject(unit) then
-							Msg("AnimalAttackCountChanged", self.id)
-						end
-					end
-				end
-			end,
-		}),
-		PlaceObj('MsgReaction', {
-			Event = "UnitDied",
-			Handler = function (self, unit)
-				if IsValid(unit) then
-					if self:RemoveObject(unit) then
-						Msg("AnimalAttackCountChanged", self.id) 
-					end
-				end
-			end,
-		}),
-		PlaceObj('MsgReaction', {
-			Event = "AnimalDone",
-			Handler = function (self, animal)
-				if IsValid(animal) then
-					if self:RemoveObject(animal) then
-						Msg("AnimalAttackCountChanged", self.id)
-					end
-				end
-			end,
-		}),
-		PlaceObj('MsgReaction', {
-			Event = "AnimalTamed",
-			Handler = function (self, unit, animal, success, reason)
-				if success and IsValid(animal) then
-					if self:RemoveObject(animal) then
-						Msg("AnimalAttackCountChanged", self.id)
-					end
-				end
-			end,
-		}),
-	},
-	priority = "AnimalAlert",
-	remove_invalid_objs = true,
-	rollover_text = T(561515660398, --[[ModItemNotificationPreset AnimalAttack rollover_text]] "The following animals are exhibiting hostile behavior towards the camp and its inhabitants.<newline><newline><notif_list_units('AnimalAttack', false, 'by_class_id')>"),
-	rollover_title = T(638488043624, --[[ModItemNotificationPreset AnimalAttack rollover_title]] "Animal attacks"),
-	save_in = "Mod/TGkJ3Tu",
-	suppressable = false,
-	text = T(967680094442, --[[ModItemNotificationPreset AnimalAttack text]] "Animal attack: <em><notif_list_units('AnimalAttack', 'count only')></em>"),
-}),
-PlaceObj('ModItemNotificationPreset', {
-	dismissable = false,
-	group = "Default",
-	id = "AnimalAttack_Spawned",
-	msg_reactions = {
-		PlaceObj('MsgReaction', {
-			Event = "InvaderBehaviorEnqueued",
-			Handler = function (self, animal, behavior)
-				if IsValid(animal) and IsKindOfClasses(behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") then
-					if animal:IsKindOf("UnitAnimal") then
-						self:AddObject(animal)
-					end
-				end
-			end,
-		}),
-		PlaceObj('MsgReaction', {
-			Event = "InvaderBehaviorAssign",
-			Handler = function (self, animal, new_behavior)
-				if IsKindOfClasses(new_behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") then
-					self:RemoveObject(animal)
-				end
-			end,
-		}),
-		PlaceObj('MsgReaction', {
-			Event = "UnitDied",
-			Handler = function (self, unit)
-				if IsValid(unit) then
-					self:RemoveObject(unit)
-				end
-			end,
-		}),
-		PlaceObj('MsgReaction', {
-			Event = "AnimalTamed",
-			Handler = function (self, unit, animal, success, reason)
-				if success and IsValid(animal) then
-					self:RemoveObject(animal)
-				end
-			end,
-		}),
-		PlaceObj('MsgReaction', {
-			Event = "AnimalDone",
-			Handler = function (self, animal)
-				if IsValid(animal) then
-					self:RemoveObject(animal)
-				end
-			end,
-		}),
-	},
-	priority = "AnimalAlert",
-	remove_invalid_objs = true,
-	rollover_text = T(244905598533, --[[ModItemNotificationPreset AnimalAttack_Spawned rollover_text]] "The following animals have noticed the camp and are preparing to attack in several hours.<newline><newline><notif_list_units('AnimalAttack_Spawned', false, 'by_class_id')>"),
-	rollover_title = T(900684981804, --[[ModItemNotificationPreset AnimalAttack_Spawned rollover_title]] "Aggressive animals"),
-	save_in = "Mod/TGkJ3Tu",
-	suppressable = false,
-	text = T(473127939178, --[[ModItemNotificationPreset AnimalAttack_Spawned text]] "Aggressive animals: <em><notif_list_units('AnimalAttack_Spawned', 'count only')></em>"),
-}),
-PlaceObj('ModItemNotificationPreset', {
-	CanChangeGameSpeed = function (self) return GetAccountStorageOptionValue("AnimalAttackEffect") < 3 end,
-	CanChangeGameSpeedLimit = function (self) return GetAccountStorageOptionValue("AnimalAttackEffect") == 1 end,
-	dismissable = false,
-	game_speed = "normal",
-	game_speed_limit = "fast",
-	game_speed_limit_duration = 40000,
-	group = "Default",
-	id = "RobotAttack",
-	msg_reactions = {
-		PlaceObj('MsgReaction', {
-			Event = "InvaderBehaviorAssign",
-			Handler = function (self, animal, new_behavior)
-				if not animal:IsKindOf("Robot") then return end
-				 
-				if IsKindOfClasses(new_behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") and not animal:IsDead() and not animal.forced_pacification then
-					NotificationObjRem("RobotAttack_Spawned", animal)
-					if self:AddObject(animal) then
-						Msg("AnimalAttackCountChanged", self.id)
-					end
-				end
-			end,
-		}),
-		PlaceObj('MsgReaction', {
-			Event = "InvaderBehaviorExpire",
-			Handler = function (self, animal, behavior)
-				if not IsKindOfClasses(behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") or animal:IsDead() or animal.forced_pacification then
-					if self:RemoveObject(animal) then
-						Msg("AnimalAttackCountChanged", self.id)
-					end
-				end
-			end,
-		}),
-		PlaceObj('MsgReaction', {
-			Event = "UnitChangeAttackTarget",
-			Handler = function (self, unit, target, old_target)
-				-- This msg handles a robot's transfer between Search party landed and Consortium attack notifications.
-				if unit:IsKindOf("Robot") then
-				
-					-- The robot is attacking any human combat group target
-					-- => remove it from Search party landed and add it to  Consortium attack
-					local human_group = Human.CombatGroup
-					if IsValid(target) and target.CombatGroup == human_group and unit.CombatGroup ~= human_group then
-						NotificationObjRem("RobotAttack_Spawned", unit)
-						if self:AddObject(unit) then
-							Msg("AnimalAttackCountChanged", self.id)
-						end
-						
-					-- The robot is not attacking any human target (anymore) but it will somewhen become aggressive
-					-- => send it back to Search party landed notification
-					elseif table.findfirst(unit.invader_behaviours, function(_, behaviour) return IsKindOfClasses(behaviour, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") end) then 
-						NotificationObjAdd("RobotAttack_Spawned", unit)
-						if self:RemoveObject(unit) then
-							Msg("AnimalAttackCountChanged", self.id)
-						end
-						
-					-- The robot is not attacking any human target and will not become aggressive and IS NOT aggressive anymore
-					-- => just remove (will be removed from everywhere)
-					elseif (unit.forced_aggression_until or 0) < GameTime() or unit.forced_pacification then
-						if self:RemoveObject(unit) then
-							Msg("AnimalAttackCountChanged", self.id)
-						end
-					end
-				end
-			end,
-		}),
-		PlaceObj('MsgReaction', {
-			Event = "UnitDied",
-			Handler = function (self, unit)
-				if IsValid(unit) then
-					if self:RemoveObject(unit) then
-						Msg("AnimalAttackCountChanged", self.id) 
-					end
-				end
-			end,
-		}),
-	},
-	priority = "AnimalAlert",
-	remove_invalid_objs = true,
-	rollover_text = T(156872672493, --[[ModItemNotificationPreset RobotAttack rollover_text]] "The following automated consortium assault robots have been tasked to destroy Hope and everything that stays on their way.<newline><newline><notif_list_units('RobotAttack', false, 'by_class_id')>"),
-	rollover_title = T(636154201211, --[[ModItemNotificationPreset RobotAttack rollover_title]] "Consortium attack"),
-	save_in = "Mod/TGkJ3Tu",
-	suppressable = false,
-	text = T(815574955109, --[[ModItemNotificationPreset RobotAttack text]] "Consortium attack: <em><notif_list_units('RobotAttack', 'count only')></em>"),
-}),
-PlaceObj('ModItemNotificationPreset', {
-	dismissable = false,
-	group = "Default",
-	id = "RobotAttack_Spawned",
-	msg_reactions = {
-		PlaceObj('MsgReaction', {
-			Event = "InvaderBehaviorEnqueued",
-			Handler = function (self, animal, behavior)
-				if not animal:IsKindOf("Robot") then return end
-				
-				if IsValid(animal) and IsKindOfClasses(behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") then
-					self:AddObject(animal)
-				end
-			end,
-		}),
-		PlaceObj('MsgReaction', {
-			Event = "InvaderBehaviorAssign",
-			Handler = function (self, animal, new_behavior)
-				if IsKindOfClasses(new_behavior, "InvaderBehaviourAggressive", "InvaderBehaviourBerserk") then
-					self:RemoveObject(animal)
-				end
-			end,
-		}),
-		PlaceObj('MsgReaction', {
-			Event = "UnitDied",
-			Handler = function (self, unit)
-				if IsValid(unit) then
-					self:RemoveObject(unit)
-				end
-			end,
-		}),
-	},
-	priority = "AnimalAlert",
-	remove_invalid_objs = true,
-	rollover_text = T(197694743001, --[[ModItemNotificationPreset RobotAttack_Spawned rollover_text]] "The following automated consortium assault robots have detected us and are preparing to attack in several hours.<newline><newline><notif_list_units('RobotAttack_Spawned', false, 'by_class_id')>"),
-	rollover_title = T(202493608080, --[[ModItemNotificationPreset RobotAttack_Spawned rollover_title]] "Search party"),
-	save_in = "Mod/TGkJ3Tu",
-	suppressable = false,
-	text = T(715728216572, --[[ModItemNotificationPreset RobotAttack_Spawned text]] "Search party landed: <em><notif_list_units('RobotAttack_Spawned', 'count only')></em>"),
-}),
-PlaceObj('ModItemOptionNumber', {
-	'name', "max_nest",
-	'DisplayName', "Max nests (Per Species)",
-	'Help', "How many nests a single species can have on the map, the higher the nest count the deadlier to you (And your PC)!",
-	'DefaultValue', 13,
-	'MinValue', 8,
-	'MaxValue', 20,
-}),
+	PlaceObj('ModItemTutorialHint', {
+		Hints = {
+			PlaceObj('TutorialHintItem', {
+				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/NestUI.JPG",
+				Text = T(375361284496, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>1 of 5</em>\nScissorhands & Shrieker Nests are now <style TextNegative>deadly hazards</style>!\nMeaning they will now:\n1. React to your presence\n2. Consume nearby resources.\n3. Launch scout patrols or launch their own attacks\n4. Spawn more often, and based on how you play."),
+			}),
+			PlaceObj('TutorialHintItem', {
+				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/AngryNest.PNG",
+				Text = T(283738735418, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>2 of 5</em>\nOnce alerted to your presence, the nests will go into overdrive.\nThis means they will consume nearby resources faster.\nAny units released will be sent right to your base!\n\n<style TextNegative>Beware, lest you leave the nests be.....</style>\nFor in that path lies a literal disaster.\nAnd the planet's denizens will realize and attempt to take out a \"rival\" species (YOU)!"),
+			}),
+			PlaceObj('TutorialHintItem', {
+				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ConsortiumNestVariant.PNG",
+				Text = T(760322908319, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>3 of 5</em>\nIf you have the Guardians DLC, there is <style TextPositive>something extra in here as well!</style>\n\n<em>The Consortium is now hyperactive in this region of space.</em>.\nOne thing they now do is hurl automated mining bases to prospective locations.\nWhat makes a prospective location you say? Rare metals, alloys, most things a burgeoning colony needs....."),
+			}),
+			PlaceObj('TutorialHintItem', {
+				Image = "Mod/TGkJ3Tu/notifications.PNG",
+				Text = T(400960854348, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>4 of 5</em>\n\nYou will also find <em>4 new Expedition Sites</em>, each with at least 3 possible outcomes!\nThese Expeditions can reward you with <style TextPositive>high tier pre-Tamed animals!</style>\nthey can also rewards you with <style TextNegative>even more new and unfriendly neighbors!</style>\nAfter the expedition, you will find your new friend right next to the Balloon!"),
+			}),
+			PlaceObj('TutorialHintItem', {
+				Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/temporary.png",
+				Text = T(864350757194, --[[ModItemTutorialHint nests_awaken_tutorial Text]] "<em>5 of 5</em>\n\nIf you see this in any images from this mod (Or in any other mod I built/maintain) or by itself....\nConsider it an <em>active commission</em> to make a Stranded Alien Dawn version of the image.\nI am not a graphic artist or artistic in any way, and have had to resort to AI images or already made ones.\nWhich can really mess with my immersion.\n\nYou can reach out to me on the Git repo, Steam mod page, or Nexus mods. And let me know what image you would like to replace and your fee for use in the mod."),
+			}),
+		},
+		Tutorial = "",
+		display_name = T(204424421469, --[[ModItemTutorialHint nests_awaken_tutorial display_name]] "Nests Awaken Tutorial"),
+		id = "nests_awaken_tutorial",
+		mod_version_major = 1,
+		msg_reactions = {
+			PlaceObj('MsgReaction', {
+				Event = "GameStarted",
+				Handler = function (self)
+					NA_tutorial()
+				end,
+			}),
+		},
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemOptionNumber', {
+		'name', "max_nest",
+		'DisplayName', "Max nests (Per Species)",
+		'Help', "How many nests a single species can have on the map, the higher the nest count the deadlier to you (And your PC)!",
+		'DefaultValue', 13,
+		'MinValue', 8,
+		'MaxValue', 20,
+	}),
+	PlaceObj('ModItemOptionToggle', {
+		'name', "NA_Visua",
+		'DisplayName', "Disable Visual FX",
+		'Help', "Do not show Nesting Unit's Icons",
+		'OnApply', function (self, value, prev_value)
+			Msg("UpdateNestRoleVisuals")
+		end,
+	}),
+	PlaceObj('ModItemOptionChoice', {
+		'name', "NA_Visuals",
+		'DisplayName', "Nest Role Visuals",
+		'Help', "Nesting units will show their role via an icon floating above their head. This setting changes how zoomed in before they appear.",
+		'OnApply', function (self, value, prev_value)
+			Msg("UpdateNestRoleVisuals")
+		end,
+		'DefaultValue', "Far (~80 meters)",
+		'ChoiceList', {
+			"Close (Same as Resource Piles) (~20 meters)",
+			"Far (~80 meters)",
+			"Always on",
+			"Always off",
+		},
+	}),
+	PlaceObj('ModItemOptionToggle', {
+		'name', "NA_show_name",
+		'DisplayName', "NA Roles with Names",
+		'Help', "Toggle on to show icon & name of enemy unit",
+		'OnApply', function (self, value, prev_value)
+			Msg("UpdateNestRoleVisuals")
+		end,
+	}),
+	}),
 PlaceObj('ModItemHealthCondition', {
 	AffectableBodyParts = {
 		PlaceObj('HealthConditionBodyParts', {
+			BodyPart = "All",
 			param_bindings = false,
 		}),
 	},
-	Description = T(911023712614, --[[ModItemHealthCondition nest_attack_speed Description]] "This unit has been given faster movement to ensure that an attack hits."),
-	DisplayName = T(207697159669, --[[ModItemHealthCondition nest_attack_speed DisplayName]] "Nitrus Stim"),
-	FloatingTextType = "Icon only",
-	MovementModifier = 50000,
-	StackLimit = 5,
-	Type = "Buff",
-	UnitTags = set( "Animal" ),
-	id = "nest_attack_speed",
+	BleedingModifier = 5000,
+	Description = T(889322338635, --[[ModItemHealthCondition shogu_nest_bio_decay Description]] "A nearby Shogu nest is poisoning me!"),
+	DisplayName = T(152148294754, --[[ModItemHealthCondition shogu_nest_bio_decay DisplayName]] "Blighted Land"),
+	StackLimit = 1,
+	Type = "UntreatedDisease",
+	VomitChance = 20,
+	Vomiting = true,
+	id = "shogu_nest_bio_decay",
 	save_in = "Mod/TGkJ3Tu",
 	unit_reactions = {
 		PlaceObj('UnitReaction', {
 			Event = "OnObjUpdate",
 			Handler = function (self, target, time, update_interval)
-				decay_speed(target)
+				local nearest_shogu = MapFindNearest(target,true,'ShoguNest')
+				if not nearest_shogu then
+					target:RemoveHealthCondition(self)
+				elseif not IsCloser2D(target, nearest_shogu, nearest_shogu.territorial_range) then
+					target:RemoveHealthCondition(self)
+				end
 			end,
 			param_bindings = false,
 		}),
 	},
 }),
 PlaceObj('ModItemRobotCondition', {
-	Description = T(232340131393, --[[ModItemRobotCondition nest_attack_speed_robot Description]] "A statistically significant amount of WD-40 has been applied to this units appendages."),
-	DisplayName = T(603190182564, --[[ModItemRobotCondition nest_attack_speed_robot DisplayName]] "Ni7rus Infus3d 4pp3nd4g3s"),
+	Description = T(664187819182, --[[ModItemRobotCondition shogu_nest_robo_decay Description]] "A nearby Shogu nest is nullifying my integrity."),
+	DisplayName = T(273325155640, --[[ModItemRobotCondition shogu_nest_robo_decay DisplayName]] "CORROSION DETECTED"),
 	Modifiers = {
 		PlaceObj('ModifyRobot', {
-			Id = "autoid_TGkJ3Tu_cpAMuKn",
-			add = 50000,
+			Id = "autoid_TGkJ3Tu_FNvmd5m",
+			add = -5000,
 			param_bindings = false,
-			prop = "Movement",
+			prop = "Regeneration",
 		}),
 	},
-	StackLimit = 5,
-	id = "nest_attack_speed_robot",
+	Polarity = "negative",
+	StackLimit = 1,
+	id = "shogu_nest_robo_decay",
 	save_in = "Mod/TGkJ3Tu",
 	unit_reactions = {
 		PlaceObj('UnitReaction', {
 			Event = "OnObjUpdate",
 			Handler = function (self, target, time, update_interval)
-				decay_speed(target)
+				local nearest_shogu = MapFindNearest(target,true,'ShoguNest')
+				if not nearest_shogu then
+					target:RemoveHealthCondition(self)
+				elseif not IsCloser2D(target, nearest_shogu, nearest_shogu.territorial_range) then
+					target:RemoveHealthCondition(self)
+				end
 			end,
 			param_bindings = false,
 		}),
@@ -4032,5 +4250,78 @@ PlaceObj('ModItemNestingSpeciesPreset', {
 	spawner_storybit = "new_nest_consortium",
 	spore_buildings = "ConsortiumSporeDeposit",
 	unit_species = "species_consortium",
+}),
+PlaceObj('ModItemAnimalSpawnDef', {
+	Behaviours = {
+		PlaceObj('InvaderBehaviourSupport', {
+			'Duration', 0,
+			'ArrivalDistance', 5000,
+		}),
+	},
+	CheckConnectivity = true,
+	ClearArea = 256,
+	ClearRadius = 1000,
+	DistFromOthers = 1000,
+	EnabledInTutorial = true,
+	EnabledWithoutSurvivors = false,
+	FindSpawnLoc = function (self, spawn_class, target, context)
+		return nest_find_attack_spawn(self,spawn_class, target, context)
+	end,
+	SpawnAsGroup = true,
+	SpawnClass = "Scissorhands_T5",
+	SurvivorDistMax = -1000,
+	SurvivorSpawnDistMin = 75000,
+	TargetClass = "Human",
+	TargetDistMax = 150000,
+	TargetDistMin = 75000,
+	TargetFilter = function (obj) return not obj:IsVirtual() end,
+	TargetStartPosOnMissingTarget = true,
+	group = "Attacks_Insects_NEW",
+	id = "Support_same_species",
+	save_in = "Mod/TGkJ3Tu",
+}),
+PlaceObj('ModItemAnimalSpawnDef', {
+	Behaviours = {
+		PlaceObj('InvaderBehaviourPassiveMove', {
+			'complex_targeting', true,
+			'targeting_function', function (self, invader, progress)
+				local nest_class = invader:GetNestClass()
+				local map = MapFindNearest(true, true, nest_class, function(nest)
+					if nest:IsAsleep() then
+						return true
+					end
+				end)
+				return map
+			end,
+			'on_arrival', function (invader, target, progress) target:support_arrived()
+				RemoveAttachedUIToObject(invader, 'NestRolePermanent')
+				RemoveAttachedUIToObject(invader, 'NestRoleClose')
+				RemoveAttachedUIToObject(invader, 'NestRoleFar')
+				invader:SetCommand("CmdDespawn")
+			return true end,
+			'proximity', 5000,
+		}),
+	},
+	CheckConnectivity = true,
+	ClearArea = 256,
+	ClearRadius = 1000,
+	DistFromOthers = 1000,
+	EnabledInTutorial = true,
+	EnabledWithoutSurvivors = false,
+	FindSpawnLoc = function (self, spawn_class, target, context)
+		return nest_find_attack_spawn(self,spawn_class, target, context)
+	end,
+	SpawnAsGroup = true,
+	SpawnClass = "Scissorhands_T5",
+	SurvivorDistMax = -1000,
+	SurvivorSpawnDistMin = 75000,
+	TargetClass = "Human",
+	TargetDistMax = 150000,
+	TargetDistMin = 75000,
+	TargetFilter = function (obj) return not obj:IsVirtual() end,
+	TargetStartPosOnMissingTarget = true,
+	group = "Attacks_Insects_NEW",
+	id = "passive_nest_to_nest_wakeup",
+	save_in = "Mod/TGkJ3Tu",
 }),
 }
