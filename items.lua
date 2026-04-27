@@ -599,6 +599,85 @@ PlaceObj('ModItemFolder', {
 		id = "unable_to_scout",
 		save_in = "Mod/TGkJ3Tu",
 	}),
+	PlaceObj('ModItemNotificationPreset', {
+		expiration = 480000,
+		fx_action = "UINotificationImportant",
+		game_time = true,
+		id = "DrakaNestSpawned",
+		rollover_text = T(753812064855, --[[ModItemNotificationPreset DrakaNestSpawned rollover_text]] "A group of crystals has breached the earth near us"),
+		rollover_title = T(863979633496, --[[ModItemNotificationPreset DrakaNestSpawned rollover_title]] "New Draka Nest"),
+		save_in = "Mod/TGkJ3Tu",
+		text = T(986925361504, --[[ModItemNotificationPreset DrakaNestSpawned text]] "New Crystal Structures observed!"),
+	}),
+	PlaceObj('ModItemNotificationPreset', {
+		expiration = 480000,
+		fx_action = "UINotificationImportant",
+		game_time = true,
+		id = "ShoguNestSpawned",
+		rollover_text = T(984181902160, --[[ModItemNotificationPreset ShoguNestSpawned rollover_text]] "A concentrated area is now afflicted by a massive blight!"),
+		rollover_title = T(616614314552, --[[ModItemNotificationPreset ShoguNestSpawned rollover_title]] "New Shogu Nest"),
+		save_in = "Mod/TGkJ3Tu",
+		text = T(578859029100, --[[ModItemNotificationPreset ShoguNestSpawned text]] "Death, Disease, and Doom!"),
+	}),
+	PlaceObj('ModItemNotificationPreset', {
+		expiration = 480000,
+		fx_action = "UINotificationImportant",
+		game_time = true,
+		id = "DeathflyNestSpawned",
+		rollover_text = T(157678601320, --[[ModItemNotificationPreset DeathflyNestSpawned rollover_text]] "We have detected a rock cliff that has a large Hummingfly populattion"),
+		rollover_title = T(194979347062, --[[ModItemNotificationPreset DeathflyNestSpawned rollover_title]] "New Deathfly Nest"),
+		save_in = "Mod/TGkJ3Tu",
+		text = T(578772512520, --[[ModItemNotificationPreset DeathflyNestSpawned text]] "The air fills with buzzing "),
+	}),
+	PlaceObj('ModItemNotificationPreset', {
+		expiration = 480000,
+		fx_action = "UINotificationImportant",
+		game_time = true,
+		id = "GlutchNestSpawned",
+		rollover_text = T(590152504714, --[[ModItemNotificationPreset GlutchNestSpawned rollover_text]] "The smell is coming from this direction!"),
+		rollover_title = T(652545019840, --[[ModItemNotificationPreset GlutchNestSpawned rollover_title]] "New Glutch Nest"),
+		save_in = "Mod/TGkJ3Tu",
+		text = T(316070871639, --[[ModItemNotificationPreset GlutchNestSpawned text]] "What's that smell in the air?"),
+	}),
+	PlaceObj('ModItemNotificationPreset', {
+		expiration = 480000,
+		fx_action = "UINotificationImportant",
+		game_time = true,
+		id = "JunoNestSpawned",
+		rollover_text = T(132479633385, --[[ModItemNotificationPreset JunoNestSpawned rollover_text]] "A nest has twisted and morphed into a Juno nest!"),
+		rollover_title = T(253480175100, --[[ModItemNotificationPreset JunoNestSpawned rollover_title]] "New Juno Nest"),
+		save_in = "Mod/TGkJ3Tu",
+		text = T(790350405960, --[[ModItemNotificationPreset JunoNestSpawned text]] "A nest has violently changed!"),
+	}),
+	PlaceObj('ModItemNotificationPreset', {
+		expiration = 480000,
+		fx_action = "UINotificationImportant",
+		game_time = true,
+		id = "NothNestSpawned",
+		rollover_text = T(608350033794, --[[ModItemNotificationPreset NothNestSpawned rollover_text]] "Based on scouting, the debris seems to still retain its structural integrity. Meaning pure metal, not scrap!"),
+		rollover_title = T(215311316484, --[[ModItemNotificationPreset NothNestSpawned rollover_title]] "New Noth Nest"),
+		save_in = "Mod/TGkJ3Tu",
+		text = T(992516573479, --[[ModItemNotificationPreset NothNestSpawned text]] "Copious Orbital debris detected!"),
+	}),
+	PlaceObj('ModItemNotificationPreset', {
+		expiration = 480000,
+		fx_action = "UINotificationImportant",
+		game_time = true,
+		id = "ConsortiumNestSpawned",
+		rollover_text = T(212707868936, --[[ModItemNotificationPreset ConsortiumNestSpawned rollover_text]] "A large Consortium Automated Base has dropped from orbit!"),
+		rollover_title = T(133001288045, --[[ModItemNotificationPreset ConsortiumNestSpawned rollover_title]] "New Consortium Base"),
+		save_in = "Mod/TGkJ3Tu",
+		text = T(593714970551, --[[ModItemNotificationPreset ConsortiumNestSpawned text]] "New Consortium Base"),
+	}),
+	PlaceObj('ModItemNotificationPreset', {
+		expiration = 60000,
+		expiration_bar = true,
+		fx_action = "UINotificationAnimalAttack",
+		id = "nests_disgorged",
+		rollover_text = T(337902645815, --[[ModItemNotificationPreset nests_disgorged rollover_text]] "A nearby nest has created too many creatures and let some loose!"),
+		save_in = "Mod/TGkJ3Tu",
+		text = T(818323081200, --[[ModItemNotificationPreset nests_disgorged text]] "A nest has released roaming units!"),
+	}),
 	}),
 PlaceObj('ModItemFolder', {
 	'name', "Spawner storybits (Nests/Attacks)",
@@ -613,7 +692,7 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('ExecuteCode', {
 				Code = function (self, obj)
-					mark_spawned_nest('ScissorhandsNest')
+					mark_spawned_nest('nesting_scissorhands')
 				end,
 				param_bindings = false,
 			}),
@@ -647,7 +726,7 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('ExecuteCode', {
 				Code = function (self, obj)
-					mark_spawned_nest('ShriekerNest')
+					mark_spawned_nest('nesting_shriekers')
 				end,
 				param_bindings = false,
 			}),
@@ -681,7 +760,7 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('ExecuteCode', {
 				Code = function (self, obj)
-					mark_spawned_nest('ConsortiumNest')
+					mark_spawned_nest('nesting_consortium')
 				end,
 				param_bindings = false,
 			}),
@@ -715,7 +794,7 @@ PlaceObj('ModItemFolder', {
 			}),
 			PlaceObj('ExecuteCode', {
 				Code = function (self, obj)
-					mark_spawned_nest('ShoguNesting')
+					mark_spawned_nest('nesting_shogu')
 				end,
 				param_bindings = false,
 			}),
@@ -740,237 +819,236 @@ PlaceObj('ModItemFolder', {
 		}),
 		save_in = "Mod/TGkJ3Tu",
 	}),
-	PlaceObj('ModItemAnimalSpawnDef', {
-		Behaviours = {
-			PlaceObj('InvaderBehaviourRoam', {
-				'Duration', 0,
-				'RoamRadius', 15000,
-				'RoamMinDist', 4500,
-				'RoamMaxDist', 9000,
+	PlaceObj('ModItemStoryBit', {
+		Category = "Tick",
+		Effects = {
+			PlaceObj('ActivateSpawnDef', {
+				SpawnDefId = "NothNest",
+				param_bindings = false,
 			}),
-			PlaceObj('InvaderBehaviourAggressive', {
-				'Duration', 0,
+			PlaceObj('ExecuteCode', {
+				Code = function (self, obj)
+					mark_spawned_nest('nesting_noth')
+				end,
+				param_bindings = false,
 			}),
 		},
-		CheckConnectivity = true,
-		ClearArea = 256,
-		ClearRadius = 1000,
-		CountMod = function (self, target, progress) return self:CalculateInvadersCountMod(self, progress) end,
-		DistFromOthers = 1000,
-		EnabledInTutorial = true,
-		EnabledWithoutSurvivors = false,
-		FindSpawnLoc = function (self, spawn_class, target, context)
-			return nest_find_attack_spawn(self,spawn_class, target, context)
-		end,
-		PostSpawn = function (self, obj, target, context)
-			obj.CombatHostile = true
-			if IsKindOf(obj,'Robot') then
-				obj:SetInvader(true)
-			end
-			give_nest_speed_effect(obj,self.nest.proximity)
-			Msg("SpawnedAnimalThreat", obj)
-		end,
-		SpawnAsGroup = true,
-		SpawnClass = "Skarabei_Manhunting",
-		SurvivorDistMax = -1000,
-		SurvivorSpawnDistMin = 75000,
-		TargetClass = "Human",
-		TargetDistMax = 150000,
-		TargetDistMin = 75000,
-		TargetFilter = function (obj) return not obj:IsVirtual() end,
-		TargetStartPosOnMissingTarget = true,
-		group = "Attacks_Insects_NEW",
-		id = "nest_attack",
+		Enabled = true,
+		HasNotification = false,
+		HasPopup = false,
+		NotificationPriority = "Important",
+		NotificationText = T(140089047880, --[[ModItemStoryBit new_nest_noth NotificationText]] "A meteor is landing nearby"),
+		NotificationTitle = T(597141047859, --[[ModItemStoryBit new_nest_noth NotificationTitle]] "A meteor is landing nearby"),
+		OneTime = false,
+		SelectObject = false,
+		Sets = set( "Negative" ),
+		Text = T(696782011354, --[[ModItemStoryBit new_nest_noth Text]] "There is a meteor on course to land close to us.\nOur calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!\n\nWe can't make out what it is composed of...\nBut it must have some rare minerals inside of it!"),
+		Title = T(879463957682, --[[ModItemStoryBit new_nest_noth Title]] "A meteor is landing nearby"),
+		group = "Default",
+		id = "new_nest_noth",
+		max_reply_id = 3,
+		qa_info = PlaceObj('PresetQAInfo', {
+			Log = "Modified by Svetlio on 2020-Mar-04\nModified by Lina on 2020-Mar-04\nModified by Lina on 2020-Mar-06\nModified by Lina on 2020-Mar-26\nModified by Lina on 2020-Jun-25\nModified by Lina on 2020-Jul-15\nModified by Lina on 2020-Sep-28\nModified by Lina on 2020-Oct-26\nModified by Lina on 2021-Jan-12\nModified by Ivan on 2021-Feb-05\nModified by Ivan on 2021-Feb-24\nModified by Gaby on 2021-Mar-02\nModified by Ivan on 2021-Mar-02\nModified by Ivan on 2021-Mar-22\nModified by Gaby on 2021-Mar-25\nModified by Bobby on 2021-Aug-02\nModified by Ivan on 2021-Sep-20\nModified by Ivan on 2021-Nov-04\nModified by Xaerial on 2022-Sep-05\nModified by Xaerial on 2022-Oct-10",
+			param_bindings = false,
+		}),
 		save_in = "Mod/TGkJ3Tu",
 	}),
-	PlaceObj('ModItemSpawnDef', {
-		FindSpawnLoc = function (self, spawn_class, target, context)
-			return nest_find_spawn_fake(self, spawn_class, target,context)
-		end,
-		PostSpawn = function (self, obj, target, context)
-			obj.CombatHostile = false
-			if IsKindOf(obj,'Robot') then
-				obj:SetInvader(true)
-			end
-			give_nest_speed_effect(obj,self.nest.proximity)
-		end,
-		SpawnClass = "Shrieker_Hatchling",
-		SpawnTimeLimit = false,
-		TargetFilter = function (obj) return not obj:IsVirtual() end,
-		id = "nest_overflow",
+	PlaceObj('ModItemStoryBit', {
+		Category = "Midnight",
+		Effects = {
+			PlaceObj('StoryBitActivate', {
+				ForcePopup = false,
+				Id = "new_nest_juno_actual",
+				param_bindings = false,
+			}),
+			PlaceObj('SetCooldownEffect', {
+				Cooldown = "juno_cancer",
+				TimeScale = "months",
+				param_bindings = false,
+			}),
+		},
+		Enabled = true,
+		HasNotification = false,
+		HasPopup = false,
+		NotificationPriority = "Important",
+		NotificationText = T(426534389094, --[[ModItemStoryBit new_nest_juno_trigger NotificationText]] "A meteor is landing nearby"),
+		NotificationTitle = T(248666482877, --[[ModItemStoryBit new_nest_juno_trigger NotificationTitle]] "A meteor is landing nearby"),
+		OneTime = false,
+		Prerequisites = {
+			PlaceObj('CheckCooldown', {
+				Cooldown = "juno_cancer",
+				param_bindings = false,
+			}),
+		},
+		SelectObject = false,
+		Sets = set( "Negative" ),
+		Text = T(985386679829, --[[ModItemStoryBit new_nest_juno_trigger Text]] "There is a meteor on course to land close to us.\nOur calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!\n\nWe can't make out what it is composed of...\nBut it must have some rare minerals inside of it!"),
+		Title = T(597265661220, --[[ModItemStoryBit new_nest_juno_trigger Title]] "A meteor is landing nearby"),
+		Trigger = "Midnight",
+		group = "Default",
+		id = "new_nest_juno_trigger",
+		max_reply_id = 3,
+		qa_info = PlaceObj('PresetQAInfo', {
+			Log = "Modified by Svetlio on 2020-Mar-04\nModified by Lina on 2020-Mar-04\nModified by Lina on 2020-Mar-06\nModified by Lina on 2020-Mar-26\nModified by Lina on 2020-Jun-25\nModified by Lina on 2020-Jul-15\nModified by Lina on 2020-Sep-28\nModified by Lina on 2020-Oct-26\nModified by Lina on 2021-Jan-12\nModified by Ivan on 2021-Feb-05\nModified by Ivan on 2021-Feb-24\nModified by Gaby on 2021-Mar-02\nModified by Ivan on 2021-Mar-02\nModified by Ivan on 2021-Mar-22\nModified by Gaby on 2021-Mar-25\nModified by Bobby on 2021-Aug-02\nModified by Ivan on 2021-Sep-20\nModified by Ivan on 2021-Nov-04\nModified by Xaerial on 2022-Sep-05\nModified by Xaerial on 2022-Oct-10",
+			param_bindings = false,
+		}),
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemStoryBit', {
+		Category = "Midnight",
+		Effects = {
+			PlaceObj('ActivateSpawnDef', {
+				SpawnDefId = "JunoNest",
+				param_bindings = false,
+			}),
+			PlaceObj('ExecuteCode', {
+				Code = function (self, obj)
+					mark_spawned_nest('nesting_juno')
+				end,
+				param_bindings = false,
+			}),
+		},
+		Enabled = true,
+		HasNotification = false,
+		HasPopup = false,
+		NotificationPriority = "Important",
+		NotificationText = T(487636351064, --[[ModItemStoryBit new_nest_juno_actual NotificationText]] "A meteor is landing nearby"),
+		NotificationTitle = T(594898957822, --[[ModItemStoryBit new_nest_juno_actual NotificationTitle]] "A meteor is landing nearby"),
+		OneTime = false,
+		Prerequisites = {
+			PlaceObj('CheckRandom', {
+				Chance = 5,
+				param_bindings = false,
+			}),
+			PlaceObj('CheckExpression', {
+				Expression = function (self, obj)
+					local nest_convertible = MapCount(true,'TerritorialNest',function(nest)
+					if nest.class ~= 'JunoNest' and nest.spawned_on + const.Scale.years < GameTime() then
+						return true
+					end 
+					end)
+					return nests_convertible > 0
+				end,
+				param_bindings = false,
+			}),
+		},
+		SelectObject = false,
+		Sets = set( "Negative" ),
+		Text = T(705328008759, --[[ModItemStoryBit new_nest_juno_actual Text]] "There is a meteor on course to land close to us.\nOur calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!\n\nWe can't make out what it is composed of...\nBut it must have some rare minerals inside of it!"),
+		Title = T(548712859034, --[[ModItemStoryBit new_nest_juno_actual Title]] "A meteor is landing nearby"),
+		Trigger = "Midnight",
+		group = "Default",
+		id = "new_nest_juno_actual",
+		max_reply_id = 3,
+		qa_info = PlaceObj('PresetQAInfo', {
+			Log = "Modified by Svetlio on 2020-Mar-04\nModified by Lina on 2020-Mar-04\nModified by Lina on 2020-Mar-06\nModified by Lina on 2020-Mar-26\nModified by Lina on 2020-Jun-25\nModified by Lina on 2020-Jul-15\nModified by Lina on 2020-Sep-28\nModified by Lina on 2020-Oct-26\nModified by Lina on 2021-Jan-12\nModified by Ivan on 2021-Feb-05\nModified by Ivan on 2021-Feb-24\nModified by Gaby on 2021-Mar-02\nModified by Ivan on 2021-Mar-02\nModified by Ivan on 2021-Mar-22\nModified by Gaby on 2021-Mar-25\nModified by Bobby on 2021-Aug-02\nModified by Ivan on 2021-Sep-20\nModified by Ivan on 2021-Nov-04\nModified by Xaerial on 2022-Sep-05\nModified by Xaerial on 2022-Oct-10",
+			param_bindings = false,
+		}),
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemStoryBit', {
+		Category = "Tick",
+		Effects = {
+			PlaceObj('ActivateSpawnDef', {
+				SpawnDefId = "DeathflyNest",
+				param_bindings = false,
+			}),
+			PlaceObj('ExecuteCode', {
+				Code = function (self, obj)
+					mark_spawned_nest('nesting_deathfly')
+				end,
+				param_bindings = false,
+			}),
+		},
+		Enabled = true,
+		HasNotification = false,
+		HasPopup = false,
+		NotificationPriority = "Important",
+		NotificationText = T(667168308905, --[[ModItemStoryBit new_nest_deathfly NotificationText]] "A meteor is landing nearby"),
+		NotificationTitle = T(787368822463, --[[ModItemStoryBit new_nest_deathfly NotificationTitle]] "A meteor is landing nearby"),
+		OneTime = false,
+		SelectObject = false,
+		Sets = set( "Negative" ),
+		Text = T(663260679498, --[[ModItemStoryBit new_nest_deathfly Text]] "There is a meteor on course to land close to us.\nOur calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!\n\nWe can't make out what it is composed of...\nBut it must have some rare minerals inside of it!"),
+		Title = T(316659300035, --[[ModItemStoryBit new_nest_deathfly Title]] "A meteor is landing nearby"),
+		group = "Default",
+		id = "new_nest_deathfly",
+		max_reply_id = 3,
+		qa_info = PlaceObj('PresetQAInfo', {
+			Log = "Modified by Svetlio on 2020-Mar-04\nModified by Lina on 2020-Mar-04\nModified by Lina on 2020-Mar-06\nModified by Lina on 2020-Mar-26\nModified by Lina on 2020-Jun-25\nModified by Lina on 2020-Jul-15\nModified by Lina on 2020-Sep-28\nModified by Lina on 2020-Oct-26\nModified by Lina on 2021-Jan-12\nModified by Ivan on 2021-Feb-05\nModified by Ivan on 2021-Feb-24\nModified by Gaby on 2021-Mar-02\nModified by Ivan on 2021-Mar-02\nModified by Ivan on 2021-Mar-22\nModified by Gaby on 2021-Mar-25\nModified by Bobby on 2021-Aug-02\nModified by Ivan on 2021-Sep-20\nModified by Ivan on 2021-Nov-04\nModified by Xaerial on 2022-Sep-05\nModified by Xaerial on 2022-Oct-10",
+			param_bindings = false,
+		}),
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemStoryBit', {
+		Category = "Tick",
+		Effects = {
+			PlaceObj('ActivateSpawnDef', {
+				SpawnDefId = "GlutchNest",
+				param_bindings = false,
+			}),
+			PlaceObj('ExecuteCode', {
+				Code = function (self, obj)
+					mark_spawned_nest('nesing_glutch')
+				end,
+				param_bindings = false,
+			}),
+		},
+		Enabled = true,
+		HasNotification = false,
+		HasPopup = false,
+		NotificationPriority = "Important",
+		NotificationText = T(541641436971, --[[ModItemStoryBit new_nest_glutch NotificationText]] "A meteor is landing nearby"),
+		NotificationTitle = T(504538267993, --[[ModItemStoryBit new_nest_glutch NotificationTitle]] "A meteor is landing nearby"),
+		OneTime = false,
+		SelectObject = false,
+		Sets = set( "Negative" ),
+		Text = T(756744237257, --[[ModItemStoryBit new_nest_glutch Text]] "There is a meteor on course to land close to us.\nOur calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!\n\nWe can't make out what it is composed of...\nBut it must have some rare minerals inside of it!"),
+		Title = T(979015077197, --[[ModItemStoryBit new_nest_glutch Title]] "A meteor is landing nearby"),
+		group = "Default",
+		id = "new_nest_glutch",
+		max_reply_id = 3,
+		qa_info = PlaceObj('PresetQAInfo', {
+			Log = "Modified by Svetlio on 2020-Mar-04\nModified by Lina on 2020-Mar-04\nModified by Lina on 2020-Mar-06\nModified by Lina on 2020-Mar-26\nModified by Lina on 2020-Jun-25\nModified by Lina on 2020-Jul-15\nModified by Lina on 2020-Sep-28\nModified by Lina on 2020-Oct-26\nModified by Lina on 2021-Jan-12\nModified by Ivan on 2021-Feb-05\nModified by Ivan on 2021-Feb-24\nModified by Gaby on 2021-Mar-02\nModified by Ivan on 2021-Mar-02\nModified by Ivan on 2021-Mar-22\nModified by Gaby on 2021-Mar-25\nModified by Bobby on 2021-Aug-02\nModified by Ivan on 2021-Sep-20\nModified by Ivan on 2021-Nov-04\nModified by Xaerial on 2022-Sep-05\nModified by Xaerial on 2022-Oct-10",
+			param_bindings = false,
+		}),
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemStoryBit', {
+		Category = "Tick",
+		Effects = {
+			PlaceObj('ActivateSpawnDef', {
+				SpawnDefId = "DrakaNest",
+				param_bindings = false,
+			}),
+			PlaceObj('ExecuteCode', {
+				Code = function (self, obj)
+					mark_spawned_nest('nesting_draka')
+				end,
+				param_bindings = false,
+			}),
+		},
+		Enabled = true,
+		HasNotification = false,
+		HasPopup = false,
+		NotificationPriority = "Important",
+		NotificationText = T(236489551736, --[[ModItemStoryBit new_nest_draka NotificationText]] "A meteor is landing nearby"),
+		NotificationTitle = T(633753453556, --[[ModItemStoryBit new_nest_draka NotificationTitle]] "A meteor is landing nearby"),
+		OneTime = false,
+		SelectObject = false,
+		Sets = set( "Negative" ),
+		Text = T(470958532767, --[[ModItemStoryBit new_nest_draka Text]] "There is a meteor on course to land close to us.\nOur calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!\n\nWe can't make out what it is composed of...\nBut it must have some rare minerals inside of it!"),
+		Title = T(448258832581, --[[ModItemStoryBit new_nest_draka Title]] "A meteor is landing nearby"),
+		group = "Default",
+		id = "new_nest_draka",
+		max_reply_id = 3,
+		qa_info = PlaceObj('PresetQAInfo', {
+			Log = "Modified by Svetlio on 2020-Mar-04\nModified by Lina on 2020-Mar-04\nModified by Lina on 2020-Mar-06\nModified by Lina on 2020-Mar-26\nModified by Lina on 2020-Jun-25\nModified by Lina on 2020-Jul-15\nModified by Lina on 2020-Sep-28\nModified by Lina on 2020-Oct-26\nModified by Lina on 2021-Jan-12\nModified by Ivan on 2021-Feb-05\nModified by Ivan on 2021-Feb-24\nModified by Gaby on 2021-Mar-02\nModified by Ivan on 2021-Mar-02\nModified by Ivan on 2021-Mar-22\nModified by Gaby on 2021-Mar-25\nModified by Bobby on 2021-Aug-02\nModified by Ivan on 2021-Sep-20\nModified by Ivan on 2021-Nov-04\nModified by Xaerial on 2022-Sep-05\nModified by Xaerial on 2022-Oct-10",
+			param_bindings = false,
+		}),
 		save_in = "Mod/TGkJ3Tu",
 	}),
 	}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Tick",
-	Effects = {
-		PlaceObj('ActivateSpawnDef', {
-			SpawnDefId = "NothNest",
-			param_bindings = false,
-		}),
-		PlaceObj('ExecuteCode', {
-			Code = function (self, obj)
-				mark_spawned_nest('ShoguNesting')
-			end,
-			param_bindings = false,
-		}),
-	},
-	Enabled = true,
-	HasNotification = false,
-	HasPopup = false,
-	NotificationPriority = "Important",
-	NotificationText = T(140089047880, --[[ModItemStoryBit new_nest_noth NotificationText]] "A meteor is landing nearby"),
-	NotificationTitle = T(597141047859, --[[ModItemStoryBit new_nest_noth NotificationTitle]] "A meteor is landing nearby"),
-	OneTime = false,
-	SelectObject = false,
-	Sets = set( "Negative" ),
-	Text = T(696782011354, --[[ModItemStoryBit new_nest_noth Text]] "There is a meteor on course to land close to us.\nOur calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!\n\nWe can't make out what it is composed of...\nBut it must have some rare minerals inside of it!"),
-	Title = T(879463957682, --[[ModItemStoryBit new_nest_noth Title]] "A meteor is landing nearby"),
-	group = "Default",
-	id = "new_nest_noth",
-	max_reply_id = 3,
-	qa_info = PlaceObj('PresetQAInfo', {
-		Log = "Modified by Svetlio on 2020-Mar-04\nModified by Lina on 2020-Mar-04\nModified by Lina on 2020-Mar-06\nModified by Lina on 2020-Mar-26\nModified by Lina on 2020-Jun-25\nModified by Lina on 2020-Jul-15\nModified by Lina on 2020-Sep-28\nModified by Lina on 2020-Oct-26\nModified by Lina on 2021-Jan-12\nModified by Ivan on 2021-Feb-05\nModified by Ivan on 2021-Feb-24\nModified by Gaby on 2021-Mar-02\nModified by Ivan on 2021-Mar-02\nModified by Ivan on 2021-Mar-22\nModified by Gaby on 2021-Mar-25\nModified by Bobby on 2021-Aug-02\nModified by Ivan on 2021-Sep-20\nModified by Ivan on 2021-Nov-04\nModified by Xaerial on 2022-Sep-05\nModified by Xaerial on 2022-Oct-10",
-		param_bindings = false,
-	}),
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Tick",
-	Effects = {
-		PlaceObj('ActivateSpawnDef', {
-			SpawnDefId = "JunoNest",
-			param_bindings = false,
-		}),
-		PlaceObj('ExecuteCode', {
-			Code = function (self, obj)
-				mark_spawned_nest('ShoguNesting')
-			end,
-			param_bindings = false,
-		}),
-	},
-	Enabled = true,
-	HasNotification = false,
-	HasPopup = false,
-	NotificationPriority = "Important",
-	NotificationText = T(426534389094, --[[ModItemStoryBit new_nest_juno NotificationText]] "A meteor is landing nearby"),
-	NotificationTitle = T(248666482877, --[[ModItemStoryBit new_nest_juno NotificationTitle]] "A meteor is landing nearby"),
-	OneTime = false,
-	SelectObject = false,
-	Sets = set( "Negative" ),
-	Text = T(985386679829, --[[ModItemStoryBit new_nest_juno Text]] "There is a meteor on course to land close to us.\nOur calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!\n\nWe can't make out what it is composed of...\nBut it must have some rare minerals inside of it!"),
-	Title = T(597265661220, --[[ModItemStoryBit new_nest_juno Title]] "A meteor is landing nearby"),
-	group = "Default",
-	id = "new_nest_juno",
-	max_reply_id = 3,
-	qa_info = PlaceObj('PresetQAInfo', {
-		Log = "Modified by Svetlio on 2020-Mar-04\nModified by Lina on 2020-Mar-04\nModified by Lina on 2020-Mar-06\nModified by Lina on 2020-Mar-26\nModified by Lina on 2020-Jun-25\nModified by Lina on 2020-Jul-15\nModified by Lina on 2020-Sep-28\nModified by Lina on 2020-Oct-26\nModified by Lina on 2021-Jan-12\nModified by Ivan on 2021-Feb-05\nModified by Ivan on 2021-Feb-24\nModified by Gaby on 2021-Mar-02\nModified by Ivan on 2021-Mar-02\nModified by Ivan on 2021-Mar-22\nModified by Gaby on 2021-Mar-25\nModified by Bobby on 2021-Aug-02\nModified by Ivan on 2021-Sep-20\nModified by Ivan on 2021-Nov-04\nModified by Xaerial on 2022-Sep-05\nModified by Xaerial on 2022-Oct-10",
-		param_bindings = false,
-	}),
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Tick",
-	Effects = {
-		PlaceObj('ActivateSpawnDef', {
-			SpawnDefId = "DeathflyNest",
-			param_bindings = false,
-		}),
-		PlaceObj('ExecuteCode', {
-			Code = function (self, obj)
-				mark_spawned_nest('ShoguNesting')
-			end,
-			param_bindings = false,
-		}),
-	},
-	Enabled = true,
-	HasNotification = false,
-	HasPopup = false,
-	NotificationPriority = "Important",
-	NotificationText = T(667168308905, --[[ModItemStoryBit new_nest_deathfly NotificationText]] "A meteor is landing nearby"),
-	NotificationTitle = T(787368822463, --[[ModItemStoryBit new_nest_deathfly NotificationTitle]] "A meteor is landing nearby"),
-	OneTime = false,
-	SelectObject = false,
-	Sets = set( "Negative" ),
-	Text = T(663260679498, --[[ModItemStoryBit new_nest_deathfly Text]] "There is a meteor on course to land close to us.\nOur calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!\n\nWe can't make out what it is composed of...\nBut it must have some rare minerals inside of it!"),
-	Title = T(316659300035, --[[ModItemStoryBit new_nest_deathfly Title]] "A meteor is landing nearby"),
-	group = "Default",
-	id = "new_nest_deathfly",
-	max_reply_id = 3,
-	qa_info = PlaceObj('PresetQAInfo', {
-		Log = "Modified by Svetlio on 2020-Mar-04\nModified by Lina on 2020-Mar-04\nModified by Lina on 2020-Mar-06\nModified by Lina on 2020-Mar-26\nModified by Lina on 2020-Jun-25\nModified by Lina on 2020-Jul-15\nModified by Lina on 2020-Sep-28\nModified by Lina on 2020-Oct-26\nModified by Lina on 2021-Jan-12\nModified by Ivan on 2021-Feb-05\nModified by Ivan on 2021-Feb-24\nModified by Gaby on 2021-Mar-02\nModified by Ivan on 2021-Mar-02\nModified by Ivan on 2021-Mar-22\nModified by Gaby on 2021-Mar-25\nModified by Bobby on 2021-Aug-02\nModified by Ivan on 2021-Sep-20\nModified by Ivan on 2021-Nov-04\nModified by Xaerial on 2022-Sep-05\nModified by Xaerial on 2022-Oct-10",
-		param_bindings = false,
-	}),
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Tick",
-	Effects = {
-		PlaceObj('ActivateSpawnDef', {
-			SpawnDefId = "GlutchNest",
-			param_bindings = false,
-		}),
-		PlaceObj('ExecuteCode', {
-			Code = function (self, obj)
-				mark_spawned_nest('ShoguNesting')
-			end,
-			param_bindings = false,
-		}),
-	},
-	Enabled = true,
-	HasNotification = false,
-	HasPopup = false,
-	NotificationPriority = "Important",
-	NotificationText = T(541641436971, --[[ModItemStoryBit new_nest_glutch NotificationText]] "A meteor is landing nearby"),
-	NotificationTitle = T(504538267993, --[[ModItemStoryBit new_nest_glutch NotificationTitle]] "A meteor is landing nearby"),
-	OneTime = false,
-	SelectObject = false,
-	Sets = set( "Negative" ),
-	Text = T(756744237257, --[[ModItemStoryBit new_nest_glutch Text]] "There is a meteor on course to land close to us.\nOur calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!\n\nWe can't make out what it is composed of...\nBut it must have some rare minerals inside of it!"),
-	Title = T(979015077197, --[[ModItemStoryBit new_nest_glutch Title]] "A meteor is landing nearby"),
-	group = "Default",
-	id = "new_nest_glutch",
-	max_reply_id = 3,
-	qa_info = PlaceObj('PresetQAInfo', {
-		Log = "Modified by Svetlio on 2020-Mar-04\nModified by Lina on 2020-Mar-04\nModified by Lina on 2020-Mar-06\nModified by Lina on 2020-Mar-26\nModified by Lina on 2020-Jun-25\nModified by Lina on 2020-Jul-15\nModified by Lina on 2020-Sep-28\nModified by Lina on 2020-Oct-26\nModified by Lina on 2021-Jan-12\nModified by Ivan on 2021-Feb-05\nModified by Ivan on 2021-Feb-24\nModified by Gaby on 2021-Mar-02\nModified by Ivan on 2021-Mar-02\nModified by Ivan on 2021-Mar-22\nModified by Gaby on 2021-Mar-25\nModified by Bobby on 2021-Aug-02\nModified by Ivan on 2021-Sep-20\nModified by Ivan on 2021-Nov-04\nModified by Xaerial on 2022-Sep-05\nModified by Xaerial on 2022-Oct-10",
-		param_bindings = false,
-	}),
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Tick",
-	Effects = {
-		PlaceObj('ActivateSpawnDef', {
-			SpawnDefId = "DrakaNest",
-			param_bindings = false,
-		}),
-		PlaceObj('ExecuteCode', {
-			Code = function (self, obj)
-				mark_spawned_nest('ShoguNesting')
-			end,
-			param_bindings = false,
-		}),
-	},
-	Enabled = true,
-	HasNotification = false,
-	HasPopup = false,
-	NotificationPriority = "Important",
-	NotificationText = T(236489551736, --[[ModItemStoryBit new_nest_draka NotificationText]] "A meteor is landing nearby"),
-	NotificationTitle = T(633753453556, --[[ModItemStoryBit new_nest_draka NotificationTitle]] "A meteor is landing nearby"),
-	OneTime = false,
-	SelectObject = false,
-	Sets = set( "Negative" ),
-	Text = T(470958532767, --[[ModItemStoryBit new_nest_draka Text]] "There is a meteor on course to land close to us.\nOur calculations note that it is too small to cause more than a small earthquake, so thank goodness for that!\n\nWe can't make out what it is composed of...\nBut it must have some rare minerals inside of it!"),
-	Title = T(448258832581, --[[ModItemStoryBit new_nest_draka Title]] "A meteor is landing nearby"),
-	group = "Default",
-	id = "new_nest_draka",
-	max_reply_id = 3,
-	qa_info = PlaceObj('PresetQAInfo', {
-		Log = "Modified by Svetlio on 2020-Mar-04\nModified by Lina on 2020-Mar-04\nModified by Lina on 2020-Mar-06\nModified by Lina on 2020-Mar-26\nModified by Lina on 2020-Jun-25\nModified by Lina on 2020-Jul-15\nModified by Lina on 2020-Sep-28\nModified by Lina on 2020-Oct-26\nModified by Lina on 2021-Jan-12\nModified by Ivan on 2021-Feb-05\nModified by Ivan on 2021-Feb-24\nModified by Gaby on 2021-Mar-02\nModified by Ivan on 2021-Mar-02\nModified by Ivan on 2021-Mar-22\nModified by Gaby on 2021-Mar-25\nModified by Bobby on 2021-Aug-02\nModified by Ivan on 2021-Sep-20\nModified by Ivan on 2021-Nov-04\nModified by Xaerial on 2022-Sep-05\nModified by Xaerial on 2022-Oct-10",
-		param_bindings = false,
-	}),
-	save_in = "Mod/TGkJ3Tu",
-}),
 PlaceObj('ModItemFolder', {
 	'name', "UI",
 	'NameColor', RGBA(22, 153, 0, 255),
@@ -1477,7 +1555,7 @@ PlaceObj('ModItemFolder', {
 			return self:ResolveTarget()
 		end,
 		PostSpawn = function (self, obj, target, context)
-			AddGameNotification("ShoguNestSpawned", nil, nil, {obj})
+			AddGameNotification("NothNestSpawned", nil, nil, {obj})
 		end,
 		Spawn = function (self, target, spawn_class)
 			return SpawnNestInsideMap(target,nil,"noth_nest")
@@ -1496,7 +1574,7 @@ PlaceObj('ModItemFolder', {
 			return self:ResolveTarget()
 		end,
 		PostSpawn = function (self, obj, target, context)
-			AddGameNotification("ShoguNestSpawned", nil, nil, {obj})
+			AddGameNotification("GlutchNestSpawned", nil, nil, {obj})
 		end,
 		Spawn = function (self, target, spawn_class)
 			return SpawnNestInsideMap(target,nil,"glutch_nest")
@@ -1515,7 +1593,7 @@ PlaceObj('ModItemFolder', {
 			return self:ResolveTarget()
 		end,
 		PostSpawn = function (self, obj, target, context)
-			AddGameNotification("ShoguNestSpawned", nil, nil, {obj})
+			AddGameNotification("JunoNestSpawned", nil, nil, {obj})
 		end,
 		Spawn = function (self, target, spawn_class)
 			return SpawnNestInsideMap(target,nil,"juno_nest")
@@ -1535,7 +1613,7 @@ PlaceObj('ModItemFolder', {
 			return self:ResolveTarget()
 		end,
 		PostSpawn = function (self, obj, target, context)
-			AddGameNotification("ShoguNestSpawned", nil, nil, {obj})
+			AddGameNotification("DeathflyNestSpawned", nil, nil, {obj})
 		end,
 		Spawn = function (self, target, spawn_class)
 			return SpawnNestInsideMap(target,nil,"deathfly_nest")
@@ -1554,7 +1632,7 @@ PlaceObj('ModItemFolder', {
 			return self:ResolveTarget()
 		end,
 		PostSpawn = function (self, obj, target, context)
-			AddGameNotification("ShoguNestSpawned", nil, nil, {obj})
+			AddGameNotification("DrakaNestSpawned", nil, nil, {obj})
 		end,
 		Spawn = function (self, target, spawn_class)
 			return SpawnNestInsideMap(target,nil,"draka_nest")
@@ -1565,278 +1643,6 @@ PlaceObj('ModItemFolder', {
 		TargetFilter = function (obj) return 0 == MapCount(obj, obj.MaxPrefabRadius, "ScavengeableDebris", "FallingDebris", "Building", "Human", "TerritorialNest") end,
 		group = "StoryBits",
 		id = "DrakaNest",
-		save_in = "Mod/TGkJ3Tu",
-	}),
-	PlaceObj('ModItemNotificationPreset', {
-		expiration = 480000,
-		fx_action = "UINotificationImportant",
-		game_time = true,
-		id = "ConsortiumNestSpawned",
-		rollover_text = T(212707868936, --[[ModItemNotificationPreset ConsortiumNestSpawned rollover_text]] "A large Consortium Automated Base has dropped from orbit!"),
-		rollover_title = T(133001288045, --[[ModItemNotificationPreset ConsortiumNestSpawned rollover_title]] "New Consortium Base"),
-		save_in = "Mod/TGkJ3Tu",
-		text = T(593714970551, --[[ModItemNotificationPreset ConsortiumNestSpawned text]] "New Consortium Base"),
-	}),
-	PlaceObj('ModItemTech', {
-		Activity = "FieldResearch",
-		Description = T(971095329043, --[[ModItemTech FieldConsortiumSpore Description]] "Based on what landed, this seems to be the Consortium's R.E.P.O. (Resource Extraction Prefab Objects) package.\n\nFrom their advertisement channel:\n<style TextPositive>Ever want to collect and hoard rare minerals but too lazy to leave your planet? Look no further! The R.E.P.O. prefab is a self-replicating automatazapalooza that can strip a planet dry within a decade!</style>\n<style FinePrint>Terms and conditions apply, The Consortium does not guarantee minimum efficiency of prefabs. To see the full disclaimer list, please visit the Consortium Headquarters during it's visitor hours on Mondays between 8 and 9 am.</style>"),
-		DisplayName = T(919872346092, --[[ModItemTech FieldConsortiumSpore DisplayName]] "Consortium Prefab"),
-		DisplayNamePl = T(553422873878, --[[ModItemTech FieldConsortiumSpore DisplayNamePl]] "Consortium Prefabs"),
-		FieldResearchCategory = "Fauna",
-		FieldResearchTemplateExpression = function (self) return ShriekerSporeDeposit end,
-		Icon = "Mod/TGkJ3Tu/PicsOritDidntHappen/ConsortiumNestResearch.PNG",
-		ResearchPoints = 4000,
-		group = "Field",
-		id = "FieldConsortiumSpore",
-		money_value = 50000000,
-		save_in = "Mod/TGkJ3Tu",
-		tradable = false,
-	}),
-	PlaceObj('ModItemNotificationPreset', {
-		expiration = 60000,
-		expiration_bar = true,
-		fx_action = "UINotificationAnimalAttack",
-		id = "nests_disgorged",
-		rollover_text = T(337902645815, --[[ModItemNotificationPreset nests_disgorged rollover_text]] "A nearby nest has created too many creatures and let some loose!"),
-		save_in = "Mod/TGkJ3Tu",
-		text = T(818323081200, --[[ModItemNotificationPreset nests_disgorged text]] "A nest has released roaming units!"),
-	}),
-	PlaceObj('ModItemMapDataPreset', {
-		AssetsRevision = 29397,
-		GameLogic = false,
-		HeightMapAvg = 6900,
-		HeightMapMax = 6900,
-		HeightMapMin = 6900,
-		IsPrefabMap = true,
-		LuaRevision = 373414,
-		MapType = "system",
-		MaxObjRadius = 33812,
-		MaxSurfRadius2D = 16419,
-		ModEditor = true,
-		NetHash = 6462337141065913116,
-		ObjectsHash = -6804332748817026938,
-		OrgLuaRevision = 373414,
-		TerrainHash = 4333834435235192014,
-		group = "PrefabMap",
-		id = "nest_prefab_holder",
-		markers = {
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.DeathflyNest_1",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1013387562,
-				'pos', point(112800, 7200),
-				'data', 'return {name="DeathflyNest_1",marker={handle = 1013387562,map = "nest_prefab_holder"},hash=135155036285599059,revision=29397,tags=set( "deathfly_nest" ),poi_type="deathfly_prefab_POI",poi_area="Default",size=point(43200, 43200),height_hash=-6554566506273212218,height_offset=-1380,min=point(31, 3, 0),max=point(32, 3, 0),type_hash=7823967666307924114,type_names={Sand_01 = 0},grass_hash=-7711233824600437866,mask_hash=941958136439644175,total_area=3513,min_radius=33,max_radius=33,obj_count=5,obj_min_radius=9669,obj_max_radius=18117,obj_avg_radius=13640,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.DeathflyNest_2",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1404260631,
-				'pos', point(158400, 14400),
-				'data', 'return {name="DeathflyNest_2",marker={handle = 1404260631,map = "nest_prefab_holder"},hash=6632860962453397847,revision=29397,tags=set( "deathfly_nest" ),poi_type="deathfly_prefab_POI",poi_area="Default",size=point(43200, 43200),height_hash=-6554566506273212218,height_offset=-1380,min=point(31, 3, 0),max=point(32, 3, 0),type_hash=7823967666307924114,type_names={Sand_01 = 0},grass_hash=-7711233824600437866,mask_hash=941958136439644175,total_area=3513,min_radius=33,max_radius=33,obj_count=6,obj_min_radius=9669,obj_max_radius=18117,obj_avg_radius=14386,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.DeathflyNest_3",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1352949102,
-				'pos', point(211200, 7200),
-				'data', 'return {name="DeathflyNest_3",marker={handle = 1352949102,map = "nest_prefab_holder"},hash=6303509568111995613,revision=29397,tags=set( "deathfly_nest" ),poi_type="deathfly_prefab_POI",poi_area="Default",size=point(43200, 43200),height_hash=-6554566506273212218,height_offset=-1380,min=point(31, 3, 0),max=point(32, 3, 0),type_hash=7823967666307924114,type_names={Sand_01 = 0},grass_hash=-7711233824600437866,mask_hash=941958136439644175,total_area=3513,min_radius=33,max_radius=33,obj_count=7,obj_min_radius=9669,obj_max_radius=17045,obj_avg_radius=11299,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.DrakaNest_1",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1577367090,
-				'pos', point(86400, 153600),
-				'data', 'return {name="DrakaNest_1",marker={handle = 1577367090,map = "nest_prefab_holder"},hash=8374742566722619209,revision=29397,tags=set( "draka_nest" ),poi_type="draka_prefab_POI",poi_area="Default",size=point(38400, 36000),height_hash=-3728813377058611528,height_offset=-1380,min=point(18, 0, 0),max=point(19, 0, 0),type_hash=-5139052757907770137,type_names={Sand_01 = 0},grass_hash=-7706353853377573960,mask_hash=-6286075657234199774,total_area=3341,min_radius=33,max_radius=33,obj_count=7,obj_min_radius=5777,obj_max_radius=9788,obj_avg_radius=7559,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.DrakaNest_2",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1271768253,
-				'pos', point(127200, 153600),
-				'data', 'return {name="DrakaNest_2",marker={handle = 1271768253,map = "nest_prefab_holder"},hash=-1948620672027865257,revision=29397,tags=set( "draka_nest" ),poi_type="draka_prefab_POI",poi_area="Default",size=point(40800, 38400),height_hash=-7953869838558056685,height_offset=-1380,min=point(25, 0, 0),max=point(26, 0, 0),type_hash=-8286268467544983987,type_names={Sand_01 = 0},grass_hash=3000296992726779196,mask_hash=7748238865320147437,total_area=3480,min_radius=33,max_radius=33,obj_count=7,obj_min_radius=5777,obj_max_radius=9788,obj_avg_radius=7559,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.DrakaNest_3",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1203850354,
-				'pos', point(180000, 153600),
-				'data', 'return {name="DrakaNest_3",marker={handle = 1203850354,map = "nest_prefab_holder"},hash=-3915254795876775120,revision=29397,tags=set( "draka_nest" ),poi_type="draka_prefab_POI",poi_area="Default",size=point(40800, 38400),height_hash=-7953869838558056685,height_offset=-1380,min=point(25, 0, 0),max=point(26, 0, 0),type_hash=-8286268467544983987,type_names={Sand_01 = 0},grass_hash=3000296992726779196,mask_hash=7748238865320147437,total_area=3480,min_radius=33,max_radius=33,obj_count=9,obj_min_radius=7766,obj_max_radius=9788,obj_avg_radius=8268,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.GlutchNest_1",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1211193707,
-				'pos', point(124800, 117600),
-				'data', 'return {name="GlutchNest_1",marker={handle = 1211193707,map = "nest_prefab_holder"},hash=4339673577767762315,revision=29397,tags=set( "glutch_nest" ),poi_type="glutch_prefab_POI",poi_area="Default",size=point(36000, 33600),height_hash=6143602635854926162,height_offset=-1380,min=point(12, 0, 0),max=point(13, 0, 0),type_hash=-8333799106890059670,type_names={Sand_01 = 0},grass_hash=-1077138140842274167,mask_hash=-2325952025988458901,total_area=3111,min_radius=33,max_radius=33,obj_count=7,obj_min_radius=6063,obj_max_radius=9480,obj_avg_radius=6789,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.GlutchNest_2",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1737024683,
-				'pos', point(160800, 117600),
-				'data', 'return {name="GlutchNest_2",marker={handle = 1737024683,map = "nest_prefab_holder"},hash=-5615833062888629902,revision=29397,tags=set( "glutch_nest" ),poi_type="glutch_prefab_POI",poi_area="Default",size=point(38400, 36000),height_hash=-3728813377058611528,height_offset=-1380,min=point(18, 0, 0),max=point(19, 0, 0),type_hash=-5139052757907770137,type_names={Sand_01 = 0},grass_hash=-7706353853377573960,mask_hash=-6286075657234199774,total_area=3341,min_radius=33,max_radius=33,obj_count=10,obj_min_radius=6063,obj_max_radius=9480,obj_avg_radius=6737,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.GlutchNest_3",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1893536629,
-				'pos', point(204000, 117600),
-				'data', 'return {name="GlutchNest_3",marker={handle = 1893536629,map = "nest_prefab_holder"},hash=9157779191047929978,revision=29397,tags=set( "glutch_nest" ),poi_type="glutch_prefab_POI",poi_area="Default",size=point(31200, 28800),height_hash=-248886648011861244,height_offset=-1380,min=point(3, 0, 0),max=point(4, 0, 0),type_hash=2001221726883916425,type_names={Sand_01 = 0},mask_hash=-5311499434744909019,total_area=2483,min_radius=33,max_radius=33,obj_count=8,obj_min_radius=6063,obj_max_radius=9480,obj_avg_radius=6802,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.JunoNest_1",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1795474988,
-				'pos', point(261600, 72000),
-				'data', 'return {name="JunoNest_1",marker={handle = 1795474988,map = "nest_prefab_holder"},hash=-48953567680203679,revision=29397,tags=set( "juno_nest" ),poi_type="juno_prefab_POI",poi_area="Default",size=point(31200, 28800),height_hash=-248886648011861244,height_offset=-1380,min=point(3, 0, 0),max=point(4, 0, 0),type_hash=2001221726883916425,type_names={Sand_01 = 0},mask_hash=-5311499434744909019,total_area=2483,min_radius=33,max_radius=33,obj_count=11,obj_min_radius=1632,obj_max_radius=16361,obj_avg_radius=3685,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.JunoNest_2",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1823835206,
-				'pos', point(264000, 38400),
-				'data', 'return {name="JunoNest_2",marker={handle = 1823835206,map = "nest_prefab_holder"},hash=-8484542572144654014,revision=29397,tags=set( "juno_nest" ),poi_type="juno_prefab_POI",poi_area="Default",size=point(36000, 31200),height_hash=-7012718594217010565,height_offset=-1380,min=point(9, 0, 0),max=point(10, 0, 0),type_hash=-3628522840939498031,type_names={Sand_01 = 0},grass_hash=-5100044955091474218,mask_hash=4399537818667326791,total_area=2953,min_radius=33,max_radius=33,obj_count=12,obj_min_radius=1632,obj_max_radius=16361,obj_avg_radius=3548,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.JunoNest_3",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1675415579,
-				'pos', point(261600, 2400),
-				'data', 'return {name="JunoNest_3",marker={handle = 1675415579,map = "nest_prefab_holder"},hash=-2808288468863089603,revision=29397,tags=set( "juno_nest" ),poi_type="juno_prefab_POI",poi_area="Default",size=point(36000, 31200),height_hash=-7012718594217010565,height_offset=-1380,min=point(9, 0, 0),max=point(10, 0, 0),type_hash=-3628522840939498031,type_names={Sand_01 = 0},grass_hash=-5100044955091474218,mask_hash=4399537818667326791,total_area=2953,min_radius=33,max_radius=33,obj_count=14,obj_min_radius=1632,obj_max_radius=16361,obj_avg_radius=3083,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.NothNest_1",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1580665493,
-				'pos', point(273600, 112800),
-				'data', 'return {name="NothNest_1",marker={handle = 1893536629,map = "nest_prefab_holder"},hash=8908233822329379118,revision=29397,tags={noth_nest = true},poi_type="noth_prefab_POI",poi_area="Default",size=point(33600, 31200),height_hash=5956781812321257378,height_offset=-1380,min=point(7, 0, 0),max=point(8, 0, 0),type_hash=-2622297160058893600,type_names={Sand_01 = 0},grass_hash=-315783998437808945,mask_hash=1740846206681711898,total_area=2821,min_radius=33,max_radius=33,obj_count=4,obj_min_radius=9783,obj_max_radius=22891,obj_avg_radius=15114,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.NothNest_2",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1658623959,
-				'pos', point(237600, 112800),
-				'data', 'return {name="NothNest_2",marker={handle = 1893536629,map = "nest_prefab_holder"},hash=6983266379184442540,revision=29397,tags={noth_nest = true},poi_type="noth_prefab_POI",poi_area="Default",size=point(36000, 33600),height_hash=6143602635854926162,height_offset=-1380,min=point(12, 0, 0),max=point(13, 0, 0),type_hash=-8333799106890059670,type_names={Sand_01 = 0},grass_hash=-1077138140842274167,mask_hash=-2325952025988458901,total_area=3111,min_radius=33,max_radius=33,obj_count=4,obj_min_radius=9783,obj_max_radius=26648,obj_avg_radius=16053,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.NothNest_3",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1388475990,
-				'pos', point(232800, 146400),
-				'data', 'return {name="NothNest_3",marker={handle = 1893536629,map = "nest_prefab_holder"},hash=4645230315982543691,revision=29397,tags={noth_nest = true},poi_type="noth_prefab_POI",poi_area="Default",size=point(45600, 38400),height_hash=-6549386369235014482,height_offset=-1380,min=point(29, 0, 0),max=point(30, 0, 0),type_hash=4063681269166082260,type_names={Sand_01 = 0},grass_hash=5212561961266167142,mask_hash=691182317215739379,total_area=3480,min_radius=33,max_radius=33,obj_count=4,obj_min_radius=9783,obj_max_radius=26648,obj_avg_radius=18303,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.ShoguNest_1",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1453647788,
-				'pos', point(16800, 108000),
-				'data', 'return {name="ShoguNest_1",marker={handle = 1453647788,map = "nest_prefab_holder"},hash=-6941156582252333101,revision=29397,tags=set( "shogu_nest" ),poi_type="shogu_prefab_POI",poi_area="Default",size=point(31200, 33600),height_hash=1902113982775383388,height_offset=-1380,min=point(8, 0, 0),max=point(9, 0, 0),type_hash=2925692936579879992,type_names={J_Moss_02 = 76,J_Mud_Wet_01_C2 = 128,J_RottenDebris = 130,Sand_01 = 0},grass_hash=-6026276753270001954,mask_hash=4262202329953289337,total_area=2821,min_radius=33,max_radius=33,obj_count=7,obj_min_radius=3348,obj_max_radius=11114,obj_avg_radius=6802,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.ShoguNest_2",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1780854719,
-				'pos', point(43200, 146400),
-				'data', 'return {name="ShoguNest_2",marker={handle = 1780854719,map = "nest_prefab_holder"},hash=7373634782575465288,revision=29397,tags=set( "shogu_nest" ),poi_type="shogu_prefab_POI",poi_area="Default",size=point(43200, 43200),height_hash=-6554566506273212218,height_offset=-1380,min=point(31, 3, 0),max=point(32, 3, 0),type_hash=4775245814782822181,type_names={J_Moss_02 = 76,J_RottenDebris = 130,Sand_01 = 0},grass_hash=-7711233824600437866,mask_hash=941958136439644175,total_area=3513,min_radius=33,max_radius=33,obj_count=6,obj_min_radius=3348,obj_max_radius=11114,obj_avg_radius=9109,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.ShoguNest_3",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1281200655,
-				'pos', point(69600, 100800),
-				'data', 'return {name="ShoguNest_3",marker={handle = 1281200655,map = "nest_prefab_holder"},hash=9127421368563366498,revision=29397,tags=set( "shogu_nest" ),poi_type="shogu_prefab_POI",poi_area="Default",size=point(40800, 40800),height_hash=-2928276238898405165,height_offset=-1380,min=point(29, 1, 0),max=point(30, 1, 0),type_hash=-1472319479703434153,type_names={J_Moss_02 = 76,J_RottenDebris = 130,Sand_01 = 0},grass_hash=3102784033714780765,mask_hash=-4434506287469529529,total_area=3521,min_radius=33,max_radius=33,obj_count=5,obj_min_radius=3348,obj_max_radius=9480,obj_avg_radius=6630,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.SpawnConsortiumNest_01",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1354319414,
-				'pos', point(55200, 14400),
-				'data', 'return {name="SpawnConsortiumNest_01",marker={handle = 1354319414,map = "nest_prefab_holder"},hash=-2835052706437093650,revision=29265,tags=set( "ConsortiumNest" ),poi_type="ConsortiumNest",poi_area="Default",size=point(40800, 40800),height_hash=-2928276238898405165,height_offset=-1380,min=point(29, 1, 0),max=point(30, 1, 0),type_hash=2577293333366477412,type_names={Sand_01 = 0},grass_hash=3102784033714780765,mask_hash=-4434506287469529529,total_area=3521,min_radius=33,max_radius=33,obj_count=5,obj_min_radius=7806,obj_max_radius=17187,obj_avg_radius=9682,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.SpawnConsortiumNest_02",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1353441996,
-				'pos', point(14400, 55200),
-				'data', 'return {name="SpawnConsortiumNest_02",marker={handle = 1353441996,map = "nest_prefab_holder"},hash=-5784223780377171972,revision=29265,tags=set( "ConsortiumNest" ),poi_type="ConsortiumNest",poi_area="Default",size=point(43200, 43200),height_hash=-6554566506273212218,height_offset=-1380,min=point(31, 3, 0),max=point(32, 3, 0),type_hash=7823967666307924114,type_names={Sand_01 = 0},grass_hash=-7711233824600437866,mask_hash=941958136439644175,total_area=3513,min_radius=33,max_radius=33,obj_count=5,obj_min_radius=7806,obj_max_radius=17187,obj_avg_radius=10929,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.SpawnConsortiumNest_03",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1725445525,
-				'pos', point(14400, 14400),
-				'data', 'return {name="SpawnConsortiumNest_03",marker={handle = 1725445525,map = "nest_prefab_holder"},hash=3041846299786586056,revision=29265,tags=set( "ConsortiumNest" ),poi_type="ConsortiumNest",poi_area="Default",size=point(40800, 40800),height_hash=-2928276238898405165,height_offset=-1380,min=point(29, 1, 0),max=point(30, 1, 0),type_hash=2577293333366477412,type_names={Sand_01 = 0},grass_hash=3102784033714780765,mask_hash=-4434506287469529529,total_area=3521,min_radius=33,max_radius=33,obj_count=6,obj_min_radius=7806,obj_max_radius=17187,obj_avg_radius=11448,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.SpawnScissorNest_1",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1683640773,
-				'pos', point(208800, 74400),
-				'data', 'return {name="SpawnScissorNest_1",marker={handle = 1683640773,map = "nest_prefab_holder"},hash=7098478348796132684,revision=29265,tags=set( "scissorhands_nest" ),poi_type="scissor_prefab_POI",poi_area="Default",size=point(33600, 31200),height_hash=5956781812321257378,height_offset=-1380,min=point(7, 0, 0),max=point(8, 0, 0),type_hash=-2622297160058893600,type_names={Sand_01 = 0},grass_hash=-315783998437808945,mask_hash=1740846206681711898,total_area=2821,min_radius=33,max_radius=33,obj_count=7,obj_min_radius=1455,obj_max_radius=9680,obj_avg_radius=3645,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.SpawnScissorNest_2",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1787213042,
-				'pos', point(163200, 72000),
-				'data', 'return {name="SpawnScissorNest_2",marker={handle = 1787213042,map = "nest_prefab_holder"},hash=4831566415555661102,revision=29265,tags=set( "scissorhands_nest" ),poi_type="scissor_prefab_POI",poi_area="Default",size=point(36000, 33600),height_hash=6143602635854926162,height_offset=-1380,min=point(12, 0, 0),max=point(13, 0, 0),type_hash=-8333799106890059670,type_names={Sand_01 = 0},grass_hash=-1077138140842274167,mask_hash=-2325952025988458901,total_area=3111,min_radius=33,max_radius=33,obj_count=7,obj_min_radius=1455,obj_max_radius=9680,obj_avg_radius=4773,}',
-				'data_version', "1",
-			}),
-			PlaceObj('Marker', {
-				'name', "Prefab.Any.SpawnScissorNest_3",
-				'type', "Prefab",
-				'map', "nest_prefab_holder",
-				'handle', 1854838865,
-				'pos', point(115200, 69600),
-				'data', 'return {name="SpawnScissorNest_3",marker={handle = 1854838865,map = "nest_prefab_holder"},hash=-8965496017074680859,revision=29265,tags=set( "scissorhands_nest" ),poi_type="scissor_prefab_POI",poi_area="Default",size=point(40800, 40800),height_hash=-2928276238898405165,height_offset=-1380,min=point(29, 1, 0),max=point(30, 1, 0),type_hash=2577293333366477412,type_names={Sand_01 = 0},grass_hash=3102784033714780765,mask_hash=-4434506287469529529,total_area=3521,min_radius=33,max_radius=33,obj_count=12,obj_min_radius=1455,obj_max_radius=9680,obj_avg_radius=3666,}',
-				'data_version', "1",
-			}),
-		},
 		save_in = "Mod/TGkJ3Tu",
 	}),
 	PlaceObj('ModItemEntity', {
@@ -1918,41 +1724,40 @@ PlaceObj('ModItemFolder', {
 			"6995014",
 		},
 	}),
-	PlaceObj('ModItemAnimalSpawnDef', {
-		Cond = function (self, target, context, progress)
-			if self.location then return true else return false end
-		end,
-		FindSpawnLoc = function (self, spawn_class, target, context)
-			local def = spawn_class and g_Classes[spawn_class]
-			print('The input spawn_class was: ',spawn_class.class,' which resolved too: ', def)
-			print("The actual spawn class is: ",self:ResolveSpawnClass().class)
-			local center = self.location
-			print(center)
-			local pfclass = def.pfclass
-			local radius = self.radius
-			print(radius)
-			local pos = terrain.FindPassableTile(center, const.tfpPassClass, pfclass)
-			local target_retry = 4
-			for i=1,target_retry do
-				local x, y = GetRandomPlayablePos(pos, radius, guim, self.location:RandSeed("SpawnNestMember"), pfclass, def.radius)
-				if x then
-					print("Found a spot!")
-					print(point(x,y))
-					return point(x, y)
-				end
-			end
-		end,
-		PostSpawn = function (self, obj, target, context)
-			obj:SetInvader(true)
-			print("In mod editors post spawn!")
-			if Hope then
-				obj:Face(Hope)
-			end
-			Msg("SpawnedAnimalThreat", obj)
-		end,
-		SpawnClass = "LightHostileRobot_LVL1",
-		id = "single_spawn_around_loc",
+	PlaceObj('ModItemEntity', {
+		'name', "noth_anvil",
+		'class_parent', "Deposition,NothSporeDeposit",
+		'ClassParents', {
+			"Deposition",
+			"NothSporeDeposit",
+		},
+		'entity_name', "Noth_Anvil",
+		'material', {
+			"Noth_Anvil_Noth_Anvil",
+		},
+		'mesh', {
+			"Noth_Anvil_Noth_Anvil.m",
+		},
+		'texture', {
+			"7010000",
+			"7010002",
+			"7010003",
+		},
+	}),
+	PlaceObj('ModItemTech', {
+		Activity = "FieldResearch",
+		Description = T(971095329043, --[[ModItemTech FieldConsortiumSpore Description]] "Based on what landed, this seems to be the Consortium's R.E.P.O. (Resource Extraction Prefab Objects) package.\n\nFrom their advertisement channel:\n<style TextPositive>Ever want to collect and hoard rare minerals but too lazy to leave your planet? Look no further! The R.E.P.O. prefab is a self-replicating automatazapalooza that can strip a planet dry within a decade!</style>\n<style FinePrint>Terms and conditions apply, The Consortium does not guarantee minimum efficiency of prefabs. To see the full disclaimer list, please visit the Consortium Headquarters during it's visitor hours on Mondays between 8 and 9 am.</style>"),
+		DisplayName = T(919872346092, --[[ModItemTech FieldConsortiumSpore DisplayName]] "Consortium Prefab"),
+		DisplayNamePl = T(553422873878, --[[ModItemTech FieldConsortiumSpore DisplayNamePl]] "Consortium Prefabs"),
+		FieldResearchCategory = "Fauna",
+		FieldResearchTemplateExpression = function (self) return ShriekerSporeDeposit end,
+		Icon = "Mod/TGkJ3Tu/PicsOritDidntHappen/ConsortiumNestResearch.PNG",
+		ResearchPoints = 4000,
+		group = "Field",
+		id = "FieldConsortiumSpore",
+		money_value = 50000000,
 		save_in = "Mod/TGkJ3Tu",
+		tradable = false,
 	}),
 	PlaceObj('ModItemHealthCondition', {
 		AffectableBodyParts = {
@@ -2004,66 +1809,6 @@ PlaceObj('ModItemFolder', {
 		},
 	}),
 	}),
-PlaceObj('ModItemNotificationPreset', {
-	expiration = 480000,
-	fx_action = "UINotificationImportant",
-	game_time = true,
-	id = "DrakaNestSpawned",
-	rollover_text = T(753812064855, --[[ModItemNotificationPreset DrakaNestSpawned rollover_text]] "A group of crystals has breached the earth near us"),
-	rollover_title = T(863979633496, --[[ModItemNotificationPreset DrakaNestSpawned rollover_title]] "New Draka Nest"),
-	save_in = "Mod/TGkJ3Tu",
-	text = T(986925361504, --[[ModItemNotificationPreset DrakaNestSpawned text]] "New Crystal Structures observed!"),
-}),
-PlaceObj('ModItemNotificationPreset', {
-	expiration = 480000,
-	fx_action = "UINotificationImportant",
-	game_time = true,
-	id = "ShoguNestSpawned",
-	rollover_text = T(984181902160, --[[ModItemNotificationPreset ShoguNestSpawned rollover_text]] "A concentrated area is now afflicted by a massive blight!"),
-	rollover_title = T(616614314552, --[[ModItemNotificationPreset ShoguNestSpawned rollover_title]] "New Shogu Nest"),
-	save_in = "Mod/TGkJ3Tu",
-	text = T(578859029100, --[[ModItemNotificationPreset ShoguNestSpawned text]] "Death, Disease, and Doom!"),
-}),
-PlaceObj('ModItemNotificationPreset', {
-	expiration = 480000,
-	fx_action = "UINotificationImportant",
-	game_time = true,
-	id = "DeathflyNestSpawned",
-	rollover_text = T(157678601320, --[[ModItemNotificationPreset DeathflyNestSpawned rollover_text]] "We have detected a rock cliff that has a large Hummingfly populattion"),
-	rollover_title = T(194979347062, --[[ModItemNotificationPreset DeathflyNestSpawned rollover_title]] "New Deathfly Nest"),
-	save_in = "Mod/TGkJ3Tu",
-	text = T(578772512520, --[[ModItemNotificationPreset DeathflyNestSpawned text]] "The air fills with buzzing "),
-}),
-PlaceObj('ModItemNotificationPreset', {
-	expiration = 480000,
-	fx_action = "UINotificationImportant",
-	game_time = true,
-	id = "GlutchNestSpawned",
-	rollover_text = T(590152504714, --[[ModItemNotificationPreset GlutchNestSpawned rollover_text]] "The smell is coming from this direction!"),
-	rollover_title = T(652545019840, --[[ModItemNotificationPreset GlutchNestSpawned rollover_title]] "New Glutch Nest"),
-	save_in = "Mod/TGkJ3Tu",
-	text = T(316070871639, --[[ModItemNotificationPreset GlutchNestSpawned text]] "What's that smell in the air?"),
-}),
-PlaceObj('ModItemNotificationPreset', {
-	expiration = 480000,
-	fx_action = "UINotificationImportant",
-	game_time = true,
-	id = "JunoNestSpawned",
-	rollover_text = T(132479633385, --[[ModItemNotificationPreset JunoNestSpawned rollover_text]] "A nest has twisted and morphed into a Juno nest!"),
-	rollover_title = T(253480175100, --[[ModItemNotificationPreset JunoNestSpawned rollover_title]] "New Juno Nest"),
-	save_in = "Mod/TGkJ3Tu",
-	text = T(790350405960, --[[ModItemNotificationPreset JunoNestSpawned text]] "A nest has violently changed!"),
-}),
-PlaceObj('ModItemNotificationPreset', {
-	expiration = 480000,
-	fx_action = "UINotificationImportant",
-	game_time = true,
-	id = "NothNestSpawned",
-	rollover_text = T(608350033794, --[[ModItemNotificationPreset NothNestSpawned rollover_text]] "Based on scouting, the debris seems to still retain its structural integrity. Meaning pure metal, not scrap!"),
-	rollover_title = T(215311316484, --[[ModItemNotificationPreset NothNestSpawned rollover_title]] "New Noth Nest"),
-	save_in = "Mod/TGkJ3Tu",
-	text = T(992516573479, --[[ModItemNotificationPreset NothNestSpawned text]] "Copious Orbital debris detected!"),
-}),
 PlaceObj('ModItemTech', {
 	Activity = "FieldResearch",
 	Description = T(958888258506, --[[ModItemTech FieldNothSpore Description]] "The higher evolved Noth seem drawn to the debris that didn't land hard against this planet.\nThe higher quality metal seem to be used as food.\nAlthough early observations claimed that the Noth would... absorb the metal just by rubbing against it...."),
@@ -2071,7 +1816,7 @@ PlaceObj('ModItemTech', {
 	DisplayNamePl = T(188861337660, --[[ModItemTech FieldNothSpore DisplayNamePl]] "High Quality Debris"),
 	FieldResearchCategory = "Fauna",
 	FieldResearchTemplateExpression = function (self) return ShriekerSporeDeposit end,
-	Icon = "Mod/TGkJ3Tu/PicsOritDidntHappen/ConsortiumNestResearch.PNG",
+	Icon = "Mod/TGkJ3Tu/PicsOritDidntHappen/NothNestResearch.PNG",
 	ResearchPoints = 4000,
 	group = "Field",
 	id = "FieldNothSpore",
@@ -2086,7 +1831,7 @@ PlaceObj('ModItemTech', {
 	DisplayNamePl = T(329773819227, --[[ModItemTech FieldShoguSpore DisplayNamePl]] "Parasitic Pustules"),
 	FieldResearchCategory = "Fauna",
 	FieldResearchTemplateExpression = function (self) return ShriekerSporeDeposit end,
-	Icon = "Mod/TGkJ3Tu/PicsOritDidntHappen/ConsortiumNestResearch.PNG",
+	Icon = "Mod/TGkJ3Tu/PicsOritDidntHappen/ShoguNestResearch.PNG",
 	ResearchPoints = 4000,
 	group = "Field",
 	id = "FieldShoguSpore",
@@ -2101,7 +1846,7 @@ PlaceObj('ModItemTech', {
 	DisplayNamePl = T(722344111941, --[[ModItemTech FieldDrakaSpore DisplayNamePl]] "Draka Crystals"),
 	FieldResearchCategory = "Fauna",
 	FieldResearchTemplateExpression = function (self) return ShriekerSporeDeposit end,
-	Icon = "Mod/TGkJ3Tu/PicsOritDidntHappen/ConsortiumNestResearch.PNG",
+	Icon = "Mod/TGkJ3Tu/PicsOritDidntHappen/DrakaNestResearch.PNG",
 	ResearchPoints = 4000,
 	group = "Field",
 	id = "FieldDrakaSpore",
@@ -2116,7 +1861,7 @@ PlaceObj('ModItemTech', {
 	DisplayNamePl = T(436149707631, --[[ModItemTech FieldDeathflySpore DisplayNamePl]] "Deathfly Cliff"),
 	FieldResearchCategory = "Fauna",
 	FieldResearchTemplateExpression = function (self) return ShriekerSporeDeposit end,
-	Icon = "Mod/TGkJ3Tu/PicsOritDidntHappen/ConsortiumNestResearch.PNG",
+	Icon = "Mod/TGkJ3Tu/PicsOritDidntHappen/DeathflyNestResearch.PNG",
 	ResearchPoints = 4000,
 	group = "Field",
 	id = "FieldDeathflySpore",
@@ -2131,7 +1876,7 @@ PlaceObj('ModItemTech', {
 	DisplayNamePl = T(661318137505, --[[ModItemTech FieldGlutchSpore DisplayNamePl]] "Gipe Trees"),
 	FieldResearchCategory = "Fauna",
 	FieldResearchTemplateExpression = function (self) return ShriekerSporeDeposit end,
-	Icon = "Mod/TGkJ3Tu/PicsOritDidntHappen/ConsortiumNestResearch.PNG",
+	Icon = "Mod/TGkJ3Tu/PicsOritDidntHappen/GlutchNestResearch.PNG",
 	ResearchPoints = 4000,
 	group = "Field",
 	id = "FieldGlutchSpore",
@@ -2146,7 +1891,7 @@ PlaceObj('ModItemTech', {
 	DisplayNamePl = T(643029103333, --[[ModItemTech FieldJunoSpore DisplayNamePl]] "Macro-Cancer Cells"),
 	FieldResearchCategory = "Fauna",
 	FieldResearchTemplateExpression = function (self) return ShriekerSporeDeposit end,
-	Icon = "Mod/TGkJ3Tu/PicsOritDidntHappen/ConsortiumNestResearch.PNG",
+	Icon = "Mod/TGkJ3Tu/PicsOritDidntHappen/JunoNestResearch.PNG",
 	ResearchPoints = 4000,
 	group = "Field",
 	id = "FieldJunoSpore",
@@ -4557,6 +4302,14 @@ PlaceObj('ModItemFolder', {
 			Msg("UpdateNestRoleVisuals")
 		end,
 	}),
+	PlaceObj('ModItemCooldownDef', {
+		DisplayName = T(474218699172, --[[ModItemCooldownDef juno_cancer DisplayName]] "Juno Cancer"),
+		MaxTime = 3840000,
+		TimeMax = 3840000,
+		TimeMin = 3840000,
+		TimeScale = "months",
+		id = "juno_cancer",
+	}),
 	}),
 PlaceObj('ModItemHealthCondition', {
 	AffectableBodyParts = {
@@ -4618,133 +4371,6 @@ PlaceObj('ModItemRobotCondition', {
 			param_bindings = false,
 		}),
 	},
-}),
-PlaceObj('ModItemAnimalSpawnDef', {
-	Behaviours = {
-		PlaceObj('InvaderBehaviourSupport', {
-			'Duration', 0,
-			'ArrivalDistance', 5000,
-		}),
-	},
-	CheckConnectivity = true,
-	ClearArea = 256,
-	ClearRadius = 1000,
-	DistFromOthers = 1000,
-	EnabledInTutorial = true,
-	EnabledWithoutSurvivors = false,
-	FindSpawnLoc = function (self, spawn_class, target, context)
-		return nest_find_attack_spawn(self,spawn_class, target, context)
-	end,
-	SpawnAsGroup = true,
-	SpawnClass = "Scissorhands_T5",
-	SurvivorDistMax = -1000,
-	SurvivorSpawnDistMin = 75000,
-	TargetClass = "Human",
-	TargetDistMax = 150000,
-	TargetDistMin = 75000,
-	TargetFilter = function (obj) return not obj:IsVirtual() end,
-	TargetStartPosOnMissingTarget = true,
-	group = "Attacks_Insects_NEW",
-	id = "Support_same_species_passive",
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemAnimalSpawnDef', {
-	Behaviours = {
-		PlaceObj('InvaderBehaviourPassiveMove', {
-			'complex_targeting', true,
-			'targeting_function', function (self, invader, progress)
-				local nest_class = invader:GetNestClass()
-				local map = MapFindNearest(true, true, nest_class, function(nest)
-					if nest:IsAsleep() then
-						return true
-					end
-				end)
-				return map
-			end,
-			'on_arrival', function (invader, target, progress)
-				target:support_arrived()
-				RemoveAttachedUIToObject(invader, 'NestRolePermanent')
-				RemoveAttachedUIToObject(invader, 'NestRoleClose')
-				RemoveAttachedUIToObject(invader, 'NestRoleFar')
-				invader:SetCommand("CmdDespawn")
-				return true
-			end,
-			'proximity', 5000,
-		}),
-	},
-	CheckConnectivity = true,
-	ClearArea = 256,
-	ClearRadius = 1000,
-	DistFromOthers = 1000,
-	EnabledInTutorial = true,
-	EnabledWithoutSurvivors = false,
-	FindSpawnLoc = function (self, spawn_class, target, context)
-		return nest_find_attack_spawn(self,spawn_class, target, context)
-	end,
-	SpawnAsGroup = true,
-	SpawnClass = "Scissorhands_T5",
-	SurvivorDistMax = -1000,
-	SurvivorSpawnDistMin = 75000,
-	TargetClass = "Human",
-	TargetDistMax = 150000,
-	TargetDistMin = 75000,
-	TargetFilter = function (obj) return not obj:IsVirtual() end,
-	TargetStartPosOnMissingTarget = true,
-	group = "Attacks_Insects_NEW",
-	id = "Nest_wakeup_alarm_passive",
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemAnimalSpawnDef', {
-	Behaviours = {
-		PlaceObj('InvaderBehaviourNestScout', {
-			'Duration', 160000,
-			'NoSleep', false,
-			'log_classes', {
-				"TerritorialNest",
-			},
-			'distance_points', 15000,
-			'SearchLabels', {},
-		}),
-		PlaceObj('InvaderBehaviourPassiveMove', {
-			'Duration', 0,
-			'complex_targeting', true,
-			'targeting_function', function (self, invader, progress) return invader.from_nest end,
-			'on_arrival', function (invader, target, progress)
-				local quad_no = invader.target_quadrant
-				local species = invader.from_nest.nest_species
-				local objects_to_report = invader.observed_objects
-				local player_found = invader.player_found
-				local nest = invader.from_nest
-				ReportScoutingResults(quad_no,species,objects_to_report,player_found,nest)
-				invader:SetCommand("CmdDespawn")
-				return true
-			end,
-		}),
-	},
-	CheckConnectivity = true,
-	ClearArea = 256,
-	ClearRadius = 1000,
-	DistFromOthers = 1000,
-	EnabledInTutorial = true,
-	EnabledWithoutSurvivors = false,
-	FindSpawnLoc = function (self, spawn_class, target, context)
-		return nest_find_attack_spawn(self,spawn_class, target, context)
-	end,
-	PostSpawn = function (self, obj, target, context)
-		obj.from_nest = self.location
-	end,
-	SpawnAsGroup = true,
-	SpawnClass = "Scissorhands_T5",
-	SurvivorDistMax = -1000,
-	SurvivorSpawnDistMin = 75000,
-	TargetClass = "Human",
-	TargetDistMax = 150000,
-	TargetDistMin = 75000,
-	TargetFilter = function (obj) return not obj:IsVirtual() end,
-	TargetStartPosOnMissingTarget = true,
-	group = "Attacks_Insects_NEW",
-	id = "Nest_scout_passive",
-	save_in = "Mod/TGkJ3Tu",
 }),
 PlaceObj('ModItemHealthCondition', {
 	AffectableBodyParts = {
@@ -4893,7 +4519,7 @@ PlaceObj('ModItemFolder', {
 		id = "nesting_juno",
 		nest_class = "JunoNest",
 		save_in = "Mod/TGkJ3Tu",
-		spawner_storybit = "new_nest_juno",
+		spawner_storybit = "new_nest_juno_actual",
 		spore_buildings = "JunoSporeDeposit",
 		unit_species = "species_juno",
 	}),
@@ -4976,7 +4602,7 @@ PlaceObj('ModItemFolder', {
 		},
 		aggressive = false,
 		id = "nesting_metal_boar",
-		nest_class = "ShoguNest",
+		nest_class = "NothNest",
 		resource_list = {
 			PlaceObj('ResAmount', {
 				'resource', "Brick",
@@ -5609,30 +5235,248 @@ PlaceObj('ModItemFolder', {
 		'OnObjOverlap', 3,
 		'Tags', set( "noth_nest" ),
 	}),
+	PlaceObj('ModItemMapDataPreset', {
+		AssetsRevision = 29397,
+		GameLogic = false,
+		HeightMapAvg = 6900,
+		HeightMapMax = 6900,
+		HeightMapMin = 6900,
+		IsPrefabMap = true,
+		LuaRevision = 373414,
+		MapType = "system",
+		MaxObjRadius = 33812,
+		MaxSurfRadius2D = 16419,
+		ModEditor = true,
+		NetHash = 6462337141065913116,
+		ObjectsHash = -6804332748817026938,
+		OrgLuaRevision = 373414,
+		TerrainHash = 4333834435235192014,
+		group = "PrefabMap",
+		id = "nest_prefab_holder",
+		markers = {
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.DeathflyNest_1",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1013387562,
+				'pos', point(112800, 7200),
+				'data', 'return {name="DeathflyNest_1",marker={handle = 1013387562,map = "nest_prefab_holder"},hash=135155036285599059,revision=29397,tags=set( "deathfly_nest" ),poi_type="deathfly_prefab_POI",poi_area="Default",size=point(43200, 43200),height_hash=-6554566506273212218,height_offset=-1380,min=point(31, 3, 0),max=point(32, 3, 0),type_hash=7823967666307924114,type_names={Sand_01 = 0},grass_hash=-7711233824600437866,mask_hash=941958136439644175,total_area=3513,min_radius=33,max_radius=33,obj_count=5,obj_min_radius=9669,obj_max_radius=18117,obj_avg_radius=13640,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.DeathflyNest_2",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1404260631,
+				'pos', point(158400, 14400),
+				'data', 'return {name="DeathflyNest_2",marker={handle = 1404260631,map = "nest_prefab_holder"},hash=6632860962453397847,revision=29397,tags=set( "deathfly_nest" ),poi_type="deathfly_prefab_POI",poi_area="Default",size=point(43200, 43200),height_hash=-6554566506273212218,height_offset=-1380,min=point(31, 3, 0),max=point(32, 3, 0),type_hash=7823967666307924114,type_names={Sand_01 = 0},grass_hash=-7711233824600437866,mask_hash=941958136439644175,total_area=3513,min_radius=33,max_radius=33,obj_count=6,obj_min_radius=9669,obj_max_radius=18117,obj_avg_radius=14386,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.DeathflyNest_3",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1352949102,
+				'pos', point(211200, 7200),
+				'data', 'return {name="DeathflyNest_3",marker={handle = 1352949102,map = "nest_prefab_holder"},hash=6303509568111995613,revision=29397,tags=set( "deathfly_nest" ),poi_type="deathfly_prefab_POI",poi_area="Default",size=point(43200, 43200),height_hash=-6554566506273212218,height_offset=-1380,min=point(31, 3, 0),max=point(32, 3, 0),type_hash=7823967666307924114,type_names={Sand_01 = 0},grass_hash=-7711233824600437866,mask_hash=941958136439644175,total_area=3513,min_radius=33,max_radius=33,obj_count=7,obj_min_radius=9669,obj_max_radius=17045,obj_avg_radius=11299,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.DrakaNest_1",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1577367090,
+				'pos', point(86400, 153600),
+				'data', 'return {name="DrakaNest_1",marker={handle = 1577367090,map = "nest_prefab_holder"},hash=8374742566722619209,revision=29397,tags=set( "draka_nest" ),poi_type="draka_prefab_POI",poi_area="Default",size=point(38400, 36000),height_hash=-3728813377058611528,height_offset=-1380,min=point(18, 0, 0),max=point(19, 0, 0),type_hash=-5139052757907770137,type_names={Sand_01 = 0},grass_hash=-7706353853377573960,mask_hash=-6286075657234199774,total_area=3341,min_radius=33,max_radius=33,obj_count=7,obj_min_radius=5777,obj_max_radius=9788,obj_avg_radius=7559,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.DrakaNest_2",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1271768253,
+				'pos', point(127200, 153600),
+				'data', 'return {name="DrakaNest_2",marker={handle = 1271768253,map = "nest_prefab_holder"},hash=-1948620672027865257,revision=29397,tags=set( "draka_nest" ),poi_type="draka_prefab_POI",poi_area="Default",size=point(40800, 38400),height_hash=-7953869838558056685,height_offset=-1380,min=point(25, 0, 0),max=point(26, 0, 0),type_hash=-8286268467544983987,type_names={Sand_01 = 0},grass_hash=3000296992726779196,mask_hash=7748238865320147437,total_area=3480,min_radius=33,max_radius=33,obj_count=7,obj_min_radius=5777,obj_max_radius=9788,obj_avg_radius=7559,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.DrakaNest_3",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1203850354,
+				'pos', point(180000, 153600),
+				'data', 'return {name="DrakaNest_3",marker={handle = 1203850354,map = "nest_prefab_holder"},hash=-3915254795876775120,revision=29397,tags=set( "draka_nest" ),poi_type="draka_prefab_POI",poi_area="Default",size=point(40800, 38400),height_hash=-7953869838558056685,height_offset=-1380,min=point(25, 0, 0),max=point(26, 0, 0),type_hash=-8286268467544983987,type_names={Sand_01 = 0},grass_hash=3000296992726779196,mask_hash=7748238865320147437,total_area=3480,min_radius=33,max_radius=33,obj_count=9,obj_min_radius=7766,obj_max_radius=9788,obj_avg_radius=8268,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.GlutchNest_1",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1211193707,
+				'pos', point(124800, 117600),
+				'data', 'return {name="GlutchNest_1",marker={handle = 1211193707,map = "nest_prefab_holder"},hash=4339673577767762315,revision=29397,tags=set( "glutch_nest" ),poi_type="glutch_prefab_POI",poi_area="Default",size=point(36000, 33600),height_hash=6143602635854926162,height_offset=-1380,min=point(12, 0, 0),max=point(13, 0, 0),type_hash=-8333799106890059670,type_names={Sand_01 = 0},grass_hash=-1077138140842274167,mask_hash=-2325952025988458901,total_area=3111,min_radius=33,max_radius=33,obj_count=7,obj_min_radius=6063,obj_max_radius=9480,obj_avg_radius=6789,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.GlutchNest_2",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1737024683,
+				'pos', point(160800, 117600),
+				'data', 'return {name="GlutchNest_2",marker={handle = 1737024683,map = "nest_prefab_holder"},hash=-5615833062888629902,revision=29397,tags=set( "glutch_nest" ),poi_type="glutch_prefab_POI",poi_area="Default",size=point(38400, 36000),height_hash=-3728813377058611528,height_offset=-1380,min=point(18, 0, 0),max=point(19, 0, 0),type_hash=-5139052757907770137,type_names={Sand_01 = 0},grass_hash=-7706353853377573960,mask_hash=-6286075657234199774,total_area=3341,min_radius=33,max_radius=33,obj_count=10,obj_min_radius=6063,obj_max_radius=9480,obj_avg_radius=6737,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.GlutchNest_3",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1893536629,
+				'pos', point(204000, 117600),
+				'data', 'return {name="GlutchNest_3",marker={handle = 1893536629,map = "nest_prefab_holder"},hash=9157779191047929978,revision=29397,tags=set( "glutch_nest" ),poi_type="glutch_prefab_POI",poi_area="Default",size=point(31200, 28800),height_hash=-248886648011861244,height_offset=-1380,min=point(3, 0, 0),max=point(4, 0, 0),type_hash=2001221726883916425,type_names={Sand_01 = 0},mask_hash=-5311499434744909019,total_area=2483,min_radius=33,max_radius=33,obj_count=8,obj_min_radius=6063,obj_max_radius=9480,obj_avg_radius=6802,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.JunoNest_1",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1795474988,
+				'pos', point(261600, 72000),
+				'data', 'return {name="JunoNest_1",marker={handle = 1795474988,map = "nest_prefab_holder"},hash=-48953567680203679,revision=29397,tags=set( "juno_nest" ),poi_type="juno_prefab_POI",poi_area="Default",size=point(31200, 28800),height_hash=-248886648011861244,height_offset=-1380,min=point(3, 0, 0),max=point(4, 0, 0),type_hash=2001221726883916425,type_names={Sand_01 = 0},mask_hash=-5311499434744909019,total_area=2483,min_radius=33,max_radius=33,obj_count=11,obj_min_radius=1632,obj_max_radius=16361,obj_avg_radius=3685,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.JunoNest_2",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1823835206,
+				'pos', point(264000, 38400),
+				'data', 'return {name="JunoNest_2",marker={handle = 1823835206,map = "nest_prefab_holder"},hash=-8484542572144654014,revision=29397,tags=set( "juno_nest" ),poi_type="juno_prefab_POI",poi_area="Default",size=point(36000, 31200),height_hash=-7012718594217010565,height_offset=-1380,min=point(9, 0, 0),max=point(10, 0, 0),type_hash=-3628522840939498031,type_names={Sand_01 = 0},grass_hash=-5100044955091474218,mask_hash=4399537818667326791,total_area=2953,min_radius=33,max_radius=33,obj_count=12,obj_min_radius=1632,obj_max_radius=16361,obj_avg_radius=3548,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.JunoNest_3",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1675415579,
+				'pos', point(261600, 2400),
+				'data', 'return {name="JunoNest_3",marker={handle = 1675415579,map = "nest_prefab_holder"},hash=-2808288468863089603,revision=29397,tags=set( "juno_nest" ),poi_type="juno_prefab_POI",poi_area="Default",size=point(36000, 31200),height_hash=-7012718594217010565,height_offset=-1380,min=point(9, 0, 0),max=point(10, 0, 0),type_hash=-3628522840939498031,type_names={Sand_01 = 0},grass_hash=-5100044955091474218,mask_hash=4399537818667326791,total_area=2953,min_radius=33,max_radius=33,obj_count=14,obj_min_radius=1632,obj_max_radius=16361,obj_avg_radius=3083,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.NothNest_1",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1580665493,
+				'pos', point(273600, 112800),
+				'data', 'return {name="NothNest_1",marker={handle = 1893536629,map = "nest_prefab_holder"},hash=8908233822329379118,revision=29397,tags={noth_nest = true},poi_type="noth_prefab_POI",poi_area="Default",size=point(33600, 31200),height_hash=5956781812321257378,height_offset=-1380,min=point(7, 0, 0),max=point(8, 0, 0),type_hash=-2622297160058893600,type_names={Sand_01 = 0},grass_hash=-315783998437808945,mask_hash=1740846206681711898,total_area=2821,min_radius=33,max_radius=33,obj_count=4,obj_min_radius=9783,obj_max_radius=22891,obj_avg_radius=15114,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.NothNest_2",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1658623959,
+				'pos', point(237600, 112800),
+				'data', 'return {name="NothNest_2",marker={handle = 1893536629,map = "nest_prefab_holder"},hash=6983266379184442540,revision=29397,tags={noth_nest = true},poi_type="noth_prefab_POI",poi_area="Default",size=point(36000, 33600),height_hash=6143602635854926162,height_offset=-1380,min=point(12, 0, 0),max=point(13, 0, 0),type_hash=-8333799106890059670,type_names={Sand_01 = 0},grass_hash=-1077138140842274167,mask_hash=-2325952025988458901,total_area=3111,min_radius=33,max_radius=33,obj_count=4,obj_min_radius=9783,obj_max_radius=26648,obj_avg_radius=16053,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.NothNest_3",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1388475990,
+				'pos', point(232800, 146400),
+				'data', 'return {name="NothNest_3",marker={handle = 1893536629,map = "nest_prefab_holder"},hash=4645230315982543691,revision=29397,tags={noth_nest = true},poi_type="noth_prefab_POI",poi_area="Default",size=point(45600, 38400),height_hash=-6549386369235014482,height_offset=-1380,min=point(29, 0, 0),max=point(30, 0, 0),type_hash=4063681269166082260,type_names={Sand_01 = 0},grass_hash=5212561961266167142,mask_hash=691182317215739379,total_area=3480,min_radius=33,max_radius=33,obj_count=4,obj_min_radius=9783,obj_max_radius=26648,obj_avg_radius=18303,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.ShoguNest_1",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1453647788,
+				'pos', point(16800, 108000),
+				'data', 'return {name="ShoguNest_1",marker={handle = 1453647788,map = "nest_prefab_holder"},hash=-6941156582252333101,revision=29397,tags=set( "shogu_nest" ),poi_type="shogu_prefab_POI",poi_area="Default",size=point(31200, 33600),height_hash=1902113982775383388,height_offset=-1380,min=point(8, 0, 0),max=point(9, 0, 0),type_hash=2925692936579879992,type_names={J_Moss_02 = 76,J_Mud_Wet_01_C2 = 128,J_RottenDebris = 130,Sand_01 = 0},grass_hash=-6026276753270001954,mask_hash=4262202329953289337,total_area=2821,min_radius=33,max_radius=33,obj_count=7,obj_min_radius=3348,obj_max_radius=11114,obj_avg_radius=6802,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.ShoguNest_2",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1780854719,
+				'pos', point(43200, 146400),
+				'data', 'return {name="ShoguNest_2",marker={handle = 1780854719,map = "nest_prefab_holder"},hash=7373634782575465288,revision=29397,tags=set( "shogu_nest" ),poi_type="shogu_prefab_POI",poi_area="Default",size=point(43200, 43200),height_hash=-6554566506273212218,height_offset=-1380,min=point(31, 3, 0),max=point(32, 3, 0),type_hash=4775245814782822181,type_names={J_Moss_02 = 76,J_RottenDebris = 130,Sand_01 = 0},grass_hash=-7711233824600437866,mask_hash=941958136439644175,total_area=3513,min_radius=33,max_radius=33,obj_count=6,obj_min_radius=3348,obj_max_radius=11114,obj_avg_radius=9109,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.ShoguNest_3",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1281200655,
+				'pos', point(69600, 100800),
+				'data', 'return {name="ShoguNest_3",marker={handle = 1281200655,map = "nest_prefab_holder"},hash=9127421368563366498,revision=29397,tags=set( "shogu_nest" ),poi_type="shogu_prefab_POI",poi_area="Default",size=point(40800, 40800),height_hash=-2928276238898405165,height_offset=-1380,min=point(29, 1, 0),max=point(30, 1, 0),type_hash=-1472319479703434153,type_names={J_Moss_02 = 76,J_RottenDebris = 130,Sand_01 = 0},grass_hash=3102784033714780765,mask_hash=-4434506287469529529,total_area=3521,min_radius=33,max_radius=33,obj_count=5,obj_min_radius=3348,obj_max_radius=9480,obj_avg_radius=6630,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.SpawnConsortiumNest_01",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1354319414,
+				'pos', point(55200, 14400),
+				'data', 'return {name="SpawnConsortiumNest_01",marker={handle = 1354319414,map = "nest_prefab_holder"},hash=-2835052706437093650,revision=29265,tags=set( "ConsortiumNest" ),poi_type="ConsortiumNest",poi_area="Default",size=point(40800, 40800),height_hash=-2928276238898405165,height_offset=-1380,min=point(29, 1, 0),max=point(30, 1, 0),type_hash=2577293333366477412,type_names={Sand_01 = 0},grass_hash=3102784033714780765,mask_hash=-4434506287469529529,total_area=3521,min_radius=33,max_radius=33,obj_count=5,obj_min_radius=7806,obj_max_radius=17187,obj_avg_radius=9682,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.SpawnConsortiumNest_02",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1353441996,
+				'pos', point(14400, 55200),
+				'data', 'return {name="SpawnConsortiumNest_02",marker={handle = 1353441996,map = "nest_prefab_holder"},hash=-5784223780377171972,revision=29265,tags=set( "ConsortiumNest" ),poi_type="ConsortiumNest",poi_area="Default",size=point(43200, 43200),height_hash=-6554566506273212218,height_offset=-1380,min=point(31, 3, 0),max=point(32, 3, 0),type_hash=7823967666307924114,type_names={Sand_01 = 0},grass_hash=-7711233824600437866,mask_hash=941958136439644175,total_area=3513,min_radius=33,max_radius=33,obj_count=5,obj_min_radius=7806,obj_max_radius=17187,obj_avg_radius=10929,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.SpawnConsortiumNest_03",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1725445525,
+				'pos', point(14400, 14400),
+				'data', 'return {name="SpawnConsortiumNest_03",marker={handle = 1725445525,map = "nest_prefab_holder"},hash=3041846299786586056,revision=29265,tags=set( "ConsortiumNest" ),poi_type="ConsortiumNest",poi_area="Default",size=point(40800, 40800),height_hash=-2928276238898405165,height_offset=-1380,min=point(29, 1, 0),max=point(30, 1, 0),type_hash=2577293333366477412,type_names={Sand_01 = 0},grass_hash=3102784033714780765,mask_hash=-4434506287469529529,total_area=3521,min_radius=33,max_radius=33,obj_count=6,obj_min_radius=7806,obj_max_radius=17187,obj_avg_radius=11448,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.SpawnScissorNest_1",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1683640773,
+				'pos', point(208800, 74400),
+				'data', 'return {name="SpawnScissorNest_1",marker={handle = 1683640773,map = "nest_prefab_holder"},hash=7098478348796132684,revision=29265,tags=set( "scissorhands_nest" ),poi_type="scissor_prefab_POI",poi_area="Default",size=point(33600, 31200),height_hash=5956781812321257378,height_offset=-1380,min=point(7, 0, 0),max=point(8, 0, 0),type_hash=-2622297160058893600,type_names={Sand_01 = 0},grass_hash=-315783998437808945,mask_hash=1740846206681711898,total_area=2821,min_radius=33,max_radius=33,obj_count=7,obj_min_radius=1455,obj_max_radius=9680,obj_avg_radius=3645,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.SpawnScissorNest_2",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1787213042,
+				'pos', point(163200, 72000),
+				'data', 'return {name="SpawnScissorNest_2",marker={handle = 1787213042,map = "nest_prefab_holder"},hash=4831566415555661102,revision=29265,tags=set( "scissorhands_nest" ),poi_type="scissor_prefab_POI",poi_area="Default",size=point(36000, 33600),height_hash=6143602635854926162,height_offset=-1380,min=point(12, 0, 0),max=point(13, 0, 0),type_hash=-8333799106890059670,type_names={Sand_01 = 0},grass_hash=-1077138140842274167,mask_hash=-2325952025988458901,total_area=3111,min_radius=33,max_radius=33,obj_count=7,obj_min_radius=1455,obj_max_radius=9680,obj_avg_radius=4773,}',
+				'data_version', "1",
+			}),
+			PlaceObj('Marker', {
+				'name', "Prefab.Any.SpawnScissorNest_3",
+				'type', "Prefab",
+				'map', "nest_prefab_holder",
+				'handle', 1854838865,
+				'pos', point(115200, 69600),
+				'data', 'return {name="SpawnScissorNest_3",marker={handle = 1854838865,map = "nest_prefab_holder"},hash=-8965496017074680859,revision=29265,tags=set( "scissorhands_nest" ),poi_type="scissor_prefab_POI",poi_area="Default",size=point(40800, 40800),height_hash=-2928276238898405165,height_offset=-1380,min=point(29, 1, 0),max=point(30, 1, 0),type_hash=2577293333366477412,type_names={Sand_01 = 0},grass_hash=3102784033714780765,mask_hash=-4434506287469529529,total_area=3521,min_radius=33,max_radius=33,obj_count=12,obj_min_radius=1455,obj_max_radius=9680,obj_avg_radius=3666,}',
+				'data_version', "1",
+			}),
+		},
+		save_in = "Mod/TGkJ3Tu",
+	}),
 	}),
 PlaceObj('ModItemCode', {
 	'name', "NA_NothNest",
 	'CodeFileName', "Code/NA_NothNest.lua",
-}),
-PlaceObj('ModItemEntity', {
-	'name', "noth_anvil",
-	'class_parent', "Deposition,NothSporeDeposit",
-	'ClassParents', {
-		"Deposition",
-		"NothSporeDeposit",
-	},
-	'entity_name', "Noth_Anvil",
-	'material', {
-		"Noth_Anvil_Noth_Anvil",
-	},
-	'mesh', {
-		"Noth_Anvil_Noth_Anvil.m",
-	},
-	'texture', {
-		"7010000",
-		"7010002",
-		"7010003",
-	},
 }),
 PlaceObj('ModItemHealthCondition', {
 	ConsciousnessModifier = -10000,
@@ -5652,8 +5496,232 @@ PlaceObj('ModItemHealthCondition', {
 	id = "glutch_fumes",
 	save_in = "Mod/TGkJ3Tu",
 }),
-PlaceObj('ModItemChangeProp', {
-	'name', "scissorhand_nest_combat_group",
-	'TargetValue', false,
-}),
+PlaceObj('ModItemFolder', {
+	'name', "nest invader spawndef",
+	'NameColor', RGBA(126, 0, 0, 255),
+}, {
+	PlaceObj('ModItemAnimalSpawnDef', {
+		Behaviours = {
+			PlaceObj('InvaderBehaviourRoam', {
+				'Duration', 0,
+				'RoamRadius', 15000,
+				'RoamMinDist', 4500,
+				'RoamMaxDist', 9000,
+			}),
+			PlaceObj('InvaderBehaviourAggressive', {
+				'Duration', 0,
+			}),
+		},
+		CheckConnectivity = true,
+		ClearArea = 256,
+		ClearRadius = 1000,
+		CountMod = function (self, target, progress) return self:CalculateInvadersCountMod(self, progress) end,
+		DistFromOthers = 1000,
+		EnabledInTutorial = true,
+		EnabledWithoutSurvivors = false,
+		FindSpawnLoc = function (self, spawn_class, target, context)
+			return nest_find_attack_spawn(self,spawn_class, target, context)
+		end,
+		PostSpawn = function (self, obj, target, context)
+			obj.CombatHostile = true
+			if IsKindOf(obj,'Robot') then
+				obj:SetInvader(true)
+			end
+			give_nest_speed_effect(obj,self.nest.proximity)
+			Msg("SpawnedAnimalThreat", obj)
+		end,
+		SpawnAsGroup = true,
+		SpawnClass = "Skarabei_Manhunting",
+		SurvivorDistMax = -1000,
+		SurvivorSpawnDistMin = 75000,
+		TargetClass = "Human",
+		TargetDistMax = 150000,
+		TargetDistMin = 75000,
+		TargetFilter = function (obj) return not obj:IsVirtual() end,
+		TargetStartPosOnMissingTarget = true,
+		group = "Attacks_Insects_NEW",
+		id = "nest_attack",
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemSpawnDef', {
+		FindSpawnLoc = function (self, spawn_class, target, context)
+			return nest_find_spawn_fake(self, spawn_class, target,context)
+		end,
+		PostSpawn = function (self, obj, target, context)
+			obj.CombatHostile = false
+			if IsKindOf(obj,'Robot') then
+				obj:SetInvader(true)
+			end
+			give_nest_speed_effect(obj,self.nest.proximity)
+		end,
+		SpawnClass = "Shrieker_Hatchling",
+		SpawnTimeLimit = false,
+		TargetFilter = function (obj) return not obj:IsVirtual() end,
+		id = "nest_overflow",
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemAnimalSpawnDef', {
+		Cond = function (self, target, context, progress)
+			if self.location then return true else return false end
+		end,
+		FindSpawnLoc = function (self, spawn_class, target, context)
+			local def = spawn_class and g_Classes[spawn_class]
+			print('The input spawn_class was: ',spawn_class.class,' which resolved too: ', def)
+			print("The actual spawn class is: ",self:ResolveSpawnClass().class)
+			local center = self.location
+			print(center)
+			local pfclass = def.pfclass
+			local radius = self.radius
+			print(radius)
+			local pos = terrain.FindPassableTile(center, const.tfpPassClass, pfclass)
+			local target_retry = 4
+			for i=1,target_retry do
+				local x, y = GetRandomPlayablePos(pos, radius, guim, self.location:RandSeed("SpawnNestMember"), pfclass, def.radius)
+				if x then
+					print("Found a spot!")
+					print(point(x,y))
+					return point(x, y)
+				end
+			end
+		end,
+		PostSpawn = function (self, obj, target, context)
+			obj:SetInvader(true)
+			print("In mod editors post spawn!")
+			if Hope then
+				obj:Face(Hope)
+			end
+			Msg("SpawnedAnimalThreat", obj)
+		end,
+		SpawnClass = "LightHostileRobot_LVL1",
+		id = "single_spawn_around_loc",
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemAnimalSpawnDef', {
+		Behaviours = {
+			PlaceObj('InvaderBehaviourSupport', {
+				'Duration', 0,
+				'ArrivalDistance', 5000,
+			}),
+		},
+		CheckConnectivity = true,
+		ClearArea = 256,
+		ClearRadius = 1000,
+		DistFromOthers = 1000,
+		EnabledInTutorial = true,
+		EnabledWithoutSurvivors = false,
+		FindSpawnLoc = function (self, spawn_class, target, context)
+			return nest_find_attack_spawn(self,spawn_class, target, context)
+		end,
+		SpawnAsGroup = true,
+		SpawnClass = "Scissorhands_T5",
+		SurvivorDistMax = -1000,
+		SurvivorSpawnDistMin = 75000,
+		TargetClass = "Human",
+		TargetDistMax = 150000,
+		TargetDistMin = 75000,
+		TargetFilter = function (obj) return not obj:IsVirtual() end,
+		TargetStartPosOnMissingTarget = true,
+		group = "Attacks_Insects_NEW",
+		id = "Support_same_species_passive",
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemAnimalSpawnDef', {
+		Behaviours = {
+			PlaceObj('InvaderBehaviourPassiveMove', {
+				'complex_targeting', true,
+				'targeting_function', function (self, invader, progress)
+					local nest_class = invader:GetNestClass()
+					local map = MapFindNearest(true, true, nest_class, function(nest)
+						if nest:IsAsleep() then
+							return true
+						end
+					end)
+					return map
+				end,
+				'on_arrival', function (invader, target, progress)
+					target:support_arrived()
+					RemoveAttachedUIToObject(invader, 'NestRolePermanent')
+					RemoveAttachedUIToObject(invader, 'NestRoleClose')
+					RemoveAttachedUIToObject(invader, 'NestRoleFar')
+					invader:SetCommand("CmdDespawn")
+					return true
+				end,
+				'proximity', 5000,
+			}),
+		},
+		CheckConnectivity = true,
+		ClearArea = 256,
+		ClearRadius = 1000,
+		DistFromOthers = 1000,
+		EnabledInTutorial = true,
+		EnabledWithoutSurvivors = false,
+		FindSpawnLoc = function (self, spawn_class, target, context)
+			return nest_find_attack_spawn(self,spawn_class, target, context)
+		end,
+		SpawnAsGroup = true,
+		SpawnClass = "Scissorhands_T5",
+		SurvivorDistMax = -1000,
+		SurvivorSpawnDistMin = 75000,
+		TargetClass = "Human",
+		TargetDistMax = 150000,
+		TargetDistMin = 75000,
+		TargetFilter = function (obj) return not obj:IsVirtual() end,
+		TargetStartPosOnMissingTarget = true,
+		group = "Attacks_Insects_NEW",
+		id = "Nest_wakeup_alarm_passive",
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemAnimalSpawnDef', {
+		Behaviours = {
+			PlaceObj('InvaderBehaviourNestScout', {
+				'Duration', 160000,
+				'NoSleep', false,
+				'log_classes', {
+					"TerritorialNest",
+				},
+				'distance_points', 15000,
+				'SearchLabels', {},
+			}),
+			PlaceObj('InvaderBehaviourPassiveMove', {
+				'Duration', 0,
+				'complex_targeting', true,
+				'targeting_function', function (self, invader, progress) return invader.from_nest end,
+				'on_arrival', function (invader, target, progress)
+					local quad_no = invader.target_quadrant
+					local species = invader.from_nest.nest_species
+					local objects_to_report = invader.observed_objects
+					local player_found = invader.player_found
+					local nest = invader.from_nest
+					ReportScoutingResults(quad_no,species,objects_to_report,player_found,nest)
+					invader:SetCommand("CmdDespawn")
+					return true
+				end,
+			}),
+		},
+		CheckConnectivity = true,
+		ClearArea = 256,
+		ClearRadius = 1000,
+		DistFromOthers = 1000,
+		EnabledInTutorial = true,
+		EnabledWithoutSurvivors = false,
+		FindSpawnLoc = function (self, spawn_class, target, context)
+			return nest_find_attack_spawn(self,spawn_class, target, context)
+		end,
+		PostSpawn = function (self, obj, target, context)
+			obj.from_nest = self.location
+		end,
+		SpawnAsGroup = true,
+		SpawnClass = "Scissorhands_T5",
+		SurvivorDistMax = -1000,
+		SurvivorSpawnDistMin = 75000,
+		TargetClass = "Human",
+		TargetDistMax = 150000,
+		TargetDistMin = 75000,
+		TargetFilter = function (obj) return not obj:IsVirtual() end,
+		TargetStartPosOnMissingTarget = true,
+		group = "Attacks_Insects_NEW",
+		id = "Nest_scout_passive",
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	}),
 }

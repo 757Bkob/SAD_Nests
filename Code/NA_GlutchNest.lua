@@ -49,9 +49,9 @@ DefineClass.GlutchNest = {
 	min_attacks_count = const.Shriekers.NestMinMembersForAttack,
 	engagement_time = const.Shriekers.NestEngagementTime,
 	
-	adult_class = "Glutch_Brute" ,
-	hatchling_class = "Glutch",
-	elder_class = "Glutch_T3",
+	adult_class = "Glutch_T3" ,
+	hatchling_class = "Glutch_T2",
+	elder_class = "Glutch_T4",
 	CombatGroup = "Glutchs",
 	
 	terrain_change = true,

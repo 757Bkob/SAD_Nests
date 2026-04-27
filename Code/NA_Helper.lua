@@ -327,9 +327,14 @@ end
 
 function mark_spawned_nest(nest_type)
 	Global_nest_spawn_cd = GameTime() + MoonInstance.AttackCooldownMin
-	local species = get_species_from_nest(nest_type).id
-	if Nest_Species_Savegame_Stats[species] and Nest_Species_Savegame_Stats[species][species..'_nest_spawn_cd'] then
-		Nest_Species_Savegame_Stats[species][species..'_nest_spawn_cd'] = GameTime() + (MoonInstance.AttackCooldownMin * 3)
+	local species_name = get_species_from_nest(nest_type)
+	print(species_name)
+	local species_def = Presets.NestingSpeciesPreset.Default[species_name]
+	print(species_def)
+	local species_id = species_def.id
+	print(species_id)
+	if Nest_Species_Savegame_Stats[species_id] and Nest_Species_Savegame_Stats[species_id][species_id..'_nest_spawn_cd'] then
+		Nest_Species_Savegame_Stats[species_id][species_id..'_nest_spawn_cd'] = GameTime() + (MoonInstance.AttackCooldownMin * 3)
 	else
 		DebugPrint("Nesting species does not have an entry in map vars for their nest spawn cd! Alert mod author!")
 	end
