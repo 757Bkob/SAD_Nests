@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<entity path="" name="Noth_Anvil">
+	<state id="idle">
+		<mesh_ref ref="Noth_Anvil"/>
+	</state>
+	<mesh_description id="Noth_Anvil">
+		<lod idx="0" distance="0">
+			<mesh file="Meshes/Noth_Anvil_Noth_Anvil.m.hgm"/>
+			<material file="Materials/Noth_Anvil_Noth_Anvil.mtl"/>
+			<bsphere value="1.011,-9.610,300.109,678.158"/>
+			<box min="-295.749,-614.985,0.210" max="297.771,595.765,600.007"/>
+			<src file="C:/Users/User/AppData/Roaming/Stranded - Alien Dawn/ModAssets/FBX/.fbx"/>
+		</lod>
+		<surf type="collision" name="PVS" points="-300.000,600.000,-250.000;-300.000,-600.000,250.000;-300.000,-600.000,-250.000"/>
+		<surf type="collision" name="PVS" points="300.000,-600.000,-250.000;-300.000,600.000,-250.000;-300.000,-600.000,-250.000"/>
+		<surf type="collision" name="PVS" points="300.000,-600.000,250.000;-300.000,-600.000,-250.000;-300.000,-600.000,250.000"/>
+		<surf type="collision" name="PVS" points="300.000,600.000,-250.000;-300.000,600.000,250.000;-300.000,600.000,-250.000"/>
+		<surf type="collision" name="PVS" points="-300.000,-600.000,250.000;-300.000,600.000,-250.000;-300.000,600.000,250.000"/>
+		<surf type="collision" name="PVS" points="-300.000,600.000,250.000;300.000,600.000,250.000;-300.000,-600.000,250.000"/>
+		<surf type="collision" name="PVS" points="-300.000,-600.000,-250.000;300.000,-600.000,250.000;300.000,-600.000,-250.000"/>
+		<surf type="collision" name="PVS" points="-300.000,-600.000,250.000;300.000,600.000,250.000;300.000,-600.000,250.000"/>
+		<surf type="collision" name="PVS" points="300.000,600.000,250.000;300.000,-600.000,-250.000;300.000,-600.000,250.000"/>
+		<surf type="collision" name="PVS" points="300.000,-600.000,-250.000;300.000,600.000,-250.000;-300.000,600.000,-250.000"/>
+		<surf type="collision" name="PVS" points="300.000,-600.000,-250.000;300.000,600.000,250.000;300.000,600.000,-250.000"/>
+		<surf type="collision" name="PVS" points="-300.000,600.000,250.000;300.000,600.000,-250.000;300.000,600.000,250.000"/>
+		<surf_hash type="collision" value="4059702226"/>
+	</mesh_description>
+</entity>

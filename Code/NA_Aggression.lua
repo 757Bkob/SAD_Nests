@@ -27,8 +27,9 @@ end
 
 -- middle layer function so that on low difficulties the species take more to become aggresive
 function Aggression_log_faction(input)
-	local nesting_species = find_nest_species(input)
-	if not nesting_species then return nil end
+	local nesting_species = input
+	--local nesting_species = find_nest_species(input)
+	--if not nesting_species then return nil end
 	DebugPrint("Logging an aggression event\n")
 	DebugPrint(IsKindOf(nesting_species, "NestingSpeciesPreset"))
 	DebugPrint(IsKindOf(nesting_species.id, "NestingSpeciesPreset"))

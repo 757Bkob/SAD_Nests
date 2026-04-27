@@ -119,13 +119,22 @@ end
 
 function UnitInvader:FindNextScoutingPoint()
 	local valid_point = false
-	local box = nil --self:Quad_to_box()
-	local retry = self.pathing_proximity or (15 * guim)
+	print("Trying to find a spot in quadrant,")
+	local box = Get_box_from_quadrant(self.target_quadrant)
+	local retry = 10
+	local range = self.pathing_proximity or (15 * guim)
 	while (retry > 0 and not valid_point) do
-		valid_point = self:FindValidScoutingPoint(box, self.scouted_pos, retry)
-		retry = retry - (3 * guim)
+		valid_point = self:FindValidScoutingPoint(box, self.scouted_pos, range)
+		retry = retry -1
+		range = range + 5*guim
 	end
-	return valid_point
+	if valid_point then
+		return valid_point
+	else
+		ForceActivateStoryBit('unable_to_scout',self,true)
+		self.pathing = false
+		return
+	end
 end
 
 function UnitInvader:FindValidScoutingPoint(box_area, scouted_points, min_dist)
@@ -148,11 +157,14 @@ function UnitInvader:FindValidScoutingPoint(box_area, scouted_points, min_dist)
 
 	local function filter(x, y)
 		for _, pt in ipairs(scouted_points) do
-			local dx = x - pt.x
-			local dy = y - pt.y
+			local dx = x - pt:x()
+			local dy = y - pt:y()
 			if dx * dx + dy * dy < min_sq then
 				return false
 			end
+		end
+		if box_area:Dist2D(point(x,y)) > 0 then
+			return false
 		end
 		return true
 	end
@@ -160,17 +172,19 @@ function UnitInvader:FindValidScoutingPoint(box_area, scouted_points, min_dist)
 	-- use ConnectivityRandomTile instead of manual loop. the function will
 	-- perform its own randomised attempts and respects connectivity; the final
 	-- argument is our filter defined above.
-	local seed = rand()
+	local seed = AsyncRand()
 	local retries = 4096
 	-- ConnectivityRandomTile(seed, origin, center, max_dist, min_dist, Human.pfclass, 4096, filter_far_from_nest)
-	local pos = ConnectivityRandomTile(seed, my_pos, my_pos, 100000, 0, my_pfclass, retries, filter)
+	local pos = ConnectivityRandomTile(seed, my_pos, my_pos, max_int, 0, my_pfclass, retries, filter)
+	--Get_box_from_quadrant(12):Dist2D(point(906300,17715500))
 	if not pos then
 		return false
 	end
+	print(box_area:Dist2D(pos))
 	return pos
 end
 
---[[
+
 function UnitInvader:Get_quadrant_to_scout()
 	local my_quad = Get_quadrant_from_obj(self)
 	local my_nesting_species = self:Get_Nesting_Species()
@@ -198,7 +212,7 @@ function UnitInvader:Get_quadrant_to_scout()
 		end
 	end
 end
---]]
+
 function UnitInvader:CheckForNewBehaviors()
 	if self.pathing or self.pathing_to or self.scouting or self.wallbreaking then
 		return true
@@ -222,11 +236,25 @@ function UnitInvader:InvaderIdle()
 	end
 	Bkob_Log_NA("Checking what we as an invader should do!")
 	if something_new then
-		if self.pathing then
-			if self:IsCloser(self.pathing_to, self.pathing_proximity) then
+		print("Pathing too:")
+		print(self.pathing_to)
+		print("And I need to be this close:")
+		print(self.pathing_proximity)
+		print("And I am this far away: ")
+		print(self:GetDist2D(self.pathing_to))
+		local close_enough = self:IsCloser(self.pathing_to, self.pathing_proximity)
+		if self.scouting and close_enough then
+				print("Unit is scouting and is close enough to their curtrent point. Recording surroundings and rolling a enw point!")
+				self:near_scout_point()
+				-- we will have a new pathing_to prop from the above function
+				self:SetCommand("CmdPassiveMove")
+		elseif self.pathing then
+			print('Unit is trying to get to a specific point!')
+			if close_enough then
+				print("And they are close enough!")
 				--print("Invader Idle call detecting we are too close to the target!")
 				self.pathing = false
-				Bkob_Log_NA("Arrived at passive move target!")
+				print("Arrived at passive move target!")
 				if self.on_arrive then
 					local EP = EventProgress
 					self.on_arrive(self, self.pathing_to, EP)
@@ -237,14 +265,6 @@ function UnitInvader:InvaderIdle()
 			end
 			Bkob_Log_NA("Telling unit to start (passively) moving to a target!")
 			self:SetCommand("CmdPassiveMove")
-		elseif self.scouting then
-			if self.forced_aggression_until then
-				Bkob_Log_NA("Aggressively scouting!")
-				self:SetCommand("CmdScoutAngry")
-			else
-				Bkob_Log_NA("Passive scouting!")
-				self:SetCommand("CmdScoutPassive")
-			end
 		end
 	elseif GameTime() >= forced_until then
 		Bkob_Log_NA("Stop attacking!")
@@ -275,19 +295,25 @@ function UnitInvader:InvaderIdle()
 end
 
 function UnitInvader:CmdPassiveMove()
-	Bkob_Log_NA("Got told to move passively!")
-	if not self.pathing_to or not IsValid(self.pathing_to) then
-		Bkob_Log_NA("No class of this type on map!")
+	print("Got told to move passively!")
+	if not self.pathing_to then
+		print("No idea what we are trying to move too!")
+		self.pathing = false
 		return -- no target found
 	end
-	local closests_exact_pos = self.pathing_to:GetPos()
+	local closests_exact_pos
+	if IsValid(self.pathing_to) then
+		closests_exact_pos = self.pathing_to:GetPos()
+	else
+		closests_exact_pos = self.pathing_to
+	end
 	-- prefer a tile that respects this unit's pfclass and collision
 	local closest_to_dest = terrain.FindPassableTile(closests_exact_pos, const.tfpPassClass, self)
 	if not ConnectivityCheck(self, closest_to_dest) then
-		Bkob_Log_NA("We cannot reach this class....")
+		print("We cannot reach this class....")
 		return
 	end
-	Bkob_Log_NA("Telling myself to GoTo this position:", closest_to_dest)
+	print("Telling myself to GoTo this position:", closest_to_dest)
 	if self:IsCloser(self.pathing_to, self.pathing_proximity) then
 		--print("I am close enough to trigger my on arrive!")
 		if self.on_arrive then
@@ -303,165 +329,9 @@ function UnitInvader:CmdPassiveMove()
 end
 
 --[[
-function UnitInvader:OnObjUpdate(game_time, update_interval)
-	self:UpdateForcedAggression()
-	-- Passive move arrival check: when `pathing` is true and a passive target was set,
-	-- trigger the arrival callback when within range (runs on the main update thread).
-	if self.pathing or self.scouting then
-		UnitInvader:ReactToNewMovement()
-	end
-end
---]]
-
-function UnitInvader:OnForcedApproachEnd(target, range)
-	self:ForcedApproachStopLeading()
-	self.forced_aggression_approach = nil
-	self:ForcedApproachPlanning_Reset()
-	self.formation_leader = nil
-	self.formation_force_run = nil
-end
-
-function UnitInvader:CmdScoutAngry(target, range)
-	-- wrapper command keeping the command-object structure, now looping
-	local forced_until = self.forced_aggression_until
-	assert(forced_until and GameTime() < forced_until)
-	range = range or self:GetMaxAttackRange()
-	self:OnForcedApproachStart(target, range)
-	self:PrepareToMove(target, range)
-	self.roam_start_pos = nil
-	self.delayed_response = true
-	self.forced_approach_started = true
-
-	-- push destructor and build callback that marks loop termination
-	local done = false
-	local dtors = self:PushDestructor("OnForcedApproachEnd")
-	local function callDestructor()
-		done = true
-		self:PopAndCallDestructor(dtors)
-	end
-
-	-- loop: pick a new scouting point every iteration and execute internal movement
-	while not done do
-		local scout_pt = self:FindNextScoutingPoint()
-		if not scout_pt then
-			break -- no valid point, give up
-		end
-		local attacked = self:CmdForcedApproach_Internal(scout_pt, range, callDestructor)
-		-- if the internal logic performed an attack return value, we break out
-		if attacked then
-			return true
-		end
-		-- continue looping until destructorCallback flips done
-	end
-end
-
-function UnitInvader:MiniAngryMove(target, range, destructorCallback)
-	local forced_until = self.forced_aggression_until
-	local status, moving, approach_target, approach_range, formation_radius, leader, keep_formation, approach_reset, group_size
-	local pfSleep = self.MoveSleep
-	while true do
-		if not approach_target then
-			local idle_anim
-			while not approach_target do
-				approach_target, formation_radius, leader, keep_formation, group_size = self:GetFormationApproachTarget(target)
-				if not approach_target then
-					approach_target, approach_range = target, range -- default approach
-				elseif not keep_formation then
-					approach_range = 0
-					approach_reset = GameTime() + 10000 + self:Random(group_size, "ForcedApproach")
-				else
-					approach_range = 0
-					local speed, leader_speed = self:GetSpeed(), leader:GetSpeed()
-					if speed > leader_speed and not idle_anim and self:IsCloser(leader, formation_radius) and self:IsCloser(approach_target, formation_radius) then
-						-- the formation leader is too slow
-						if self.formation_force_run then
-							self.formation_force_run = false
-							self:UpdateWalkAnim()
-						else
-							approach_target = false
-							idle_anim = self:PickIdleAnim()
-							self:SetState(idle_anim)
-							local idle_max = Min(self:GetAnimDuration(), 2500)
-							local idle_min = Min(idle_max, 500)
-							local idle_sleep = self:RandRange(idle_min, idle_max, "ForcedApproach")
-							Sleep(idle_sleep)
-						end
-					elseif speed <= leader_speed and not self.formation_force_run and not self:IsCloser(approach_target, max_formation_radius) then
-						self.formation_force_run = true
-						self:UpdateWalkAnim()
-					end
-				end
-			end
-			self.forced_aggression_approach = approach_target
-			self.formation_leader = keep_formation and leader
-		end
-		status = self:ForcedApproachStep(approach_target, approach_range)
-		if not moving then
-			if self:CanStartMove(status) then
-				self:OnStartMoving(approach_target, approach_range)
-				moving = true
-			else
-				if not self.forced_aggression_fail_time then
-					self.forced_aggression_fail_time = GameTime()
-				end
-				break
-			end
-		end
-		if status >= 0 then
-			if self:OnGotoStep(status) then
-				break -- interrupted
-			end
-			pfSleep(self, status)
-			local time = GameTime()
-			if forced_until and time < forced_until then
-				-- update target
-				local new_target = not self:TryFailForceAggression() and self:MarkForcedTarget()
-				if not new_target then
-					break
-				end
-				if new_target ~= target
-				or keep_formation and self:IsCloser(approach_target, guim)
-				or approach_reset and approach_reset <= time and not self:IsCloser(approach_target, 64*guim) then
-					target = new_target
-					approach_target = nil
-					approach_reset = nil
-				end
-			end
-		elseif not self:TryContinueMove(status, approach_target, approach_range) then
-			break
-		end
-	end
-	if moving then
-		self:OnStopMoving(status)
-	end
-	if IsValid(target) and self.can_attack and self:IsAggressive() and target:CanBeAttacked(self) then
-		local attack_flags, max_attacks = COMBAT_MAX_ATTACKS, -1
-		if not self:CanDetect(target) then
-			self:SetAttackTargetIgnored(target)
-			local attack_target = self:FindAttackTarget(nil, target)
-			if attack_target then
-				target = attack_target
-			else
-				self:RoamReset()
-				self.forced_aggression_roam = true
-				max_attacks = 10 + self:Random(10, "ForcedApproach") -- retry to do something else after a few attacks
-				target = self:FindObstructionTarget(nil, target)
-			end
-		end
-		if target and self:TryAttackTargetReason("ForcedApproach", target, attack_flags, max_attacks) then
-			return true
-		end
-	end
-	self:ClearPath()
-	if destructorCallback then
-		destructorCallback()
-	end
-end
-
-
---[[
-@class InvaderBehaviourPassiveMoveComplex
+@class InvaderBehaviourNestScout
 Enables a non-aggressive movement to another more complicated location
+00]]
 DefineClass.InvaderBehaviourNestScout = {
 	__parents = { "InvaderBehaviourBase", },
 	properties = {
@@ -476,7 +346,7 @@ DefineClass.InvaderBehaviourNestScout = {
 		{ id = "KeepFormation", name = "Keep Group Formation", help = "I true, the invaders will approach keeping close to each other.", editor = "bool", default = true, no_edit = function(self) return self.attack_hostile end},
 	},
 	EditorName = "Scout around the map (based on species logs)",
-	Documentation = -[-[The <style GedHighlight>Scouting behavior</style> is to be used by nests when trying to find the player's stuff or another species territorial nest.
+	Documentation = [[The <style GedHighlight>Scouting behavior</style> is to be used by nests when trying to find the player's stuff or another species territorial nest.
 Scouts will always log anything owned by the player (Buildings, Survivors, Robots, etc...), but can also log any other spawn class if specified.
 Scouting code splits the map into 200m x 200m quadrants, and the unit will pick the closest quadrant that has not been scouted in the last year by its species to explore.
 Scouting behavior:
@@ -486,7 +356,7 @@ Scouting behavior:
 <style GedHighlight>Step 4: </style> Repeat until no spot can be found that is x meters away from all prior scouted points, or until scouting time runs out.
 
 Note 1: that in order for a species to actually learn of other species, this behavior should be followed with a "return to nest" behavior.
-Note 2: If <style GedHighlight>map_hack</style> is enabled, the scout will auto record all player owned objects and matching classes in the quadrant. But will still move around the quadrant.-]-]
+Note 2: If <style GedHighlight>map_hack</style> is enabled, the scout will auto record all player owned objects and matching classes in the quadrant. But will still move around the quadrant.]]
 
 }
 
@@ -500,11 +370,26 @@ function InvaderBehaviourNestScout:OnAssign(invader, end_time)
 	invader.scouting = true
 	invader.observed_objects = {}
 	invader.scouted_pos = {}
-	invader.target_quadrant = invader:Get_quadrant_to_scout()
-	invader.pathing_to = invader:Get_random_point_in_quad(invader.target_quadrant,invader.scouted_pos)
-	invader.min_scout_distance = self.distance_points * guim
+	if not invader.from_nest or not invader.from_nest.quadrant_scouting then
+		invader.target_quadrant = invader:Get_quadrant_to_scout()
+	else
+		invader.target_quadrant = invader.from_nest.quadrant_scouting
+	end
+	invader.pathing = true
+	invader.pathing_to = invader:FindNextScoutingPoint(invader.target_quadrant,invader.scouted_pos)
+	--invader.min_scout_distance = self.distance_points * guim
 	invader.looking_for = self.log_classes
 	invader.map_hack = self.map_hack
+	invader.player_found = false
+	invader.pathing_proximity = 5000
+	-- grant a buff to all scouts, making them able to see past 30 meters
+	if invader:GetDetectionRange() < 30 * guim then
+		if IsKindOf(invader,'Robot') then
+			invader:AddRobotCondition('scouting_sight_buff_robot','mod')
+		else
+			invader:AddHealthCondition('scouting_sight_buff_animal','mod')
+		end
+	end
 	if self.map_hack then
 		invader.observed_objects = Get_objs_in_quad(invader.target_quadrant, self.log_classes)
 	end
@@ -517,50 +402,98 @@ function InvaderBehaviourNestScout:OnExpire(invader)
 	rawset(invader, 'scouted_pos', nil)
 	rawset(invader, 'target_quadrant', nil)
 	rawset(invader, 'pathing_to', nil)
-	rawset(invader, 'min_scout_distance', nil)
+	--rawset(invader, 'min_scout_distance', nil)
 	rawset(invader, 'looking_for', nil)
 	rawset(invader, 'map_hack', nil)
+	if IsKindOf(invader,'Robot') then
+		invader:RemoveRobotCondition('scouting_sight_buff_animal')
+	else
+		invader:RemoveHealthCondition('scouting_sight_buff_animal')
+	end
 	invader:UpdateAttachedUI()
 	return InvaderBehaviourBase.OnExpire(self, invader)
 end
 
-function UnitInvader:record_surroundings()
-	local observed = MapGet(self, self.min_scout_distance, self.looking_for)
-	for _, obj in ipairs(observed) do
-		table.insert_unique(self.observed_objects, obj)
+local detect_enum_flags = const.efVisible | const.efUnit | const.efAttackable
+local detect_game_flags = const.gofDamageable | const.gofSyncObject
+
+local function Scout_Detect(unit, self, detected_units)
+	--DbgAddSegment(unit, self, RandColor(self.handle))
+	if self == unit
+	or not unit.detect_spot
+	or not self:IsDetectionTarget(unit)
+	or not self:CanDetect(unit) then
+		return
+	end
+	for _, v in ipairs(self.looking_for) do
+		if IsKindOf(unit,v) then
+			print("I detected this, a thing I'm looking for: "..unit.class)
+			table.insert_unique(self.observed_objects, unit)
+		end
+	end
+	if unit.player then
+		print("I detected something owned by the player!")
+		self.player_found = true
 	end
 end
 
-function UnitInvader:CmdScoutPassive()
-	while true do
-		local closest_to_dest = terrain.FindPassableTile(self.pathing_to, const.tfpPassClass, self)
-		if self:GetDist2D(closest_to_dest) <= self.pathing_proximity then
-			self:record_surroundings()
-			if #self.scouted_pos >= 3 then
-				local new_three = self.pathing_to
-				local new_two = self.scouted_pos[3]
-				local new_one = self.scouted_pos[2]
-				self.scouted_pos = {}
-				self.scouted_pos[1] = new_one
-				self.scouted_pos[2] = new_two
-				self.scouted_pos[3] = new_three
-			else
-				self.scouted_pos[#self.scouted_pos + 1] = self.pathing_to
-			end
-			self.pathing_to = false
-			local retry = 5
-			while retry > 0 and not self.pathing_to do
-				local possible = self:FindNextScoutingPoint()
-				if ConnectivityCheck(self, possible) then
-					self.pathing_to = possible
-					retry = -1
-				else
-					retry = retry - 1
-				end
-			end
+function UnitDetection:detect_nearby()
+	local units = self.detected_units
+	if not self.detect_spot or not self:IsDetectionEnabled() then
+		if units then
+			self:ClearDetectionCache()
 		end
-		local closest_to_new_dest = terrain.FindPassableTile(self.pathing_to, const.tfpPassClass, self)
-		self:Goto(closest_to_new_dest)
+		return
+	end
+	local seed = self:RandSeed("DetectUnits")
+	if not units then
+		units = {}
+		self.detected_units = units
+	end
+	local range = self:GetDetectionRange()
+	self:GetMaxCollisionRadius(range + MaxLosTargetRadius) -- cache information about the surrounding, boosting the surf enum effectiveness
+	self.los_checks = self.los_max_checks -- Limit the maximum allowed LOS checks. The enum is randomized, so we should eventually check all units.
+	local collection_idx = self:GetDetectCollectionIdx()
+	MapForEach(self, range, "!collection", collection_idx, "shuffle", seed, "UnitDetection", detect_enum_flags, nil, detect_game_flags, Scout_Detect, self, units)
+	self.los_checks = nil
+	local count = #units
+	for i=count,1,-1 do
+		local unit = units[i]
+		if time ~= units[unit] then
+			self:UnitExitDetection(unit)
+			units[i] = units[count]
+			units[count] = nil
+			units[unit] = nil
+			count = count - 1
+		end
 	end
 end
---]]
+
+function UnitInvader:Get_New_Scout_Point()
+	local new_three = self.pathing_to
+	local new_two = self.scouted_pos[3]
+	local new_one = self.scouted_pos[2]
+	self.scouted_pos = {}
+	self.scouted_pos[1] = new_one
+	self.scouted_pos[2] = new_two
+	self.scouted_pos[3] = new_three
+	self.pathing_to = self:FindNextScoutingPoint(self.target_quadrant,self.scouted_pos)
+	if self.pathing_to then
+		print("Pathing to new point!")
+	end
+end
+
+function UnitInvader:near_scout_point()
+	print("Recording things around me!")
+	self:Get_New_Scout_Point()
+	if not self.map_hack then
+		self:detect_nearby()
+	end
+end
+
+function TFormat.ScoutFailed(context_obj)
+	local map_name = GetMapName()
+	local quadrant = 5 --context_obj.target_quadrant
+	local unit = context_obj.actor.class or 'Unknown'
+	return Untranslated('<em>Map Name:  '..map_name..'\nQuadrant:  '..quadrant..'\nUnit:  '..unit..'</em>')
+end

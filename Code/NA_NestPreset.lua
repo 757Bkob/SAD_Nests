@@ -18,6 +18,8 @@ DefineClass.NestingSpeciesPreset = {
 		{ category = "Species", id = "nest_class", name = "Nest Class", editor = "choice", default = false, items = function() return ClassDescendantsList('TerritorialNest') end , help = "What nest is related to this species.",},
 		{ category = "Species",	id = "resource_list",	name = "Aggression resources", editor = "nested_list", default = false, base_class = "ResAmount", template = true, help = "Amount of a specific resource to trigger an aggression event.", },
 		{ category = "Species",	id = "spore_buildings",	name = "Spore Buildings", editor = "choice", default = false, items = function() return ClassDescendantsList('NestSpore') end, template = true, help = "The spore buildings this species stores resources in.", },
+		{ category = "Species",	id = "aggressive",	name = "Naturally Aggressive?", editor = "bool", default = true, template = true, help = "Will this species attack unprovoked?", },
+		{ category = "Prefab", id = "PrefabTags",   name = "Prefab Tags Any",        editor = "set",         default = empty_table, items = function() return PrefabTagsCombo() end, three_state = true },
 	},
 }
 
@@ -30,7 +32,7 @@ function Build_species_pivot_table()
 	local entries = #Presets.NestingSpeciesPreset.Default
 	for i=1, entries do
 		local species = Presets.NestingSpeciesPreset.Default[i]
-		if species and species.unit_species then
+		if species and species.unit_species and species.resource_list then
 			for _,res_item in ipairs(species.resource_list) do
 				local res_name = res_item.resource
 				local chance = res_item.amount

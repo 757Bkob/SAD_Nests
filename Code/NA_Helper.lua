@@ -12,7 +12,7 @@ MapVar("Max_nests_allowed",20)
 MapVar('Nest_scouting_quadrants',{})
 MapVar('NA_Y_length',0)
 MapVar('NA_X_length',0)
-MapVar('NA_NestRoleZoom',0)
+MapVar('NA_NestRoleZoom',3)
 MapVar('NA_NestRoleName',false)
 
 function NA_Mod_Set(id)
@@ -333,8 +333,6 @@ function mark_spawned_nest(nest_type)
 	else
 		DebugPrint("Nesting species does not have an entry in map vars for their nest spawn cd! Alert mod author!")
 	end
-
-	local species_spawn_var = nest_type..'_nest_spawn_cd'
 end
 
 function NA_log_nest_evolved(nest)

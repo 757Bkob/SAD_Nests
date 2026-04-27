@@ -26,35 +26,13 @@ DefineClass.ConsortiumSporeDeposit = {
 }
 
 DefineClass.ConsortiumSporeDeposit2 = {
-	__parents = { "MineableRock", "NestSpore" },
-
+	__parents = { "ConsortiumSporeDeposit" },
 	entity = "PXTeslaRod",
-
-	MineResource = "ScrapMetal",
-	MineAmount = 300 * const.ResourceScale,
-
-	display_name = T(874568713, "Consortium Droid Support"),
-	description = T(86745321245, "A standard building included in all Consortium Resource-Extraction-Prefab-Operation bundles."),
-	description_unknown = T(257771208911, "<em>Unknown Consortium building. Requires up close studying to determine what this structure does.</em>"),
-
-	TimeToMine = 4 * const.HourDuration,
-	FieldResearchTech = "FieldConsortiumSpore",
 }
 
 DefineClass.ConsortiumSporeDeposit3 = {
-	__parents = { "MineableRock", "NestSpore" },
-
+	__parents = { "ConsortiumSporeDeposit" },
 	entity = "PXSatelite",
-
-	MineResource = "ScrapMetal",
-	MineAmount = 300 * const.ResourceScale,
-
-	display_name = T(874568713, "Consortium Droid Support"),
-	description = T(86745321245, "A standard building included in all Consortium Resource-Extraction-Prefab-Operation bundles."),
-	description_unknown = T(257771208911, "<em>Unknown Consortium building. Requires up close studying to determine what this structure does.</em>"),
-
-	TimeToMine = 4 * const.HourDuration,
-	FieldResearchTech = "FieldConsortiumSpore",
 }
 
 DefineClass.ConsortiumNest = {

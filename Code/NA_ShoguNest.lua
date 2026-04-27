@@ -1,58 +1,36 @@
-
---[[ Delayed due to entity hunting
 local RESPONSE_NONE = const.DelayedResponseNone
 local RESPONSE_DISTRESS = const.DelayedResponseDistress
 local RESPONSE_ATTACK = const.DelayedResponseAttack
 
 DefineClass.ShoguSporeDeposit = {
 	__parents = { "MineableRock", "NestSpore" },
-	entity = 'AlienMushrooms_A_11',
+	entity = 'AlienPlants_05',
 	
 	MineResource = "FuelManure",
 	MineAmount = 300 * const.ResourceScale,
 	
 	display_name = T(874589013, "Shogu Pustule"),
-	description = T(8674234451245, "After breaking open this pustules hardened exterior, one is met with a collection of condensed parasites and bacteria. Handle with care!"),
+	description = T(8674234451245, "After cracking this pustule open, a defensive splash of parasites and bacteria greets the unfortunate inquisitor. Handle with care!"),
 	description_unknown = T(223421771208911, "<em>Unknown building, it elicits a primal urge to keep away....</em>"),
 	
-	TimeToMine = 4 * const.HourDuration,
+	TimeToMine = 1 * const.HourDuration,
 	FieldResearchTech = "FieldShoguSpore",
 }
 
 DefineClass.ShoguSporeDeposit2 = {
-	__parents = { "MineableRock", "NestSpore" },
-	entity = 'AlienMushrooms_A_01',
-	
-	MineResource = "FuelManure",
-	MineAmount = 300 * const.ResourceScale,
-	
-	display_name = T(874589013, "Shogu Pustule"),
-	description = T(8674234451245, "After breaking open this pustules hardened exterior, one is met with a collection of condensed parasites and bacteria. Handle with care!"),
-	description_unknown = T(223421771208911, "<em>Unknown building, it elicits a primal urge to keep away....</em>"),
-	
-	TimeToMine = 4 * const.HourDuration,
-	FieldResearchTech = "FieldShoguSpore",
+	__parents = { "ShoguSporeDeposit" },
+	entity = 'AlienPlants_06',
 }
 
 DefineClass.ShoguSporeDeposit3 = {
-	__parents = { "MineableRock", "NestSpore" },
+	__parents = { "ShoguSporeDeposit" },
 	entity = 'AlienPlants_03',
-	
-	MineResource = "Slop",
-	MineAmount = 300 * const.ResourceScale,
-	
-	display_name = T(874589013, "Shogu Pustule"),
-	description = T(8674234451245, "After breaking open this pustules hardened exterior, one is met with a collection of condensed parasites and bacteria. Handle with care!"),
-	description_unknown = T(223421771208911, "<em>Unknown building, it elicits a primal urge to keep away....</em>"),
-	
-	TimeToMine = 4 * const.HourDuration,
-	FieldResearchTech = "FieldShoguSpore",
 }
 
 DefineClass.ShoguNest = {
 	__parents = { "TerritorialNest" },
 	
-	entity = "AlienPlants_01",
+	entity = "AlienPlants_04",
 	
 	daily_plant_damage = const.Shriekers.NestDailyPlantDamage,
 	guard_range = const.Shriekers.NestGuardRange,
@@ -73,7 +51,7 @@ DefineClass.ShoguNest = {
 	adult_class = "Shogu_T3" ,
 	hatchling_class = "Shogu_T2",
 	elder_class = "Shogu_T4",
-	CombatGroup = "Shogu",
+	CombatGroup = "Shogus",
 	
 	terrain_change = true,
 	terrain_form_preset = "ShriekerTerritoryTerrain",
@@ -82,8 +60,8 @@ DefineClass.ShoguNest = {
 	terrain_type2 = "AlienEarth_01_C2",
 	
 	detect_spot = "Origin",
-	DisplayName = T(7864339223400, "Shogu Infection "),
-	Description = T(904421747272, "An automated control center, managing a group of harvest droids and it's defenders."),
+	DisplayName = T(7864339223400, "Shogu Blight"),
+	Description = T(904421747272, "How such a density of parasites and bacteria can occur without one species dominates is scientifically fascinating. Realisticaly, this is more dangerous to any form of life within a 50 mile radius."),
 }
 
 EntityData["AlienPlants_03"] = {
@@ -92,22 +70,22 @@ EntityData["AlienPlants_03"] = {
 		class_parent = "Deposition,ShoguSporeDeposit",
 	},
 }
-EntityData["AlienMushrooms_A_11"] = {
+EntityData["AlienPlants_05"] = {
 	entity = {
-		material_type = "Plant-Fruit",
+		material_type = "Wood",
 		class_parent = "Deposition,ShoguSporeDeposit",
 	},
 }
-EntityData["AlienMushrooms_A_01"] = {
+EntityData["AlienPlants_06"] = {
 	entity = {
-		material_type = "Plant-Fruit",
+		material_type = "Wood",
 		class_parent = "Deposition,ShoguSporeDeposit",
 	},
 }
 DefineClass.ShoguNestMarker = {
 	__parents = { "TerritorialNestMarker" },
 	
-	entity = "AlienPlants_01",
+	entity = "AlienPlants_04",
 	editor_text_color = RGB(255,128,128),
 	NestClass = "ShoguNest",
 	--editor_color = RGB(255,0,0),
@@ -125,4 +103,3 @@ function ShoguNest:OnObjUpdate(time, update_interval)
 		end
 	end,self)
 end
---]]

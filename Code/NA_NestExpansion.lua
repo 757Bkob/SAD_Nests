@@ -3,6 +3,26 @@ local day_duration = const.DayDuration
 local hours_per_day = day_duration / hour_duration
 
 
+function Juno_Cancer(force)
+	local nests = {}
+	if force then
+		nests = MapGet(true,'TerritorialNest',function(nest)
+		if nest.class ~= 'JunoNest' then return true end end)
+	else
+		nests = MapGet(true,'TerritorialNest',function(nest)
+			if GameTime() - cosnt.year > nest.spawned_on and nest.class ~= 'JunoNest' then
+				return true
+			end
+		end)
+	end
+	if #nests > 0 then
+		local roll = AsyncRand(#nests)
+		local to_convert = nests[roll]
+		Convert_nest_into(to_convert,'nesting_juno')
+	elseif force then
+	end
+end
+
 function SpawnNestInsideMap(marker, seed, nest_type, danger_lvl)
 	DebugPrint("Spawning a nest\n")
 	if marker and terrain.IsWater(marker) then
@@ -38,7 +58,7 @@ function SpawnNestInsideMap(marker, seed, nest_type, danger_lvl)
 		if nest_marker then
 			nest = nest_marker:SpawnNest(true)
 		else
-			assert(false, "Prefab without a Scissorhands nest marker: " .. name)
+			assert(false, "Prefab without a nest marker: " .. name)
 		end
 	else
 		assert(false, "Prefab error: " .. err)
@@ -176,20 +196,41 @@ DefineClass.EnhancedTerritorialNest = {
     ui_evo = 0,
 	sleep_check = 0,
 	awoken_at = 0,
+	attacked_by_player = false,
+	other_species_attacks = {},
 }
 
+function EnhancedTerritorialNest:Align_cgroup_members()
+	for _,v in ipairs(self.nest_members) do
+		v.CombatGroup = self.CombatGroup
+	end
+end
+
+function NestDelayedInit(nest)
+	nest:UpdateNextAttackTime()
+	nest:get_proximity()
+	--nest:force_inert_if_capped()
+	nest.quadrant = Get_quadrant_from_obj(nest,true)
+	nest.spawned_on = GameTime()
+end
+
+--~Presets.UnitSpeciesGroup.Default[Presets.NestingSpeciesPreset.Default[get_species_from_nest(SelectedObj.class)].unit_species]
 function EnhancedTerritorialNest:Init()
 	self.attack_time = max_int
 	self.consume_time = max_int
 	self.nest_species = get_species_from_nest(self.class)
+	local full_nest_details = Presets.NestingSpeciesPreset.Default[self.nest_species]
+	local full_species_details = Presets.UnitSpeciesGroup.Default[full_nest_details.unit_species]
+	local desired_cgroup = full_species_details.primary_combat_group
+	if self.CombatGroup ~= desired_cgroup and not table.find(full_species_details.allied_combat_groups,self.CombatGroup) then
+		self.CombatGroup = desired_cgroup
+		self:Align_cgroup_members()
+	end
 	-- wait a day then reset the above
     CreateGameTimeThread(function(this_nest)
-        Sleep(day_duration)
-        self:UpdateNextAttackTime()
-		self:get_proximity()
-		self:force_inert_if_capped()
-		self.quadrant = Get_quadrant_from_obj(self,true)
-    end,self)
+		Sleep(day_duration)
+		NestDelayedInit(this_nest)
+	end,self)
 end
 
 function EnhancedTerritorialNest:get_next_consume_time()
@@ -216,6 +257,54 @@ function EnhancedTerritorialNest:expand()
     self.elders_max_count = self.elders_max_count + grows
     self.hatchlings_max_count = self.hatchlings_max_count + grows
     self.adults_max_count = self.adults_max_count + grows
+end
+
+function Convert_nest_into(nest_to_convert,other_species,delete_old_members)
+	if not Presets.NestingSpeciesPreset.Default[other_species] then return end
+	local species = Presets.NestingSpeciesPreset.Default[other_species]
+	local o_species_tags = species.PrefabTags
+	local my_current = Presets.NestingSpeciesPreset.Default[nest_to_convert.nest_species]
+	local spore_building_def = my_current.spore_buildings
+	local spores = MapGet(nest_to_convert,nest_to_convert.max_range,spore_building_def)
+	if delete_old_members then
+		for _,member in ipairs(nest_to_convert.nest_members) do
+			member:SetNest(false)
+			DoneObject(member)
+		end
+	end
+	for _,spore in ipairs(spores) do
+		DoneObject(spore)
+	end
+	local def = g_Classes['FallingDebrisMarker']
+	local old_marker = MapFindNearest(nest_to_convert,true,'TerritorialNestMarker')
+	DoneObject(nest_to_convert)
+	local pos = old_marker:GetPos()
+	local new_marker = def:new()
+	new_marker:SetPosAngle(pos)
+	DoneObject(old_marker)
+
+	SuspendPassEdits("SpawndNest")
+	local seed = InteractionRand(nil, "DailySpawn")
+	local nest
+	--(seed)
+	--()
+	local err, objs, pos, prefab, name, inv_bbox = new_marker:PlacePrefab(seed, {
+		tags_all = o_species_tags,
+	})
+	if not err then
+		local nest_marker = FindFirstIsKindOf(objs, "TerritorialNestMarker")
+		if nest_marker then
+			nest = nest_marker:SpawnNest(true)
+		else
+			assert(false, "Prefab without a nest marker: " .. name)
+		end
+	else
+		assert(false, "Prefab error: " .. err)
+	end
+	ResumePassEdits("SpawndNest")
+	AddGameNotification("JunoNestSpawned", nil, nil, {nest})
+	return nest
+	--SpawnNestInsideMap(new_marker,nil,species.nest_class, 1)
 end
 
 function EnhancedTerritorialNest:give_ep_to_struct(ep)
@@ -289,7 +378,7 @@ end
 
 function EnhancedTerritorialNest:get_proximity()
 	local center = AveragePoint2D(GetValidSurvivorsOnMap())
-	local dist_to_center = center:GetDist2D(self)
+	local dist_to_center = self:GetDist2D(center)
     local rate = 150 * guim -- 150 meters per thresholdz
     local prox = DivRound(dist_to_center,rate)
 	prox = Max(1,Min(5,prox)) -- closest nests have a prox of 1
@@ -388,7 +477,27 @@ function EnhancedTerritorialNest:change_nest_herd(force_evo)
 	return upgraded_flag
 end
 
+function EnhancedTerritorialNest:can_be_aggressive(who)
+	if Presets.NestingSpeciesPreset.Default[self.nest_species].aggressive then
+		return true
+	elseif who == 'player' and self.attacked_by_player then
+		return true
+	elseif Presets.NestingSpeciesPreset.Default[who] and self.other_species_attacks[who] then
+		return true
+	else
+		return false
+	end
+end
+
 function EnhancedTerritorialNest:RegisterTarget(unit, time)
+	if unit.player then
+		self.attacked_by_player = true
+	elseif unit.nest or unit.location then
+		local other_species = unit.nest.nest_species or unit.location.nest_species
+		if not self.other_species_attacks[other_species] then
+			self.other_species_attacks[other_species] = true
+		end
+	end
     local tags = unit['UnitTags']
     if tags and self.state == 'asleep' and tags['Human'] then
 		DebugPrint("Nest registering a human attacker!\n")
@@ -654,27 +763,23 @@ function EnhancedTerritorialNest:MarkScouted(other_species,time)
 	rawset(self, other_species, time)
 end
 
--- TODO instead of cheat learning about the quadrant, send out a nesting unit to scout
-function EnhancedTerritorialNest:Scout_Specific_Quad(quad_no)
-	if not Nest_scouting_quadrants[quad_no] then
-		CreateMapGrid()
+function ReportScoutingResults(quad_no,species,objects_to_report,player_found,nest)
+	Reset_quadrant(quad_no,species)
+	if nest.quadrant_scouting then
+		nest.quadrant_scouting = false
 	end
-	Reset_quadrant(quad_no,self.nest_species)
-	local scout_quad_logs = Nest_scouting_quadrants[quad_no][self.nest_species]
-	local looking_for = {}
-	looking_for[#looking_for+1] = 'EnhancedTerritorialNest'
-	local all_nests = Cheat_find_all_in_quadrant(quad_no)
-	scout_quad_logs['player_presence'] = Player_presence_in_quadrant(quad_no)
-	if scout_quad_logs['player_presence'] then
+	local scout_quad_logs = Nest_scouting_quadrants[quad_no][species]
+	if player_found then 
+		scout_quad_logs['player_presence'] = true
 		DebugPrint("Player presence detected in this quadrant!\n")
-		if self.state == 'asleep' then
-			self:SwitchState('sleepy')
-			-- If this nest is the first one to find the player, wake it up
+		if nest:IsAsleep() then
+			nest:SwitchState('sleepy')
 		end
 	end
-	for _,nest in ipairs(all_nests) do
-		local that_species = get_species_from_nest(nest.class)
-		if that_species ~= self.nest_species then
+	scout_quad_logs.last_scout = GameTime()
+	scout_quad_logs['map_objs'] = objects_to_report
+	for _,obj in ipairs(objects_to_report) do
+		if IsKindOf(obj,"TerritorialNest") and obj.nest_species ~= species then
 			if scout_quad_logs[that_species] then
 				scout_quad_logs[that_species][#scout_quad_logs[that_species]+1] = nest
 				nest:MarkScouted(self.nest_species,GameTime())
@@ -685,6 +790,37 @@ function EnhancedTerritorialNest:Scout_Specific_Quad(quad_no)
 		end
 		scout_quad_logs['map_objs'][#scout_quad_logs['map_objs']+1] = nest
 	end
+end
+
+-- TODO instead of cheat learning about the quadrant, send out a nesting unit to scout
+function EnhancedTerritorialNest:Scout_Specific_Quad(quad_no)
+	DebugPrint("Nest is releasing a scouting unit!!\n")
+	local spawn_def = SpawnDefs['Nest_scout_passive']
+	--used by invader to know what quadrant is to be scouted
+	-- And to track if the scout ever returned
+	if self.quadrant_scouting then
+		DebugPrint("Whelp, looks like my last scout is MIA...")
+	end
+	self.quadrant_scouting = quad_no
+	local instance = {}
+	instance.location = self
+	instance.nest = self
+	instance.SpawnClass = self.adult_class
+	instance.AdditionalClassList = {}
+	instance.AdditionalClassList[#instance.AdditionalClassList+1] = {self.hatchling_class,50}
+	spawn_def = spawn_def:CreateInstance(instance)
+	local t = spawn_def:ResolveTarget()
+	spawn_def:ActivateSpawn(t,{},100)
+	--[[
+	if not Nest_scouting_quadrants[quad_no] then
+		CreateMapGrid()
+	end
+	local player_found = Player_presence_in_quadrant(quad_no)
+	local looking_for = {}
+	looking_for[#looking_for+1] = 'EnhancedTerritorialNest'
+	local all_nests = Cheat_find_all_in_quadrant(quad_no)
+	ReportScoutingResults(quad_no,self.nest_species,all_nests,player_found)
+	--]]
 end
 
 function MegaScout(nest)
@@ -756,6 +892,7 @@ function EnhancedTerritorialNest:nest_attack_player()
 	DebugPrint("Nest is attacking the player directly!\n")
 	local spawn_def = SpawnDefs['nest_attack']
 	local instance = {}
+	instance.location = self
 	instance.nest = self
 	instance.SpawnClass = self.elder_class
 	instance.AdditionalClassList = {}
@@ -771,6 +908,7 @@ function EnhancedTerritorialNest:nest_attack_non_player(enemy_nest)
 	DebugPrint("Nest is attacking a non player target near it!\n")
 	local spawn_def = SpawnDefs['nest_attack']
 	local instance = {}
+	instance.location = self
 	instance.nest = self
 	instance.SpawnClass = self.elder_class
 	instance.AdditionalClassList = {}
@@ -778,13 +916,15 @@ function EnhancedTerritorialNest:nest_attack_non_player(enemy_nest)
 	instance.AdditionalClassList[#instance.AdditionalClassList+1] = {self.hatchling_class,50}
 	spawn_def = spawn_def:CreateInstance(instance)
 	local t = spawn_def:ResolveTarget()
+	print("ACTIVATING SPAWN!")
 	spawn_def:ActivateSpawn(t,{},self:calculate_attack_strength(enemy_nest))
 end
 
 function EnhancedTerritorialNest:nest_support_closest(ally_nest)
 	DebugPrint("Nest is sending support to the closest nest!\n")
-	local spawn_def = SpawnDefs['Support_same_species']
+	local spawn_def = SpawnDefs['Support_same_species_passive']
 	local instance = {}
+	instance.location = self
 	instance.nest = self
 	instance.SpawnClass = self.adult_class
 	instance.AdditionalClassList = {}
@@ -798,6 +938,7 @@ function EnhancedTerritorialNest:overflow_spawn()
 	DebugPrint("Nest is overflowing with too much EP and is sending out a strong attack!\n")
 	local spawn_def = SpawnDefs['nest_overflow']
 	local instance = {}
+	instance.location = self
 	instance.nest = self
 	instance.SpawnClass = self.elder_class
 	instance.AdditionalClassList = {}
@@ -1025,8 +1166,9 @@ end
 
 function EnhancedTerritorialNest:alert_neighbor(allied_sleepy_nest)
 	DebugPrint("Nest is sending support to the closest nest!\n")
-	local spawn_def = SpawnDefs['passive_nest_to_nest_wakeup']
+	local spawn_def = SpawnDefs['Nest_wakeup_alarm']
 	local instance = {}
+	instance.location = self
 	instance.nest = self
 	instance.SpawnClass = self.adult_class
 	instance.AdditionalClassList = {}
@@ -1036,7 +1178,7 @@ function EnhancedTerritorialNest:alert_neighbor(allied_sleepy_nest)
 	spawn_def:ActivateSpawn(t,{},100)
 end
 
-function EnhancedTerritorialNest:growth_event(who_flag)
+function EnhancedTerritorialNest:growth_event()
 	DebugPrint("Nest has grown enough to do something!\n")
     self:UpdateNextAttackTime()
     self:change_nest_herd()
@@ -1073,7 +1215,7 @@ function EnhancedTerritorialNest:growth_event(who_flag)
 		end
 	end
 	-- note this means if a nest is awaken by another species, it will still be aggressive towards the player
-	if self:IsPlayerKnown() and not self:Asleep() then
+	if self:IsPlayerKnown() and not self:Asleep() and self:can_be_aggressive() then
 		local closest = self:GetNestToSupport()
 		if closest then
 			spawn_def_selection[#spawn_def_selection+1] = {weight=150,fun=self.nest_support_closest,input=closest}
@@ -1179,9 +1321,11 @@ function UnitNesting:OnObjUpdate()
 	self:give_nest_effect()
 end
 
-function UnitNesting:ReportScoutingResult(species, quadrant, list_of_found, day)
-	quadrant = quadrant or 0
-	if quadrant < 0 then return end
+function UnitNesting:ReportScoutingResult()
+	quadrant = invader.target_quadrant
+	local day = GameTime()
+	local species = invader.location.nest_species
+	local list_of_found = self.observed_objects
 	nest_scouting_quadrants[quadrant][species]['last_scout'] = day
 	-- Override the last scouting report
 	nest_scouting_quadrants[quadrant][species]['map_objs'] = {}
@@ -1202,6 +1346,9 @@ end
 -- override of base game function to give nest effect in case things go wrong
 function TerritorialNest:AddNestMember(member)
 	table.insert(self.nest_members, member)
+	if member.CombatGroup ~= self.CombatGroup then
+		member.CombatGroup = self.CombatGroup
+	end
 	-- mark guardian members as such (they stay close to the nest and protect it if attacked)
 	self:TrySetNestGuardian(member)
 	member:give_nest_effect()
@@ -1244,26 +1391,27 @@ function UnitNesting:UpdateAttachedUI()
 end
 
 function UnitNesting:GetUIRole()
-	if not (self:CheckForNewBehaviors() or self.nest) then return end
+	if not (self:CheckForNewBehaviors() or self.nest) or self:IsDead() then return end
 	if self.hide_UI_on_empty and amount <= 0 then return "" end
 	local name = ''
 	if NA_NestRoleName then
 		name = self:GetHUDName(self)
 	end
 	local scout = "Mod/TGkJ3Tu/PicsOritDidntHappen/unitnesting_scouting.png"
+	local scout_found_player = "Mod/TGkJ3Tu/PicsOritDidntHappen/scout_found_player.png"
 	local support = "Mod/TGkJ3Tu/PicsOritDidntHappen/unitnesting_support.png"
 	local defender = "Mod/TGkJ3Tu/PicsOritDidntHappen/unitnesting_defender.png"
 	local attacker = "Mod/TGkJ3Tu/PicsOritDidntHappen/unitnesting_attacker.png"
 	local wallbreaker = "Mod/TGkJ3Tu/PicsOritDidntHappen/unitnesting_defender.png"
-	if self.nest then
-		local image = defender
-		return T{"<image "..image.." 1800><name>",name=name}
+	if self.found_player then
+		return T{"<image "..scout_found_player.." 1800><name>",name=name}
 	elseif self.scouting then
 		return T{"<image "..scout.." 1800><name>",name=name}
 	elseif self.pathing_to then
 		return T{"<image "..support.." 1800><name>",name=name}
-	else
-		return base
+	elseif self.nest then
+		local image = defender
+		return T{"<image "..image.." 1800><name>",name=name}
 	end
 end
 
@@ -1350,12 +1498,15 @@ function TerritorialNest:SpawnAround(class, range, instant, burrowed)
 		end
 		return obj
 	end
+	-- in case we have changed what combat groups this nest is
+	obj.CombatGroup = self.CombatGroup
 	return false
 end
 
 function TerritorialNest:Spawn_robot_nestling(x,y,class)
 	local spawn_def = SpawnDefs['Single_Robots']
 	local instance = {}
+	instance.location = self
 	instance.nest = self
 	instance.pos = point(x,y)
 	instance.SpawnClass = class
@@ -1401,11 +1552,13 @@ end
 
 function decay_speed(target)
 	local effect_id = 'nest_attack_speed'
-	if IsKindOf(target,'Robot') then
+	--[[if IsKindOf(target,'Robot') then
 		effect_id = 'nest_attack_speed_robot'
 		target:RemoveRobotConditions(effect_id, "ReplaceOldest")
-	end
-	local prox = DivRound(AveragePoint2D(GetValidSurvivorsOnMap()):GetDist2D(target),150*guim)
+	end--]]
+	local survivors = AveragePoint2D(GetValidSurvivorsOnMap())
+	local distance_to = target:GetDist2D(survivors)
+	local prox = MulDivRound(distance_to,1,150*guim)
 	local count = count_effects_by_id(target,effect_id)
 	while count > prox do
 		if IsKindOf(target,'Robot') then
