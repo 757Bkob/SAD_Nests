@@ -51,22 +51,34 @@ function NA_Mod_Set(id)
 	end
 end
 
+
+
 function Setup_nest_mod()
-	local species = Presets.NestingSpeciesPreset.Default --nests = ClassDescendantsList("TerritorialNest")
-	for _, v in ipairs(species) do
-		if v.nest_class and not Nest_Species_Savegame_Stats[v.id] then
-			Nest_Species_Savegame_Stats[v.id] = {}
-			Nest_Species_Savegame_Stats[v.id][v.id..'_nest_spawn_cd']=0
-			Nest_Species_Savegame_Stats[v.id][v.id..'_evo_cd']=0
-			Nest_Species_Savegame_Stats[v.id][v.id..'_stored_aggr']=0
-			Nest_Species_Savegame_Stats[v.id][v.id..'_aggro_events']=0
+	CreateGameTimeThread(function()
+		WaitMsg("DlcsLoaded")
+		local species = Presets.NestingSpeciesPreset.Default --nests = ClassDescendantsList("TerritorialNest")
+		for _, v in ipairs(species) do
+			if v.nest_class and not Nest_Species_Savegame_Stats[v.id] then
+				local spawnflag = false
+				if v.nest_class == 'ScissorhandsNest' or v.nest_class == 'ShriekerNest' then
+					spawnflag = true
+				elseif v.nest_class == 'ConsortiumNest' and IsDlcAvailable('Robots') then
+					spawnflag = true
+				end
+				Nest_Species_Savegame_Stats[v.id] = {}
+				Nest_Species_Savegame_Stats[v.id][v.id..'_nest_spawn_cd']=0
+				Nest_Species_Savegame_Stats[v.id][v.id..'_evo_cd']=0
+				Nest_Species_Savegame_Stats[v.id][v.id..'_stored_aggr']=0
+				Nest_Species_Savegame_Stats[v.id][v.id..'_aggro_events']=0
+				Nest_Species_Savegame_Stats[v.id]['spawnflag']=spawnflag
+			end
 		end
-	end
-	if Nest_scouting_quadrants == {} then
-		CreateMapGrid()
-	end
-	Faction_aggression_threshold = Max(0,6 - Get_difficulty_offset())
-	Msg("UpdateNestRoleVisuals")
+		if Nest_scouting_quadrants == {} then
+			CreateMapGrid()
+		end
+		Faction_aggression_threshold = Max(0,6 - Get_difficulty_offset())
+		Msg("UpdateNestRoleVisuals")
+	end)
 end
 
 OnMsg.ApplyModOptions = NA_Mod_Set
@@ -565,6 +577,9 @@ end
 
 --- Quadrant Functions
 function Get_box_from_quadrant(quadrant_number)
+	if not NA_Y_length or not NA_X_length then
+		CreateMapGrid()
+	end
 	if not quadrant_number then return end
 	--print("Making box for quadrant: ",quadrant_number,'\n')
 	local start_x, _, _, start_y = GetPlayBox():xyxy()

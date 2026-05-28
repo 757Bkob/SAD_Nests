@@ -492,22 +492,18 @@ end
 function EnhancedTerritorialNest:RegisterTarget(unit, time)
 	if unit.player then
 		self.attacked_by_player = true
-	elseif unit.nest or unit.location then
-		local other_species = unit.nest.nest_species or unit.location.nest_species
-		if not self.other_species_attacks[other_species] then
-			self.other_species_attacks[other_species] = true
-		end
+	elseif unit.nest then
+		unit.nest.attacked_by_player = true
 	end
     local tags = unit['UnitTags']
     if tags and self.state == 'asleep' and tags['Human'] then
 		DebugPrint("Nest registering a human attacker!\n")
         self:SwitchState('sleepy')
-        --ForceActivateStoryBit('asleep_too_sleepy'
     end
 	if unit.nest then
 		DebugPrint("Nest registering another nest attacker!\n")
 		if self.state ~= 'awake' and unit.nest.state ~= 'asleep' then
-			self:SwitchState('awake')
+			self:SwitchState('sleepy')
 		end
 	end
 end
@@ -1540,7 +1536,7 @@ AppendClass.ScissorhandSporeDeposit = {
 	__parents = { "NestSpore" }
 }
 
-local function count_effects_by_id(target,effect_id)
+function count_effects_by_id(target,effect_id)
 	local count = 0
 	for _, effect in ipairs(target.status_effects or empty_table) do
 		if effect.id == effect_id then

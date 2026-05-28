@@ -104,10 +104,15 @@ local function can_spawn_nest(input)
 	DebugPrint("Checking if can spawn nest for species: "..nest_species.id)
 	DebugPrint("Checking how many nests of this clas exist on map: "..nest_classname)
 	local count_total = MapCount("map", nest_classname)
+
+	-- In cases where the player needs to do something before spawning is enabled.
+	if not Nest_Species_Savegame_Stats[nest_species]['spawnflag'] then return false end
+
 	-- Do nothing if too many nests exist
 	if count_total >= Per_species_nest_max then
 		return false
 	end
+
 	--local new_spawn_time = GameTime() + MoonInstance.AttackCooldownMin
 	if GameTime() < Global_nest_spawn_cd then
 		-- cannot spawn due to global cd
