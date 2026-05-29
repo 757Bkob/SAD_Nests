@@ -1,19 +1,19 @@
 -------------------- MOD SETUP ---------------------
 local hour_duration = const.HourDuration
 
-MapVar("Global_nest_spawn_cd",0)
-MapVar("Nest_Notifications",1)
-MapVar("Nest_Species_Savegame_Stats",{})
-MapVar("Faction_aggression_threshold",0)
-MapVar("Nest_tutorial",false)
-MapVar("Nest_upgrade",false)
-MapVar("Per_species_nest_max",13)
-MapVar("Max_nests_allowed",20)
-MapVar('Nest_scouting_quadrants',{})
-MapVar('NA_Y_length',0)
-MapVar('NA_X_length',0)
-MapVar('NA_NestRoleZoom',3)
-MapVar('NA_NestRoleName',false)
+MapVar("Global_nest_spawn_cd", 0)
+MapVar("Nest_Notifications", 1)
+MapVar("Nest_Species_Savegame_Stats", {})
+MapVar("Faction_aggression_threshold", 0)
+MapVar("Nest_tutorial", false)
+MapVar("Nest_upgrade", false)
+MapVar("Per_species_nest_max", 13)
+MapVar("Max_nests_allowed", 20)
+MapVar('Nest_scouting_quadrants', {})
+MapVar('NA_Y_length', 0)
+MapVar('NA_X_length', 0)
+MapVar('NA_NestRoleZoom', 3)
+MapVar('NA_NestRoleName', false)
 
 function NA_Mod_Set(id)
 	id = id or CurrentModId
@@ -30,7 +30,7 @@ function NA_Mod_Set(id)
 	elseif nest_notif == 'Do not Alert me (<style TextNegative>Warning Dangerous</style>)' then
 		nest_level = 0
 	end
-	Nest_Notifications=nest_level
+	Nest_Notifications = nest_level
 	local per_species = options.max_nest
 	Per_species_nest_max = per_species or 13
 	Max_nests_allowed = options.max_global_nests or 15
@@ -39,7 +39,7 @@ function NA_Mod_Set(id)
 		NA_NestRoleZoom = 3
 	elseif visual_selection == 'Far (~80 meters)' then
 		NA_NestRoleZoom = 2
-	elseif visual_selection =='Close (Same as Resource Piles) (~20 meters)' then
+	elseif visual_selection == 'Close (Same as Resource Piles) (~20 meters)' then
 		NA_NestRoleZoom = 1
 	elseif visual_selection == 'Always off' then
 		NA_NestRoleZoom = 0
@@ -50,8 +50,6 @@ function NA_Mod_Set(id)
 		NA_NestRoleName = false
 	end
 end
-
-
 
 function Setup_nest_mod()
 	CreateGameTimeThread(function()
@@ -66,24 +64,24 @@ function Setup_nest_mod()
 					spawnflag = true
 				end
 				Nest_Species_Savegame_Stats[v.id] = {}
-				Nest_Species_Savegame_Stats[v.id][v.id..'_nest_spawn_cd']=0
-				Nest_Species_Savegame_Stats[v.id][v.id..'_evo_cd']=0
-				Nest_Species_Savegame_Stats[v.id][v.id..'_stored_aggr']=0
-				Nest_Species_Savegame_Stats[v.id][v.id..'_aggro_events']=0
-				Nest_Species_Savegame_Stats[v.id]['spawnflag']=spawnflag
+				Nest_Species_Savegame_Stats[v.id][v.id .. '_nest_spawn_cd'] = 0
+				Nest_Species_Savegame_Stats[v.id][v.id .. '_evo_cd'] = 0
+				Nest_Species_Savegame_Stats[v.id][v.id .. '_stored_aggr'] = 0
+				Nest_Species_Savegame_Stats[v.id][v.id .. '_aggro_events'] = 0
+				Nest_Species_Savegame_Stats[v.id]['spawnflag'] = spawnflag
 			end
 		end
 		if Nest_scouting_quadrants == {} then
 			CreateMapGrid()
 		end
-		Faction_aggression_threshold = Max(0,6 - Get_difficulty_offset())
+		Faction_aggression_threshold = Max(0, 6 - Get_difficulty_offset())
 		Msg("UpdateNestRoleVisuals")
 	end)
 end
 
 OnMsg.ApplyModOptions = NA_Mod_Set
 OnMsg.GameStarted = Setup_nest_mod -- first start
-OnMsg.LoadGame = Setup_nest_mod -- savegame load
+OnMsg.LoadGame = Setup_nest_mod    -- savegame load
 
 
 -- note we are switching cases, and no MapVar in use should start with a lowercase character
@@ -129,28 +127,28 @@ function SavegameFixups.NA_MapVarCleanup()
 		if v.nest_class then
 			if not Nest_Species_Savegame_Stats[v.id] then
 				Nest_Species_Savegame_Stats[v.id] = {}
-				Nest_Species_Savegame_Stats[v.id][v.id..'_nest_spawn_cd']=0
-				Nest_Species_Savegame_Stats[v.id][v.id..'_evo_cd']=0
-				Nest_Species_Savegame_Stats[v.id][v.id..'_stored_aggr']=0
-				Nest_Species_Savegame_Stats[v.id][v.id..'_aggro_events']=0
+				Nest_Species_Savegame_Stats[v.id][v.id .. '_nest_spawn_cd'] = 0
+				Nest_Species_Savegame_Stats[v.id][v.id .. '_evo_cd'] = 0
+				Nest_Species_Savegame_Stats[v.id][v.id .. '_stored_aggr'] = 0
+				Nest_Species_Savegame_Stats[v.id][v.id .. '_aggro_events'] = 0
 			end
-			if MapVarValues[v.id..'_nest_spawn_cd'] ~= 0 then
-				Nest_Species_Savegame_Stats[v.id][v.id..'_nest_spawn_cd'] = MapVarValues[v.id..'_nest_spawn_cd']
+			if MapVarValues[v.id .. '_nest_spawn_cd'] ~= 0 then
+				Nest_Species_Savegame_Stats[v.id][v.id .. '_nest_spawn_cd'] = MapVarValues[v.id .. '_nest_spawn_cd']
 				-- we are not resetting this MapVar because we will never use this MapVar
 				flag = true
 			end
-			if MapVarValues[v.id..'_evo_cd'] ~= 0 then
-				Nest_Species_Savegame_Stats[v.id][v.id..'_evo_cd'] = MapVarValues[v.id..'_evo_cd']
+			if MapVarValues[v.id .. '_evo_cd'] ~= 0 then
+				Nest_Species_Savegame_Stats[v.id][v.id .. '_evo_cd'] = MapVarValues[v.id .. '_evo_cd']
 				-- we are not resetting this MapVar because we will never use this MapVar
 				flag = true
 			end
-			if MapVarValues[v.id..'_stored_aggr'] ~= 0 then
-				Nest_Species_Savegame_Stats[v.id][v.id..'_stored_aggr'] = MapVarValues[v.id..'_stored_aggr']
+			if MapVarValues[v.id .. '_stored_aggr'] ~= 0 then
+				Nest_Species_Savegame_Stats[v.id][v.id .. '_stored_aggr'] = MapVarValues[v.id .. '_stored_aggr']
 				-- we are not resetting this MapVar because we will never use this MapVar
 				flag = true
 			end
-			if MapVarValues[v.id..'_aggro_events'] ~= 0 then
-				Nest_Species_Savegame_Stats[v.id][v.id..'_aggro_events'] = MapVarValues[v.id..'_aggro_events']
+			if MapVarValues[v.id .. '_aggro_events'] ~= 0 then
+				Nest_Species_Savegame_Stats[v.id][v.id .. '_aggro_events'] = MapVarValues[v.id .. '_aggro_events']
 				-- we are not resetting this MapVar because we will never use this MapVar
 				flag = true
 			end
@@ -160,7 +158,6 @@ function SavegameFixups.NA_MapVarCleanup()
 		Bkob_Log("NA had to clean up some vars!")
 	end
 end
-
 
 --------------- SAVEGAME FIXUPS ---------------
 -- brute force method.... not ideal
@@ -176,13 +173,12 @@ function SavegameFixups.NA_Disaster_clean()
 	end
 end
 
-
 function SavegameFixups.Nest_cap_clean()
 	Align_global_nest_cap()
 end
 
 function Align_global_nest_cap()
-	local nests = MapGet(true,"TerritorialNest")
+	local nests = MapGet(true, "TerritorialNest")
 	local cap = Max_nests_allowed
 	if not cap then
 		cap = 19
@@ -192,7 +188,7 @@ function Align_global_nest_cap()
 	if #nests > (cap) then
 		DebugPrint("Still need to delete!")
 		local types = ClassDescendantsList('TerritorialNest')
-		local min = DivRound(cap,#types) - 1
+		local min = DivRound(cap, #types) - 1
 		local needed_delete = #nests - cap
 		local saved = {}
 		local count = 0
@@ -200,7 +196,7 @@ function Align_global_nest_cap()
 			DebugPrint("looking at this nest: ")
 			DebugPrint(count)
 			count = count + 1
-			if saved[nest.class] and saved[nest.class] > min  and needed_delete > 0 then
+			if saved[nest.class] and saved[nest.class] > min and needed_delete > 0 then
 				DebugPrint("Deleting this nest!")
 				-- delete
 				local members = nest.nest_members
@@ -229,9 +225,8 @@ function Align_global_nest_cap()
 	end
 end
 
-
 ------------------------------ HELPER FUNCTIONS ------------------------------
-function Bkob_Log_NA(hard_string,var)
+function Bkob_Log_NA(hard_string, var)
 	DebugPrint(hard_string)
 	if var then
 		DebugPrint(var)
@@ -264,37 +259,37 @@ function find_nest_species(input)
 end
 
 function Get_difficulty_offset()
-    local difficulty_offset = 2
-    local difficulty = GetGameDifficulty()
-    if difficulty == 'Easy' then
-        difficulty_offset = 1
-    elseif difficulty == 'Medium' then
-        difficulty_offset = 2
-    elseif difficulty == 'Hard' then
-        difficulty_offset = 3
-    elseif difficulty == 'VeryHard' then
-        difficulty_offset = 4
-    elseif difficulty == 'Insane' then
-        difficulty_offset = 5
-    elseif difficulty == 'PXImpossible' then
-        difficulty_offset = 6
-    else
-        difficulty_offset = 7
-    end
-    return difficulty_offset
+	local difficulty_offset = 2
+	local difficulty = GetGameDifficulty()
+	if difficulty == 'Easy' then
+		difficulty_offset = 1
+	elseif difficulty == 'Medium' then
+		difficulty_offset = 2
+	elseif difficulty == 'Hard' then
+		difficulty_offset = 3
+	elseif difficulty == 'VeryHard' then
+		difficulty_offset = 4
+	elseif difficulty == 'Insane' then
+		difficulty_offset = 5
+	elseif difficulty == 'PXImpossible' then
+		difficulty_offset = 6
+	else
+		difficulty_offset = 7
+	end
+	return difficulty_offset
 end
 
 --assuming a string of the nest class
 function get_species_from_nest(nest_class)
 	local found = false
-	for _,v in ipairs(ClassDescendantsList('TerritorialNest')) do
+	for _, v in ipairs(ClassDescendantsList('TerritorialNest')) do
 		if v == nest_class then
 			found = true
 		end
 	end
 	if not found then return end
 	local entries = #Presets.NestingSpeciesPreset.Default
-	for i=1, entries do
+	for i = 1, entries do
 		local species = Presets.NestingSpeciesPreset.Default[i]
 		if species and species.unit_species then
 			if species.nest_class == nest_class then
@@ -307,29 +302,29 @@ end
 function Get_nest_species_by_region(region)
 	region = region or Region.id
 	DebugPrint("Getting nest class id by region\n")
-    if region == 'Desertum' then
-        return get_species_from_nest('ShriekerNest')
-    elseif region == 'Sobrius' then
-        return get_species_from_nest("ShriekerNest")
-    elseif region == 'Saltu' then
-        return get_species_from_nest('ScissorhandsNest')
+	if region == 'Desertum' then
+		return get_species_from_nest('ShriekerNest')
+	elseif region == 'Sobrius' then
+		return get_species_from_nest("ShriekerNest")
+	elseif region == 'Saltu' then
+		return get_species_from_nest('ScissorhandsNest')
 	else
 		return get_species_from_nest('ShriekerNest')
-    end
+	end
 end
 
 function Get_nest_entity_by_region(region)
 	region = region or Region.id
 	DebugPrint("Getting nest class id by region\n")
-    if region == 'Desertum' then
-        return ('ShriekerNest')
-    elseif region == 'Sobrius' then
-        return get_species_from_nest("ShriekerNest")
-    elseif region == 'Saltu' then
-        return get_species_from_nest('ScissorhandsNest')
+	if region == 'Desertum' then
+		return ('ShriekerNest')
+	elseif region == 'Sobrius' then
+		return get_species_from_nest("ShriekerNest")
+	elseif region == 'Saltu' then
+		return get_species_from_nest('ScissorhandsNest')
 	else
 		return get_species_from_nest('ShriekerNest')
-    end
+	end
 end
 
 function Is_DLC_Present()
@@ -345,8 +340,9 @@ function mark_spawned_nest(nest_type)
 	print(species_def)
 	local species_id = species_def.id
 	print(species_id)
-	if Nest_Species_Savegame_Stats[species_id] and Nest_Species_Savegame_Stats[species_id][species_id..'_nest_spawn_cd'] then
-		Nest_Species_Savegame_Stats[species_id][species_id..'_nest_spawn_cd'] = GameTime() + (MoonInstance.AttackCooldownMin * 3)
+	if Nest_Species_Savegame_Stats[species_id] and Nest_Species_Savegame_Stats[species_id][species_id .. '_nest_spawn_cd'] then
+		Nest_Species_Savegame_Stats[species_id][species_id .. '_nest_spawn_cd'] = GameTime() +
+			(MoonInstance.AttackCooldownMin * 3)
 	else
 		DebugPrint("Nesting species does not have an entry in map vars for their nest spawn cd! Alert mod author!")
 	end
@@ -355,9 +351,9 @@ end
 function NA_log_nest_evolved(nest)
 	local notif_level = Nest_Notifications or 1
 	if notif_level == 2 then
-		ForceActivateStoryBit('nests_evolving',self,true)
+		ForceActivateStoryBit('nests_evolving', self, true)
 	elseif notif_level == 1 then
-		AddGameNotification("nests_evolving", nil, nil, {nest})
+		AddGameNotification("nests_evolving", nil, nil, { nest })
 	end
 end
 
@@ -368,24 +364,24 @@ function NA_tutorial()
 end
 
 function Get_center_of_survivors()
-    local surv = GetValidSurvivorsOnMap()
-    local sum_x = 0
-    local sum_y = 0
-    local count = 0
-    local x = 0
-    local y = 0
-    for _,v in ipairs(surv) do
-        x,y,_ = v:GetVisualPosXYZ()
-        sum_x = sum_x + x
-        sum_y = sum_y + y
-        count = count + 1
-    end
-    if count == 0 then
-        -- no valid survivors (rare; e.g. a wipe) -> fall back to map centre to avoid a /0 crash
-        return GetMapBox():Center()
-    end
-    local center = point(DivRound(sum_x,count),DivRound(sum_y,count))
-    return center
+	local surv = GetValidSurvivorsOnMap()
+	local sum_x = 0
+	local sum_y = 0
+	local count = 0
+	local x = 0
+	local y = 0
+	for _, v in ipairs(surv) do
+		x, y, _ = v:GetVisualPosXYZ()
+		sum_x = sum_x + x
+		sum_y = sum_y + y
+		count = count + 1
+	end
+	if count == 0 then
+		-- no valid survivors (rare; e.g. a wipe) -> fall back to map centre to avoid a /0 crash
+		return GetMapBox():Center()
+	end
+	local center = point(DivRound(sum_x, count), DivRound(sum_y, count))
+	return center
 end
 
 function NA_QA(full_log)
@@ -396,9 +392,9 @@ function NA_QA(full_log)
 	full_log = full_log or false
 	EE_debug = full_log
 	print("Testing regions default nests")
-	print(Get_nest_entity_by_region('Desertum')=='nesting_shriekers')
-	print(Get_nest_entity_by_region('Sobrius')=='nesting_shriekers')
-	print(Get_nest_entity_by_region('Saltu')=='nesting_scissorhands')
+	print(Get_nest_entity_by_region('Desertum') == 'nesting_shriekers')
+	print(Get_nest_entity_by_region('Sobrius') == 'nesting_shriekers')
+	print(Get_nest_entity_by_region('Saltu') == 'nesting_scissorhands')
 	--assert(Get_nest_by_region('Desertum')=='nesting_shriekers')
 	--assert(Get_nest_by_region('Sobrius')=='nesting_shriekers')
 	--assert(Get_nest_by_region('Saltu')=='nesting_scissorhands')
@@ -412,12 +408,12 @@ function NA_QA(full_log)
 			ForceActivateStoryBit(v.spawner_storybit, nil, "immediate", nil, true)
 		end
 		CreateRealTimeThread(function(nestclass)
-			print("Testing nest: "..nestclass)
+			print("Testing nest: " .. nestclass)
 			Sleep(5000)
-			local nest_on_map = MapGetFirst(true,nestclass)
-			local EP_nums = {100, 800, 1200, 5000, 15000, 30000, 75000, 140000,300000}
+			local nest_on_map = MapGetFirst(true, nestclass)
+			local EP_nums = { 100, 800, 1200, 5000, 15000, 30000, 75000, 140000, 300000 }
 			local def = g_Classes[nestclass]
-			local attack_at = GameTime() + (2*hour_duration)
+			local attack_at = GameTime() + (2 * hour_duration)
 			local attacked = false
 			local deleted = false
 			local og_hatch = def.hatchling_class
@@ -430,23 +426,23 @@ function NA_QA(full_log)
 				nest.elder_class = og_elder
 			end
 			nest_on_map:expand()
-			for i=1, 10 do
+			for i = 1, 10 do
 				nest_on_map:consume_closest_node()
 			end
 			nest_on_map:SwitchState("sleepy")
-			print("State should be sleepy: "..nest_on_map.state)
+			print("State should be sleepy: " .. nest_on_map.state)
 			nest_on_map:SwitchState("awake")
-			print("State should be awake: "..nest_on_map.state)
+			print("State should be awake: " .. nest_on_map.state)
 			nest_on_map:SwitchState("asleep")
-			print("State should be asleep: "..nest_on_map.state)
-			for _,int in ipairs(EP_nums) do
+			print("State should be asleep: " .. nest_on_map.state)
+			for _, int in ipairs(EP_nums) do
 				print("Testing with EP: ")
 				print(int)
 				EventProgress = int
 				local correct_elder = elder_chain:get_correct_evo(int)
 				nest_on_map:change_nest_herd()
 				local possible = #correct_elder
-				table.insert_unique(correct_elder,nest_on_map.elder_class)
+				table.insert_unique(correct_elder, nest_on_map.elder_class)
 				if possible ~= #correct_elder then
 					print("Something went wrong evolving!")
 				end
@@ -459,14 +455,14 @@ function NA_QA(full_log)
 	end
 	print("Testing resources!")
 	local res_table = get_nest_res_table()
-	for _,res in ipairs(table.keys(res_table)) do
+	for _, res in ipairs(table.keys(res_table)) do
 		print(res)
-		for _,species_entry in ipairs(res_table[res]) do
-			print("This should aggro: "..species_entry.species)
+		for _, species_entry in ipairs(res_table[res]) do
+			print("This should aggro: " .. species_entry.species)
 			local to_send = {}
-			to_send[res]=species_entry.chance
+			to_send[res] = species_entry.chance
 			print(to_send)
-			for i=1,20 do
+			for i = 1, 20 do
 				Resource_aggression_check(to_send)
 			end
 		end
@@ -476,7 +472,7 @@ end
 
 function Get_species_nests()
 	local ret = {}
-	for i=1, #Presets.NestingSpeciesPreset.Default do
+	for i = 1, #Presets.NestingSpeciesPreset.Default do
 		local nest_def = Presets.NestingSpeciesPreset.Default[i]
 		if nest_def and nest_def.nest_class then
 			ret[#ret + 1] = nest_def.nest_class
@@ -491,7 +487,7 @@ function UnitInvader:GetNestClass()
 end
 
 function UnitInvader:Get_Nesting_Species()
-	for i=1, #Presets.NestingSpeciesPreset.Default do
+	for i = 1, #Presets.NestingSpeciesPreset.Default do
 		if Presets.NestingSpeciesPreset.Default[i] then
 			local nestS = Presets.NestingSpeciesPreset.Default[i]
 			if self.SpeciesGroup == nestS.unit_species then return nestS.id end
@@ -528,8 +524,8 @@ quadrants[1] = {
 --]]
 function CreateMapGrid()
 	local minx, miny, maxx, maxy = GetPlayBox():xyxy()
-	NA_X_length = MulDivRound(maxx - minx,1,5)
-	NA_Y_length = MulDivRound(maxy - miny,1,5)
+	NA_X_length = MulDivRound(maxx - minx, 1, 5)
+	NA_Y_length = MulDivRound(maxy - miny, 1, 5)
 
 	local species = Presets.NestingSpeciesPreset.Default
 	for _, v in ipairs(species) do
@@ -553,17 +549,17 @@ function CreateMapGrid()
 end
 
 function DebugQuadrant(no)
-	print("Quadrant: "..no)
+	print("Quadrant: " .. no)
 	local this_quad = Nest_scouting_quadrants[no]
-	for _,species in ipairs(table.keys(this_quad)) do
+	for _, species in ipairs(table.keys(this_quad)) do
 		if this_quad[species]['last_scout'] ~= 0 then
-			print("Has been explored by species: "..species)
-			print("On day: "..this_quad[species]['last_scout'])
-			print("And had recorded "..#this_quad[species]['map_objs'].."  of other species")
+			print("Has been explored by species: " .. species)
+			print("On day: " .. this_quad[species]['last_scout'])
+			print("And had recorded " .. #this_quad[species]['map_objs'] .. "  of other species")
 			print("Other species detected: ")
 			print(table.keys(this_quad[species]['other_species']))
 		else
-			print("Has not been explored by species: "..species)
+			print("Has not been explored by species: " .. species)
 		end
 	end
 end
@@ -588,19 +584,19 @@ function Get_box_from_quadrant(quadrant_number)
 	--print("Making box for quadrant: ",quadrant_number,'\n')
 	local start_x, _, _, start_y = GetPlayBox():xyxy()
 	--print('\nX start',start_x,'Y start',start_y,'\n')
- 	local quad_obj = Uncollapse_quad(quadrant_number)
-	local box_y_end = start_y - ((quad_obj.y-1) * NA_Y_length)
+	local quad_obj = Uncollapse_quad(quadrant_number)
+	local box_y_end = start_y - ((quad_obj.y - 1) * NA_Y_length)
 	local box_y_start = box_y_end - NA_Y_length
 	--print("y quad: ",quad_obj.y,'\n')
 	--print("starts at ",box_y_start," and stops at ",box_y_end,'\n')
-	local box_x_start = start_x + ((quad_obj.x-1) * NA_X_length)
+	local box_x_start = start_x + ((quad_obj.x - 1) * NA_X_length)
 	local box_x_end = box_x_start + NA_X_length
 	--print("x quad: ",quad_obj.x,'\n')
 	--print("starts at ",box_x_start," and stops at ",box_x_end,'\n')
 	return box(box_x_start, box_y_start, 0, box_x_end, box_y_end, 0)
 end
 
-function Cheat_find_all_in_quadrant(quad_no,classname)
+function Cheat_find_all_in_quadrant(quad_no, classname)
 	classname = classname or 'TerritorialNest'
 	local box = Get_box_from_quadrant(quad_no)
 	if not box then
@@ -612,30 +608,30 @@ end
 
 function compare_quad_maths(entity)
 	CreateMapGrid()
-	print("Unit is at ",entity:GetPosXYZ())
+	print("Unit is at ", entity:GetPosXYZ())
 	print('\n')
-	local quad_no = Get_quadrant_from_obj(entity,true)
+	local quad_no = Get_quadrant_from_obj(entity, true)
 	local quad_box = Get_box_from_quadrant(quad_no)
 	print("Quad box is: \n")
 	print(quad_box)
 	print("Entity is at this position:")
 	print(entity:GetPosXYZ())
 	print("Is this entity inside the quadrants box that it reports to be in?")
-	print(is_inside_of(quad_box,entity))
+	print(is_inside_of(quad_box, entity))
 end
 
 function Player_presence_in_quadrant(quad_no)
 	local box = Get_box_from_quadrant(quad_no)
 	if not box then return false end
-	local players_stuff = MapCount(box,function(thing)
+	local players_stuff = MapCount(box, function(thing)
 		return IsValid(thing) and thing.player
 	end)
-	print("There are ",players_stuff,' in this quadrant!\n')
+	print("There are ", players_stuff, ' in this quadrant!\n')
 	return players_stuff > 0
 end
 
 -- This is expected to be a map object
-function Get_quadrant_from_obj(entity,int_flag)
+function Get_quadrant_from_obj(entity, int_flag)
 	if NA_X_length == 0 or NA_Y_length == 0 then
 		CreateMapGrid()
 	end
@@ -643,7 +639,7 @@ function Get_quadrant_from_obj(entity,int_flag)
 	--print("\nStarting to count x coords at ",minx,'\n')
 	--print("Starting to count y coords at ",maxy,'but going down!\n')
 	int_flag = int_flag or false
-	local x,y,z = entity:GetPosXYZ()
+	local x, y, z = entity:GetPosXYZ()
 	local quad_x
 	local quad_y
 	--print("Unit is at this x position: ",x,'\n')
@@ -655,11 +651,11 @@ function Get_quadrant_from_obj(entity,int_flag)
 	for i = 1, 5, 1 do
 		if not quad_y then
 			local lowest_y = maxy - (i * NA_Y_length)
-			local highest_y = maxy - ((i-1) * NA_Y_length)
-			print("Checking this y quadrant, ",i,'\n')
-			print('Which starts at y: ',lowest_y, ' and ends at ',highest_y,'\n')
+			local highest_y = maxy - ((i - 1) * NA_Y_length)
+			print("Checking this y quadrant, ", i, '\n')
+			print('Which starts at y: ', lowest_y, ' and ends at ', highest_y, '\n')
 			if y < highest_y and y > lowest_y then
-				print("Which is more than this quadrant border: ",y,'\n')
+				print("Which is more than this quadrant border: ", y, '\n')
 				quad_y = i
 			end
 		end
@@ -685,11 +681,11 @@ function Get_quadrant_from_obj(entity,int_flag)
 	end
 	if int_flag then
 		local times_5 = quad_y - 1
-		print("Returning quadrant no: ",times_5 * 5 + quad_x,'\n')
+		print("Returning quadrant no: ", times_5 * 5 + quad_x, '\n')
 		return times_5 * 5 + quad_x
 	else
-		print("Returning quadrant obj: ",{x = quad_x, y = quad_y},'\n')
-		return {x = quad_x, y = quad_y}
+		print("Returning quadrant obj: ", { x = quad_x, y = quad_y }, '\n')
+		return { x = quad_x, y = quad_y }
 	end
 end
 
@@ -700,36 +696,35 @@ function Collapse_quad(quad_obj)
 end
 
 function Uncollapse_quad(quad_no)
-	local y = MulDivTrunc(quad_no-1, 1, 5)
+	local y = MulDivTrunc(quad_no - 1, 1, 5)
 	local x = quad_no - (y * 5)
 	y = y + 1
-	return {x = x, y = y}
+	return { x = x, y = y }
 end
 
 function Get_adjacent_quads(quad_int)
 	local quads = {}
 	if quad_int - 1 > 0 then
-		quads[#quads+1]= quad_int-1
+		quads[#quads + 1] = quad_int - 1
 	end
-	if quad_int + 1 <= 25  and quad_int % 5 ~= 0 then
-		quads[#quads+1]= quad_int+1
+	if quad_int + 1 <= 25 and quad_int % 5 ~= 0 then
+		quads[#quads + 1] = quad_int + 1
 	end
 	if quad_int + 5 <= 25 then
-		quads[#quads+1]= quad_int+5
+		quads[#quads + 1] = quad_int + 5
 	end
 	if quad_int - 5 > 0 then
-		quads[#quads+1]= quad_int-5
+		quads[#quads + 1] = quad_int - 5
 	end
 	return quads
 end
 
-function Reset_quadrant(quad_no,species)
+function Reset_quadrant(quad_no, species)
 	Nest_scouting_quadrants[quad_no][species].last_scout = GameTime()
 	Nest_scouting_quadrants[quad_no][species].player_detected = false
 	Nest_scouting_quadrants[quad_no][species].map_objs = {}
 	Nest_scouting_quadrants[quad_no][species].other_species = {}
 end
-
 
 -- Removed this function from debug mode to test scouting / overrides needed for behaviors
 function UnitInvader:DbgPrintInvaderBehaviours()
@@ -749,13 +744,13 @@ function UnitInvader:DbgPrintInvaderBehaviours()
 		local str = "aggressive"
 		local against = {}
 		for _, group in ipairs(self.forced_aggression_groups) do
-			table.insert(against, "(grp)"..group)
+			table.insert(against, "(grp)" .. group)
 		end
 		for _, label in ipairs(self.forced_aggression_labels) do
-			table.insert(against, "(lbl)"..label)
+			table.insert(against, "(lbl)" .. label)
 		end
 		for _, class in ipairs(self.forced_aggression_classes) do
-			table.insert(against, "(cls)"..class)
+			table.insert(against, "(cls)" .. class)
 		end
 		if next(against) then
 			str = str .. " against " .. table.concat(against, ", ")
@@ -784,7 +779,7 @@ function UnitInvader:DbgPrintInvaderBehaviours()
 		print("new behavior detected!")
 		current = "passive pathing"
 		current_until = self.path_until
-	-- inject new checks above this stay_awake_until, as this is the catchall from teh base bevahior bool
+		-- inject new checks above this stay_awake_until, as this is the catchall from teh base bevahior bool
 	elseif self.combat_passive_until then
 		if now < self.combat_passive_until then
 			current = "passive"
@@ -801,7 +796,6 @@ function UnitInvader:DbgPrintInvaderBehaviours()
 		else
 			table.insert(previous, "berserk")
 		end
-
 	else
 		current = "(possibly) idle"
 		current_until = max_int
@@ -813,7 +807,8 @@ function UnitInvader:DbgPrintInvaderBehaviours()
 		end
 	end
 	if current then
-		local until_str = (current_until == max_int) and "forever" or ("for " .. tostring(current_until / (const.HourDuration*1.0)) .. " more hours")
+		local until_str = (current_until == max_int) and "forever" or
+			("for " .. tostring(current_until / (const.HourDuration * 1.0)) .. " more hours")
 		print("current behaviour:", current, until_str)
 	end
 	if next(self.invader_behaviours) then
@@ -826,9 +821,9 @@ end
 
 function TestConnectivityRandomTile(center)
 	DbgClear()
-	
+
 	center = center or SelectedObj or GameStartPos
-	
+
 	local nests = MapGet("map", "TerritorialNest")
 	local function filter_far_from_nest(x, y)
 		-- check for distance to shrieker nests
@@ -841,21 +836,23 @@ function TestConnectivityRandomTile(center)
 	end
 	local x, y
 	local seed = InteractionRand(nil, "LandHuman")
-	local max_dist, min_dist = const.Gameplay.SurvivorSpawnNearBaseMaxRadius, const.Gameplay.SurvivorSpawnNearBaseMinRadius
-	local origin = terrain.FindAreaPassable(center, 4086, 64*guim, Human.pfclass)
-	
+	local max_dist, min_dist = const.Gameplay.SurvivorSpawnNearBaseMaxRadius,
+		const.Gameplay.SurvivorSpawnNearBaseMinRadius
+	local origin = terrain.FindAreaPassable(center, 4086, 64 * guim, Human.pfclass)
+
 	local stA = GetPreciseTicks(1000000)
-	local pos = ConnectivityRandomTile(seed, origin, center, max_dist, min_dist, Human.pfclass, 4096, filter_far_from_nest)
+	local pos = ConnectivityRandomTile(seed, origin, center, max_dist, min_dist, Human.pfclass, 4096,
+		filter_far_from_nest)
 	local timeA = GetPreciseTicks(1000000) - stA
-	
-	DbgAddVector(origin, 15*guim, red)
-	DbgAddVector(center, 10*guim, blue)
+
+	DbgAddVector(origin, 15 * guim, red)
+	DbgAddVector(center, 10 * guim, blue)
 	DbgAddCircle(center, min_dist, blue)
 	DbgAddCircle(center, max_dist, yellow)
 	if pos then
-		DbgAddVector(pos, 10*guim, green)
+		DbgAddVector(pos, 10 * guim, green)
 		DbgAddSegment(origin, pos)
 	end
-	
+
 	print("pos", pos, "time", timeA / 1000.0)
 end
