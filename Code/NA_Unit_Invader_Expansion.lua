@@ -1,4 +1,3 @@
-
 -- ============================================================================
 -- Support Behaviour
 -- Spawned by a nest, and the unit will move to the next closest nest of it's species.
@@ -7,15 +6,34 @@
 DefineClass.InvaderBehaviourSupport = {
 	__parents = { "InvaderBehaviourBase", },
 	properties = {
-		{ id = "same_species", name = "Help same species?", help = "Automatically use the species as the primary spawned unit.", 
-			editor = "bool", default = true},
-		{ id = "support_species", name = "Species to Help", help = "The source nest (can be set automatically)", 
-			editor = "choice", default = false, items = function() return Get_species_nests() end, no_edit = function(self) return self.same_species end},
-		{ id = "ArrivalDistance", name = "Arrival Distance", help = "Distance to get close to the target nest before considering arrival", 
-			editor = "number", default = 50000, scale = "m", min = 5000, },
+		{
+			id = "same_species",
+			name = "Help same species?",
+			help = "Automatically use the species as the primary spawned unit.",
+			editor = "bool",
+			default = true
+		},
+		{
+			id = "support_species",
+			name = "Species to Help",
+			help = "The source nest (can be set automatically)",
+			editor = "choice",
+			default = false,
+			items = function() return Get_species_nests() end,
+			no_edit = function(self) return self.same_species end
+		},
+		{
+			id = "ArrivalDistance",
+			name = "Arrival Distance",
+			help = "Distance to get close to the target nest before considering arrival",
+			editor = "number",
+			default = 50000,
+			scale = "m",
+			min = 5000,
+		},
 	},
 	EditorName = "Go to the second closest nest and support them.",
-	
+
 	-- Runtime state
 	support_thread = false,
 	from_nest = false,
@@ -30,7 +48,7 @@ function InvaderBehaviourSupport:OnAssign(invader, end_time)
 	invader.path_until = end_time
 	invader.supporting = true
 	invader.on_arrive = function(invader, target, progress)
-		if IsKindOf(target,"TerritorialNest") then
+		if IsKindOf(target, "TerritorialNest") then
 			target:support_arrived()
 		end
 		RemoveAttachedUIToObject(invader, 'NestRolePermanent')
@@ -41,18 +59,17 @@ function InvaderBehaviourSupport:OnAssign(invader, end_time)
 	end
 	invader.pathing_proximity = self.ArrivalDistance or 50000
 	local my_nest_id = invader:GetNestClass()
-	invader.pathing_from = MapFindNearest(invader,true,my_nest_id)
-	-- Destination = nearest same-species nest that is closer to the survivors than the origin AND
-	-- within ~60 degrees of the origin's bearing from the survivor centre. The angular gate (Ark
-	-- Builder's concern) keeps support from walking across the player's base to a ~180-degree-
-	-- opposite nest. Mirrors EnhancedTerritorialNest:GetSupportTarget on the unit side.
+	invader.pathing_from = MapFindNearest(invader, true, my_nest_id)
+	-- Destination = nearest same-species nest that is closer to the survivors than the origin AND within ~60 degrees of
+	-- the origin's bearing from the survivor centre. The angular gate keeps support from walking across the player's
+	-- base to a ~180-degree-opposite nest. Mirrors EnhancedTerritorialNest:GetSupportTarget on the unit side.
 	local center = Get_center_of_survivors()
 	local from_bearing = invader.pathing_from and CalcOrientation(center, invader.pathing_from:GetPos())
-	invader.pathing_to = MapFindNearest(invader,true,my_nest_id, function(obj, from)
+	invader.pathing_to = MapFindNearest(invader, true, my_nest_id, function(obj, from)
 		if obj == from or not obj:IsCloserToPlayer(from) then return end
-		if from_bearing and abs(AngleDiff(from_bearing, CalcOrientation(center, obj:GetPos()))) > 60*60 then return end
+		if from_bearing and abs(AngleDiff(from_bearing, CalcOrientation(center, obj:GetPos()))) > 60 * 60 then return end
 		return true
-	end,invader.pathing_from)
+	end, invader.pathing_from)
 	invader:UpdateAttachedUI()
 end
 
@@ -76,13 +93,39 @@ Enables non-aggressive movement to the closest object of a certain class
 DefineClass.InvaderBehaviourPassiveMove = {
 	__parents = { "InvaderBehaviourBase", },
 	properties = {
-		{ id = "target_class", name = "Target Class", help = "Class of the target to move to. If empty, the unit will move to a random point.", editor = "choice", default = "TerritorialNest", items = function(self) return GetSpawnClasses() end, },
-		{ id = 'complex_targeting', name = 'Use more complex targeting logic?', help = 'Instead of just picking the closest target, use a more complex logic to pick the target. Currently this is only used for picking the closest target that is also closer to the player than the unit itself.', editor = 'bool', default = false},
-		{ id = 'targeting_function', name = 'Find_Point_to_move_to', help = 'Function to find the point to move to.', editor = "expression",
-			default = function(self, invader, progress) return Get_center_of_survivors() end, params = "self, invader, progress",
-			no_edit = function(self) return not self.complex_targeting end},
-		{ id = "on_arrival", name = "OnArrive", help = "Function this unit performs once it arrives at the target.", editor = "expression", default = function(invader, target, progress) return true end, params = "invader, target, progress", },
-		{ id = "proximity", name = "Stop if this close", help = "When the unit is this many meters close to the target, trigger the on_arrival function and interrupt behavior.", editor = "number", default = 50000, scale = "m", min = 5000, },
+		{
+			id = "target_class",
+			name = "Target Class",
+			help = "Class of the target to move to. If empty, the unit will move to a random point.",
+			editor = "choice",
+			default = "TerritorialNest",
+			items = function(
+				self)
+				return GetSpawnClasses()
+			end,
+		},
+		{ id = 'complex_targeting', name = 'Use more complex targeting logic?', help = 'Instead of just picking the closest target, use a more complex logic to pick the target. Currently this is only used for picking the closest target that is also closer to the player than the unit itself.', editor = 'bool',   default = false },
+		{
+			id = 'targeting_function',
+			name = 'Find_Point_to_move_to',
+			help = 'Function to find the point to move to.',
+			editor = "expression",
+			default = function(self, invader, progress) return Get_center_of_survivors() end,
+			params = "self, invader, progress",
+			no_edit = function(self) return not self.complex_targeting end
+		},
+		{
+			id = "on_arrival",
+			name = "OnArrive",
+			help = "Function this unit performs once it arrives at the target.",
+			editor = "expression",
+			default = function(
+				invader, target, progress)
+				return true
+			end,
+			params = "invader, target, progress",
+		},
+		{ id = "proximity",         name = "Stop if this close",                help = "When the unit is this many meters close to the target, trigger the on_arrival function and interrupt behavior.",                                                                                              editor = "number", default = 50000, scale = "m", min = 5000, },
 	},
 	EditorName = "Passive walk to closest target",
 }
@@ -100,7 +143,7 @@ function InvaderBehaviourPassiveMove:OnAssign(invader, end_time)
 		--print(target.class)
 		invader.pathing_to = target
 	else
-		invader.pathing_to = MapFindNearest('map',invader,true,self.target_class)
+		invader.pathing_to = MapFindNearest('map', invader, true, self.target_class)
 	end
 	invader:UpdateAttachedUI()
 end
@@ -119,12 +162,12 @@ function EnhancedTerritorialNest:new_behavior_qa()
 	--print("Testing new behaviors!")
 	local spawn_def
 	spawn_def = SpawnDefs['passive_move']
-    local instance = {}
-    instance.nest = self
-    spawn_def = spawn_def:CreateInstance(instance)
+	local instance = {}
+	instance.nest = self
+	spawn_def = spawn_def:CreateInstance(instance)
 	--print("Triggering spawndef!")
 	local t = spawn_def:ResolveTarget()
-    spawn_def:ActivateSpawn(t,{},100)
+	spawn_def:ActivateSpawn(t, {}, 100)
 end
 
 function UnitInvader:FindNextScoutingPoint()
@@ -135,13 +178,13 @@ function UnitInvader:FindNextScoutingPoint()
 	local range = self.pathing_proximity or (15 * guim)
 	while (retry > 0 and not valid_point) do
 		valid_point = self:FindValidScoutingPoint(box, self.scouted_pos, range)
-		retry = retry -1
-		range = range + 5*guim
+		retry = retry - 1
+		range = range + 5 * guim
 	end
 	if valid_point then
 		return valid_point
 	else
-		ForceActivateStoryBit('unable_to_scout',self,true)
+		ForceActivateStoryBit('unable_to_scout', self, true)
 		self.pathing = false
 		return
 	end
@@ -173,7 +216,7 @@ function UnitInvader:FindValidScoutingPoint(box_area, scouted_points, min_dist)
 				return false
 			end
 		end
-		if box_area:Dist2D(point(x,y)) > 0 then
+		if box_area:Dist2D(point(x, y)) > 0 then
 			return false
 		end
 		return true
@@ -194,7 +237,6 @@ function UnitInvader:FindValidScoutingPoint(box_area, scouted_points, min_dist)
 	return pos
 end
 
-
 function UnitInvader:Get_quadrant_to_scout()
 	local my_quad = Get_quadrant_from_obj(self)
 	local my_nesting_species = self:Get_Nesting_Species()
@@ -210,7 +252,7 @@ function UnitInvader:Get_quadrant_to_scout()
 		while retry > 0 do
 			for quad in ipairs(table.keys(tried_quads)) do
 				local adjacent = Get_adjacent_quads(Uncollapse_quad(quad))
-				for _,quad in ipairs(adjacent) do
+				for _, quad in ipairs(adjacent) do
 					if not nest_logs[quad] or (GameTime() - nest_logs[quad]) < year_duration * 2 then
 						return Collapse_quad(quad)
 					else
@@ -254,10 +296,11 @@ function UnitInvader:InvaderIdle()
 		print(self:GetDist2D(self.pathing_to))
 		local close_enough = self:IsCloser(self.pathing_to, self.pathing_proximity)
 		if self.scouting and close_enough then
-				print("Unit is scouting and is close enough to their curtrent point. Recording surroundings and rolling a enw point!")
-				self:near_scout_point()
-				-- we will have a new pathing_to prop from the above function
-				self:SetCommand("CmdPassiveMove")
+			print(
+				"Unit is scouting and is close enough to their curtrent point. Recording surroundings and rolling a enw point!")
+			self:near_scout_point()
+			-- we will have a new pathing_to prop from the above function
+			self:SetCommand("CmdPassiveMove")
 		elseif self.pathing then
 			print('Unit is trying to get to a specific point!')
 			if close_enough then
@@ -345,18 +388,107 @@ Enables a non-aggressive movement to another more complicated location
 DefineClass.InvaderBehaviourNestScout = {
 	__parents = { "InvaderBehaviourBase", },
 	properties = {
-		{ id = "map_hack", name = "Give scout map hacks?", help = "The scout will always learn of all classes it is looking for in the 4% of the map it is exploring", editor = "bool", default = false},
-		{ id = "log_classes", name = "What class should the unit record?", help = "What is this unit looking for?", editor = "string_list", items = function (self) return GetSpawnClasses() end, default = false},
-		{ id = 'distance_points', name = 'Distance between scouting points (in guim)', help = 'Quadrants are approximately 200m x 200m', editor = 'number', default = 25, scale = 'm'},
-		{ id = "attack_hostile", name = "Is the scout hostile?", help = "Will this unit fight anyone while it is roaming?", editor = "bool", default = false, no_edit = function(self) return self.attack_hostile end},
-		{ id = "ForcedGroups", name = "Combat Groups", help = "Define specific combat groups as priority targets. If empty, all groups from the specified combat classes will be targeted. If no classes are specified too, the unit will be aggressive towards everything, but its own.", editor = "set", default = set( "Humans" ), items = function (self) return CombatGroupsSetItems() end, no_edit = function(self) return self.attack_hostile end},
-		{ id = "SearchLabels", name = "Search Labels", help = "Define a label where to search for the targets. If missing, the search will be limited to a radius around.", editor = "string_list", default = {"Survivors"}, item_default = "", items = function (self) return BuildingLabelComboItems() end, no_edit = function(self) return self.attack_hostile end},
-		{ id = "SearchRadius", name = "Search Radius", help = "Search range for the targets if no search label is defined. Leave 0 to use the invader's default.", editor = "number", default = 200000, scale = "m", no_edit = function(self) return self.attack_hostile end},
-		{ id = "ForcedClasses", name = "Target Classes", help = "Define specific combat classes as priority targets. If empty, all classes with the specified combat groups will be targeted. If no groups are specified too, the unit will be aggressive towards everything, but its own..", editor = "string_list", default = {}, item_default = "", items = function (self) return ClassDescendantsList("AttackableObject") end, no_edit = function(self) return self.attack_hostile end},
-		{ id = "KeepFormation", name = "Keep Group Formation", help = "I true, the invaders will approach keeping close to each other.", editor = "bool", default = true, no_edit = function(self) return self.attack_hostile end},
+		{ id = "map_hack",        name = "Give scout map hacks?",                      help = "The scout will always learn of all classes it is looking for in the 4% of the map it is exploring", editor = "bool",   default = false },
+		{
+			id = "log_classes",
+			name = "What class should the unit record?",
+			help = "What is this unit looking for?",
+			editor = "string_list",
+			items = function(
+				self)
+				return GetSpawnClasses()
+			end,
+			default = false
+		},
+		{ id = 'distance_points', name = 'Distance between scouting points (in guim)', help = 'Quadrants are approximately 200m x 200m',                                                           editor = 'number', default = 25,   scale = 'm' },
+		{
+			id = "attack_hostile",
+			name = "Is the scout hostile?",
+			help = "Will this unit fight anyone while it is roaming?",
+			editor = "bool",
+			default = false,
+			no_edit = function(
+				self)
+				return self.attack_hostile
+			end
+		},
+		{
+			id = "ForcedGroups",
+			name = "Combat Groups",
+			help =
+			"Define specific combat groups as priority targets. If empty, all groups from the specified combat classes will be targeted. If no classes are specified too, the unit will be aggressive towards everything, but its own.",
+			editor = "set",
+			default = set("Humans"),
+			items = function(
+				self)
+				return CombatGroupsSetItems()
+			end,
+			no_edit = function(
+				self)
+				return self.attack_hostile
+			end
+		},
+		{
+			id = "SearchLabels",
+			name = "Search Labels",
+			help =
+			"Define a label where to search for the targets. If missing, the search will be limited to a radius around.",
+			editor = "string_list",
+			default = { "Survivors" },
+			item_default = "",
+			items = function(
+				self)
+				return BuildingLabelComboItems()
+			end,
+			no_edit = function(
+				self)
+				return self.attack_hostile
+			end
+		},
+		{
+			id = "SearchRadius",
+			name = "Search Radius",
+			help = "Search range for the targets if no search label is defined. Leave 0 to use the invader's default.",
+			editor = "number",
+			default = 200000,
+			scale = "m",
+			no_edit = function(
+				self)
+				return self.attack_hostile
+			end
+		},
+		{
+			id = "ForcedClasses",
+			name = "Target Classes",
+			help =
+			"Define specific combat classes as priority targets. If empty, all classes with the specified combat groups will be targeted. If no groups are specified too, the unit will be aggressive towards everything, but its own..",
+			editor = "string_list",
+			default = {},
+			item_default = "",
+			items = function(
+				self)
+				return ClassDescendantsList("AttackableObject")
+			end,
+			no_edit = function(
+				self)
+				return self.attack_hostile
+			end
+		},
+		{
+			id = "KeepFormation",
+			name = "Keep Group Formation",
+			help = "I true, the invaders will approach keeping close to each other.",
+			editor = "bool",
+			default = true,
+			no_edit = function(
+				self)
+				return self.attack_hostile
+			end
+		},
 	},
 	EditorName = "Scout around the map (based on species logs)",
-	Documentation = [[The <style GedHighlight>Scouting behavior</style> is to be used by nests when trying to find the player's stuff or another species territorial nest.
+	Documentation =
+	[[The <style GedHighlight>Scouting behavior</style> is to be used by nests when trying to find the player's stuff or another species territorial nest.
 Scouts will always log anything owned by the player (Buildings, Survivors, Robots, etc...), but can also log any other spawn class if specified.
 Scouting code splits the map into 200m x 200m quadrants, and the unit will pick the closest quadrant that has not been scouted in the last year by its species to explore.
 Scouting behavior:
@@ -374,7 +506,8 @@ Note 2: If <style GedHighlight>map_hack</style> is enabled, the scout will auto 
 
 function InvaderBehaviourNestScout:OnAssign(invader, end_time)
 	if self.attack_hostile then
-		invader:ForceAggressionStart(self.ForcedGroups, self.ForcedClasses, end_time, self.SearchLabels, self.SearchRadius, self.KeepFormation)
+		invader:ForceAggressionStart(self.ForcedGroups, self.ForcedClasses, end_time, self.SearchLabels,
+			self.SearchRadius, self.KeepFormation)
 	end
 	-- Initialize scouting state
 	invader.scouting = true
@@ -386,7 +519,7 @@ function InvaderBehaviourNestScout:OnAssign(invader, end_time)
 		invader.target_quadrant = invader.from_nest.quadrant_scouting
 	end
 	invader.pathing = true
-	invader.pathing_to = invader:FindNextScoutingPoint(invader.target_quadrant,invader.scouted_pos)
+	invader.pathing_to = invader:FindNextScoutingPoint(invader.target_quadrant, invader.scouted_pos)
 	--invader.min_scout_distance = self.distance_points * guim
 	invader.looking_for = self.log_classes
 	invader.map_hack = self.map_hack
@@ -394,10 +527,10 @@ function InvaderBehaviourNestScout:OnAssign(invader, end_time)
 	invader.pathing_proximity = 5000
 	-- grant a buff to all scouts, making them able to see past 30 meters
 	if invader:GetDetectionRange() < 30 * guim then
-		if IsKindOf(invader,'Robot') then
-			invader:AddRobotCondition('scouting_sight_buff_robot','mod')
+		if IsKindOf(invader, 'Robot') then
+			invader:AddRobotCondition('scouting_sight_buff_robot', 'mod')
 		else
-			invader:AddHealthCondition('scouting_sight_buff_animal','mod')
+			invader:AddHealthCondition('scouting_sight_buff_animal', 'mod')
 		end
 	end
 	if self.map_hack then
@@ -415,7 +548,7 @@ function InvaderBehaviourNestScout:OnExpire(invader)
 	--rawset(invader, 'min_scout_distance', nil)
 	rawset(invader, 'looking_for', nil)
 	rawset(invader, 'map_hack', nil)
-	if IsKindOf(invader,'Robot') then
+	if IsKindOf(invader, 'Robot') then
 		invader:RemoveRobotCondition('scouting_sight_buff_animal')
 	else
 		invader:RemoveHealthCondition('scouting_sight_buff_animal')
@@ -430,14 +563,14 @@ local detect_game_flags = const.gofDamageable | const.gofSyncObject
 local function Scout_Detect(unit, self, detected_units)
 	--DbgAddSegment(unit, self, RandColor(self.handle))
 	if self == unit
-	or not unit.detect_spot
-	or not self:IsDetectionTarget(unit)
-	or not self:CanDetect(unit) then
+		or not unit.detect_spot
+		or not self:IsDetectionTarget(unit)
+		or not self:CanDetect(unit) then
 		return
 	end
 	for _, v in ipairs(self.looking_for) do
-		if IsKindOf(unit,v) then
-			print("I detected this, a thing I'm looking for: "..unit.class)
+		if IsKindOf(unit, v) then
+			print("I detected this, a thing I'm looking for: " .. unit.class)
 			table.insert_unique(self.observed_objects, unit)
 		end
 	end
@@ -462,12 +595,14 @@ function UnitDetection:detect_nearby()
 	end
 	local range = self:GetDetectionRange()
 	self:GetMaxCollisionRadius(range + MaxLosTargetRadius) -- cache information about the surrounding, boosting the surf enum effectiveness
-	self.los_checks = self.los_max_checks -- Limit the maximum allowed LOS checks. The enum is randomized, so we should eventually check all units.
+	self.los_checks = self
+		.los_max_checks                                    -- Limit the maximum allowed LOS checks. The enum is randomized, so we should eventually check all units.
 	local collection_idx = self:GetDetectCollectionIdx()
-	MapForEach(self, range, "!collection", collection_idx, "shuffle", seed, "UnitDetection", detect_enum_flags, nil, detect_game_flags, Scout_Detect, self, units)
+	MapForEach(self, range, "!collection", collection_idx, "shuffle", seed, "UnitDetection", detect_enum_flags, nil,
+		detect_game_flags, Scout_Detect, self, units)
 	self.los_checks = nil
 	local count = #units
-	for i=count,1,-1 do
+	for i = count, 1, -1 do
 		local unit = units[i]
 		if time ~= units[unit] then
 			self:UnitExitDetection(unit)
@@ -487,7 +622,7 @@ function UnitInvader:Get_New_Scout_Point()
 	self.scouted_pos[1] = new_one
 	self.scouted_pos[2] = new_two
 	self.scouted_pos[3] = new_three
-	self.pathing_to = self:FindNextScoutingPoint(self.target_quadrant,self.scouted_pos)
+	self.pathing_to = self:FindNextScoutingPoint(self.target_quadrant, self.scouted_pos)
 	if self.pathing_to then
 		print("Pathing to new point!")
 	end
@@ -505,5 +640,5 @@ function TFormat.ScoutFailed(context_obj)
 	local map_name = GetMapName()
 	local quadrant = 5 --context_obj.target_quadrant
 	local unit = context_obj.actor.class or 'Unknown'
-	return Untranslated('<em>Map Name:  '..map_name..'\nQuadrant:  '..quadrant..'\nUnit:  '..unit..'</em>')
+	return Untranslated('<em>Map Name:  ' .. map_name .. '\nQuadrant:  ' .. quadrant .. '\nUnit:  ' .. unit .. '</em>')
 end
