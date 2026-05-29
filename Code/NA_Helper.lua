@@ -380,6 +380,10 @@ function Get_center_of_survivors()
         sum_y = sum_y + y
         count = count + 1
     end
+    if count == 0 then
+        -- no valid survivors (rare; e.g. a wipe) -> fall back to map centre to avoid a /0 crash
+        return GetMapBox():Center()
+    end
     local center = point(DivRound(sum_x,count),DivRound(sum_y,count))
     return center
 end
