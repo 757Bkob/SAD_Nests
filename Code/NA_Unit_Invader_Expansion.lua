@@ -42,7 +42,17 @@ function InvaderBehaviourSupport:OnAssign(invader, end_time)
 	invader.pathing_proximity = self.ArrivalDistance or 50000
 	local my_nest_id = invader:GetNestClass()
 	invader.pathing_from = MapFindNearest(invader,true,my_nest_id)
-	invader.pathing_to = MapFindNearest(invader,true,my_nest_id, function(obj, from) if obj ~= from and obj:IsCloserToPlayer(from) then return true end end,invader.pathing_from)
+	-- Destination = nearest same-species nest that is closer to the survivors than the origin AND
+	-- within ~60 degrees of the origin's bearing from the survivor centre. The angular gate (Ark
+	-- Builder's concern) keeps support from walking across the player's base to a ~180-degree-
+	-- opposite nest. Mirrors EnhancedTerritorialNest:GetSupportTarget on the unit side.
+	local center = Get_center_of_survivors()
+	local from_bearing = invader.pathing_from and CalcOrientation(center, invader.pathing_from:GetPos())
+	invader.pathing_to = MapFindNearest(invader,true,my_nest_id, function(obj, from)
+		if obj == from or not obj:IsCloserToPlayer(from) then return end
+		if from_bearing and abs(AngleDiff(from_bearing, CalcOrientation(center, obj:GetPos()))) > 60*60 then return end
+		return true
+	end,invader.pathing_from)
 	invader:UpdateAttachedUI()
 end
 
