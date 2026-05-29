@@ -238,31 +238,37 @@ function UnitInvader:FindValidScoutingPoint(box_area, scouted_points, min_dist)
 end
 
 function UnitInvader:Get_quadrant_to_scout()
-	local my_quad = Get_quadrant_from_obj(self)
+	local my_quad = Get_quadrant_from_obj(self, true) -- integer quadrant number
 	local my_nesting_species = self:Get_Nesting_Species()
 	if not my_nesting_species then return my_quad end
-	local nest_logs = G_nest_scout_logs[my_nesting_species].quadrants or {}
-	-- Try to scout where I am
-	if not nest_logs[my_quad] or (GameTime() - nest_logs[my_quad]) < year_duration * 2 then
-		return Collapse_quad(my_quad)
-	else
-		local retry = 2
-		local tried_quads = {}
-		tried_quads[Collapse_quad(my_quad)] = true
-		while retry > 0 do
-			for quad in ipairs(table.keys(tried_quads)) do
-				local adjacent = Get_adjacent_quads(Uncollapse_quad(quad))
-				for _, quad in ipairs(adjacent) do
-					if not nest_logs[quad] or (GameTime() - nest_logs[quad]) < year_duration * 2 then
-						return Collapse_quad(quad)
-					else
-						tried_quads[quad] = true
-					end
+	-- A quadrant needs scouting if this species never scouted it, or last did so over two years ago.
+	-- Freshness test mirrors EnhancedTerritorialNest:scout_nearest_quad (NA_NestExpansion.lua).
+	local function needs_scouting(quad_no)
+		local log = Nest_scouting_quadrants[quad_no] and Nest_scouting_quadrants[quad_no][my_nesting_species]
+		if not log then return true end
+		return log.last_scout == 0 or (GameTime() - log.last_scout) >= const.Scale.years * 2
+	end
+	-- Prefer the quadrant we are already in.
+	if needs_scouting(my_quad) then
+		return my_quad
+	end
+	-- Otherwise search outward (up to two rings of adjacency) for the nearest stale quadrant.
+	local tried = { [my_quad] = true }
+	local frontier = { my_quad }
+	for _ = 1, 2 do
+		local next_frontier = {}
+		for _, q in ipairs(frontier) do
+			for _, adj in ipairs(Get_adjacent_quads(q)) do
+				if not tried[adj] then
+					if needs_scouting(adj) then return adj end
+					tried[adj] = true
+					next_frontier[#next_frontier + 1] = adj
 				end
-				retry = retry - 1
 			end
 		end
+		frontier = next_frontier
 	end
+	return my_quad -- nothing stale nearby; scout where we are
 end
 
 function UnitInvader:CheckForNewBehaviors()
@@ -596,22 +602,15 @@ function UnitDetection:detect_nearby()
 	local range = self:GetDetectionRange()
 	self:GetMaxCollisionRadius(range + MaxLosTargetRadius) -- cache information about the surrounding, boosting the surf enum effectiveness
 	self.los_checks = self
-		.los_max_checks                                    -- Limit the maximum allowed LOS checks. The enum is randomized, so we should eventually check all units.
+		.los_max_checks                                 -- Limit the maximum allowed LOS checks. The enum is randomized, so we should eventually check all units.
 	local collection_idx = self:GetDetectCollectionIdx()
 	MapForEach(self, range, "!collection", collection_idx, "shuffle", seed, "UnitDetection", detect_enum_flags, nil,
 		detect_game_flags, Scout_Detect, self, units)
 	self.los_checks = nil
-	local count = #units
-	for i = count, 1, -1 do
-		local unit = units[i]
-		if time ~= units[unit] then
-			self:UnitExitDetection(unit)
-			units[i] = units[count]
-			units[count] = nil
-			units[unit] = nil
-			count = count - 1
-		end
-	end
+	-- Scout_Detect fills self.observed_objects (the scout's report); it does not maintain the
+	-- detected_units cache, so the engine's copied prune loop here was both broken (undefined
+	-- `time`, and no per-pass timestamps to compare) and redundant with the engine's own
+	-- UnitDetection:OnObjUpdate, which owns that cache. Removed.
 end
 
 function UnitInvader:Get_New_Scout_Point()

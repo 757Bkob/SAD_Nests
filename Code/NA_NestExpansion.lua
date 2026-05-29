@@ -382,7 +382,7 @@ end
 function EnhancedTerritorialNest:get_proximity()
 	local center = AveragePoint2D(GetValidSurvivorsOnMap())
 	local dist_to_center = self:GetDist2D(center)
-	local rate = 150 * guim     -- 150 meters per thresholdz
+	local rate = 150 * guim  -- 150 meters per thresholdz
 	local prox = DivRound(dist_to_center, rate)
 	prox = Max(1, Min(5, prox)) -- closest nests have a prox of 1
 	self.proximity = prox
@@ -780,13 +780,14 @@ function ReportScoutingResults(quad_no, species, objects_to_report, player_found
 	scout_quad_logs['map_objs'] = objects_to_report
 	for _, obj in ipairs(objects_to_report) do
 		if IsKindOf(obj, "TerritorialNest") and obj.nest_species ~= species then
+			local that_species = obj.nest_species
 			if scout_quad_logs[that_species] then
-				scout_quad_logs[that_species][#scout_quad_logs[that_species] + 1] = nest
-				nest:MarkScouted(self.nest_species, GameTime())
+				scout_quad_logs[that_species][#scout_quad_logs[that_species] + 1] = obj
 			else
 				scout_quad_logs[that_species] = {}
-				scout_quad_logs[that_species][1] = nest
+				scout_quad_logs[that_species][1] = obj
 			end
+			nest:MarkScouted(that_species, GameTime())
 		end
 		scout_quad_logs['map_objs'][#scout_quad_logs['map_objs'] + 1] = nest
 	end
@@ -1047,7 +1048,7 @@ function EnhancedTerritorialNest:GetSupportTarget()
 	MapForEach("map", self.class, function(nest, me)
 		if nest == me then return end
 		local n_dist = nest:GetDist2D(center)
-		if n_dist >= my_dist then return end                                                           -- only nests ahead of me (closer to the survivors)
+		if n_dist >= my_dist then return end                                                     -- only nests ahead of me (closer to the survivors)
 		if abs(AngleDiff(my_bearing, CalcOrientation(center, nest:GetPos()))) > sector then return end -- same sector only
 		if not best or n_dist < best_dist then
 			best, best_dist = nest, n_dist
