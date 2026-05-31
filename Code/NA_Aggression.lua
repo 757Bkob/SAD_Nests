@@ -35,6 +35,9 @@ function Aggression_log_faction(input)
 	local to_return = false
 	local threshold = Faction_aggression_threshold or Max(0, 6 - Get_difficulty_offset())
 	local count = 0
+	if not Nest_Species_Savegame_Stats then
+		NA_create_runtime()
+	end
 	if Nest_Species_Savegame_Stats[nesting_species] and Nest_Species_Savegame_Stats[nesting_species][nesting_species .. '_aggro_events'] then
 		count = Nest_Species_Savegame_Stats[nesting_species][nesting_species .. '_aggro_events']
 	else
@@ -103,7 +106,15 @@ local function can_spawn_nest(input)
 	if not nest_class_def then return nil end
 	local nest_classname = nest_class_def.class
 	DebugPrint("Checking if can spawn nest for species: " .. species_id)
-	DebugPrint("Checking how many nests of this clas exist on map: " .. nest_classname)
+	if not Nest_Species_Savegame_Stats then
+		NA_create_runtime()
+	end
+	local spawnable = Nest_Species_Savegame_Stats[species_id]['spawn_allowed']
+	if not spawnable then
+		DebugPrint("Nests are locked from spawning due to MapVar!!!")
+		return false
+	end
+	DebugPrint("Checking how many nests of this class exist on map: " .. nest_classname)
 	local count_total = MapCount("map", nest_classname)
 
 	-- In cases where the player needs to do something before spawning is enabled.
@@ -128,6 +139,9 @@ local function can_spawn_nest(input)
 end
 
 local function can_give_evo(input)
+	if not Nest_Species_Savegame_Stats then
+		NA_create_runtime()
+	end
 	local nest_species = find_nest_species(input)
 	if not nest_species then return nil end
 	local species_id = nest_species.id
@@ -155,6 +169,9 @@ local function can_give_evo(input)
 end
 
 function Aggression_up(input, location)
+	if not Nest_Species_Savegame_Stats then
+		NA_create_runtime()
+	end
 	local nest_species = find_nest_species(input)
 	if not nest_species then
 		nest_species = find_nest_species(Get_nest_species_by_region())

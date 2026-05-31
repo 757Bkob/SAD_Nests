@@ -1337,7 +1337,8 @@ PlaceObj('ModItemFolder', {
 	PlaceObj('ModItemAnimalSpawnDef', {
 		Behaviours = {
 			PlaceObj('InvaderBehaviourNestScout', {
-				'Duration', 160000,
+				'Duration', 960000,
+				'RandomDuration', 960000,
 				'NoSleep', false,
 				'log_classes', {
 					"TerritorialNest",
@@ -1384,6 +1385,60 @@ PlaceObj('ModItemFolder', {
 		TargetStartPosOnMissingTarget = true,
 		group = "Attacks_Insects_NEW",
 		id = "Nest_scout_passive",
+		save_in = "Mod/TGkJ3Tu",
+	}),
+	PlaceObj('ModItemAnimalSpawnDef', {
+		Behaviours = {
+			PlaceObj('InvaderBehaviourNestScout', {
+				'Duration', 960000,
+				'RandomDuration', 960000,
+				'NoSleep', false,
+				'map_hack', true,
+				'log_classes', {
+					"TerritorialNest",
+				},
+				'distance_points', 15000,
+				'SearchLabels', {},
+			}),
+			PlaceObj('InvaderBehaviourPassiveMove', {
+				'Duration', 0,
+				'complex_targeting', true,
+				'targeting_function', function (self, invader, progress) return invader.from_nest end,
+				'on_arrival', function (invader, target, progress)
+					local quad_no = invader.target_quadrant
+					local species = invader.from_nest.nest_species
+					local objects_to_report = invader.observed_objects
+					local player_found = invader.player_found
+					local nest = invader.from_nest
+					ReportScoutingResults(quad_no,species,objects_to_report,player_found,nest)
+					invader:SetCommand("CmdDespawn")
+					return true
+				end,
+			}),
+		},
+		CheckConnectivity = true,
+		ClearArea = 256,
+		ClearRadius = 1000,
+		DistFromOthers = 1000,
+		EnabledInTutorial = true,
+		EnabledWithoutSurvivors = false,
+		FindSpawnLoc = function (self, spawn_class, target, context)
+			return nest_find_attack_spawn(self,spawn_class, target, context)
+		end,
+		PostSpawn = function (self, obj, target, context)
+			obj.from_nest = self.location
+		end,
+		SpawnAsGroup = true,
+		SpawnClass = "Scissorhands_T5",
+		SurvivorDistMax = -1000,
+		SurvivorSpawnDistMin = 75000,
+		TargetClass = "Human",
+		TargetDistMax = 150000,
+		TargetDistMin = 75000,
+		TargetFilter = function (obj) return not obj:IsVirtual() end,
+		TargetStartPosOnMissingTarget = true,
+		group = "Attacks_Insects_NEW",
+		id = "Nest_scout_passive_map_hacks",
 		save_in = "Mod/TGkJ3Tu",
 	}),
 	PlaceObj('ModItemAnimalSpawnDef', {
@@ -2267,7 +2322,6 @@ PlaceObj('ModItemFolder', {
 		PrefabTags = {
 			shogu_nest = true,
 		},
-		aggressive = false,
 		id = "nesting_shogu",
 		nest_class = "ShoguNest",
 		resource_list = {
@@ -2285,6 +2339,7 @@ PlaceObj('ModItemFolder', {
 			}),
 		},
 		save_in = "Mod/TGkJ3Tu",
+		spawnable = false,
 		spawner_storybit = "new_nest_shogu",
 		spore_buildings = "ShoguSporeDeposit",
 		unit_species = "species_shogu",
@@ -2366,55 +2421,6 @@ PlaceObj('ModItemFolder', {
 		},
 	}),
 	}),
-PlaceObj('ModItemExpeditionPreset', {
-	DisplayImage = "UI/Messages/Expeditions/exp_meteorite_falling",
-	Expiration = 4800000,
-	FoundByExploration = true,
-	FoundByExplorationDisplayText = "",
-	FoundByExplorationWeight = 30,
-	Icon = "UI/Icons/Expeditions/meteorite_falling",
-	OneInstanceOnly = true,
-	OneTime = true,
-	RelevantSkills = set( "Farming", "Healing" ),
-	StoryBits = {
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_shogu_exp_1",
-		}),
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_shogu_exp_1",
-		}),
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_shogu_exp_1",
-		}),
-	},
-	UILineColor = 4293083197,
-	description = T(719660466771, --[[ModItemExpeditionPreset NA_Exped_Shogu_Nest description]] "A thick column of smoke is rising from this area."),
-	display_name = T(711539087977, --[[ModItemExpeditionPreset NA_Exped_Shogu_Nest display_name]] "Thick smoke"),
-	id = "NA_Exped_Shogu_Nest",
-	mod_version_major = 3,
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	group = "Expedition_FollowUP",
-	id = "NA_shogu_exp_1",
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	group = "Expedition_FollowUP",
-	id = "NA_shogu_exp_2",
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	group = "Expedition_FollowUP",
-	id = "NA_shogu_exp_3",
-	save_in = "Mod/TGkJ3Tu",
-}),
 PlaceObj('ModItemFolder', {
 	'name', "Nest Content: Juno",
 }, {
@@ -2497,12 +2503,10 @@ PlaceObj('ModItemFolder', {
 	PlaceObj('ModItemStoryBit', {
 		Category = "Midnight",
 		Effects = {
-			PlaceObj('ActivateSpawnDef', {
-				SpawnDefId = "JunoNest",
-				param_bindings = false,
-			}),
 			PlaceObj('ExecuteCode', {
 				Code = function (self, obj)
+					local converted_nest = Juno_Cancer(force)
+					AddGameNotification("JunoNestSpawned", nil, nil, {converted_nest})
 					mark_spawned_nest('nesting_juno')
 				end,
 				param_bindings = false,
@@ -2644,55 +2648,6 @@ PlaceObj('ModItemFolder', {
 		save_in = "Mod/TGkJ3Tu",
 	}),
 	}),
-PlaceObj('ModItemExpeditionPreset', {
-	DisplayImage = "UI/Messages/Expeditions/exp_meteorite_falling",
-	Expiration = 4800000,
-	FoundByExploration = true,
-	FoundByExplorationDisplayText = "",
-	FoundByExplorationWeight = 30,
-	Icon = "UI/Icons/Expeditions/meteorite_falling",
-	OneInstanceOnly = true,
-	OneTime = true,
-	RelevantSkills = set( "Farming", "Healing" ),
-	StoryBits = {
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_shogu_exp_1",
-		}),
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_shogu_exp_1",
-		}),
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_shogu_exp_1",
-		}),
-	},
-	UILineColor = 4293083197,
-	description = T(943918072713, --[[ModItemExpeditionPreset NA_Exped_Juno_Nest description]] "A thick column of smoke is rising from this area."),
-	display_name = T(368468846428, --[[ModItemExpeditionPreset NA_Exped_Juno_Nest display_name]] "Thick smoke"),
-	id = "NA_Exped_Juno_Nest",
-	mod_version_major = 3,
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	group = "Expedition_FollowUP",
-	id = "NA_Juno_exp_1",
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	group = "Expedition_FollowUP",
-	id = "NA_Juno_exp_2",
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	group = "Expedition_FollowUP",
-	id = "NA_Juno_exp_3",
-	save_in = "Mod/TGkJ3Tu",
-}),
 PlaceObj('ModItemFolder', {
 	'name', "New Content: Glutch",
 }, {
@@ -2927,54 +2882,6 @@ PlaceObj('ModItemFolder', {
 		'OverlayColor', RGBA(130, 38, 38, 255),
 	}),
 	}),
-PlaceObj('ModItemExpeditionPreset', {
-	DisplayImage = "UI/Messages/Expeditions/exp_meteorite_falling",
-	Expiration = 4800000,
-	FoundByExploration = true,
-	FoundByExplorationDisplayText = "",
-	FoundByExplorationWeight = 30,
-	Icon = "UI/Icons/Expeditions/meteorite_falling",
-	OneInstanceOnly = true,
-	RelevantSkills = set( "Farming", "Healing" ),
-	StoryBits = {
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_shogu_exp_1",
-		}),
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_shogu_exp_1",
-		}),
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_shogu_exp_1",
-		}),
-	},
-	UILineColor = 4293083197,
-	description = T(518034171116, --[[ModItemExpeditionPreset NA_Exped_Glutch_Nest description]] "A thick column of smoke is rising from this area."),
-	display_name = T(690792371384, --[[ModItemExpeditionPreset NA_Exped_Glutch_Nest display_name]] "Thick smoke"),
-	id = "NA_Exped_Glutch_Nest",
-	mod_version_major = 3,
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	group = "Expedition_FollowUP",
-	id = "NA_glutch_exp_1",
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	group = "Expedition_FollowUP",
-	id = "NA_glutch_exp_2",
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	group = "Expedition_FollowUP",
-	id = "NA_glutch_exp_3",
-	save_in = "Mod/TGkJ3Tu",
-}),
 PlaceObj('ModItemFolder', {
 	'name', "New Content: Noth",
 }, {
@@ -3169,54 +3076,6 @@ PlaceObj('ModItemFolder', {
 		'Tags', set( "noth_nest" ),
 	}),
 	}),
-PlaceObj('ModItemExpeditionPreset', {
-	DisplayImage = "UI/Messages/Expeditions/exp_meteorite_falling",
-	Expiration = 4800000,
-	FoundByExploration = true,
-	FoundByExplorationDisplayText = "",
-	FoundByExplorationWeight = 30,
-	Icon = "UI/Icons/Expeditions/meteorite_falling",
-	OneInstanceOnly = true,
-	RelevantSkills = set( "Farming", "Healing" ),
-	StoryBits = {
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_shogu_exp_1",
-		}),
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_shogu_exp_1",
-		}),
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_shogu_exp_1",
-		}),
-	},
-	UILineColor = 4293083197,
-	description = T(514351013206, --[[ModItemExpeditionPreset NA_Exped_Noth_Nest_4 description]] "A thick column of smoke is rising from this area."),
-	display_name = T(173574128087, --[[ModItemExpeditionPreset NA_Exped_Noth_Nest_4 display_name]] "Thick smoke"),
-	id = "NA_Exped_Noth_Nest_4",
-	mod_version_major = 3,
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	group = "Expedition_FollowUP",
-	id = "NA_noth_exp_1",
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	group = "Expedition_FollowUP",
-	id = "NA_noth_exp_2",
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	group = "Expedition_FollowUP",
-	id = "NA_noth_exp_3",
-	save_in = "Mod/TGkJ3Tu",
-}),
 PlaceObj('ModItemFolder', {
 	'name', "New Content: Draka",
 }, {
@@ -3387,54 +3246,6 @@ PlaceObj('ModItemFolder', {
 		'OverlayColor', RGBA(130, 38, 38, 255),
 	}),
 	}),
-PlaceObj('ModItemExpeditionPreset', {
-	DisplayImage = "UI/Messages/Expeditions/exp_meteorite_falling",
-	Expiration = 4800000,
-	FoundByExploration = true,
-	FoundByExplorationDisplayText = "",
-	FoundByExplorationWeight = 30,
-	Icon = "UI/Icons/Expeditions/meteorite_falling",
-	OneInstanceOnly = true,
-	RelevantSkills = set( "Farming", "Healing" ),
-	StoryBits = {
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_shogu_exp_1",
-		}),
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_shogu_exp_1",
-		}),
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_shogu_exp_1",
-		}),
-	},
-	UILineColor = 4293083197,
-	description = T(778777573120, --[[ModItemExpeditionPreset NA_Exped_Draka_Nest_2 description]] "A thick column of smoke is rising from this area."),
-	display_name = T(691413983477, --[[ModItemExpeditionPreset NA_Exped_Draka_Nest_2 display_name]] "Thick smoke"),
-	id = "NA_Exped_Draka_Nest_2",
-	mod_version_major = 3,
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	group = "Expedition_FollowUP",
-	id = "NA_draka_exp_1",
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	group = "Expedition_FollowUP",
-	id = "NA_draka_exp_2",
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	group = "Expedition_FollowUP",
-	id = "NA_draka_exp_3",
-	save_in = "Mod/TGkJ3Tu",
-}),
 PlaceObj('ModItemFolder', {
 	'name', "New Content: Deathfly",
 }, {
@@ -3603,347 +3414,427 @@ PlaceObj('ModItemFolder', {
 		'OnObjOverlap', 3,
 		'Tags', set( "deathfly_nest" ),
 	}),
-	}),
-PlaceObj('ModItemExpeditionPreset', {
-	DisplayImage = "UI/Messages/Expeditions/exp_5_tall_stones",
-	Expiration = 4800000,
-	FoundByExploration = true,
-	FoundByExplorationDisplayText = T(241929342418, --[[ModItemExpeditionPreset NA_Exped_Deathfly_Nest_3 FoundByExplorationDisplayText]] "Nest_Species_Savegame_Stats['DeathflyNest']['spawnflag'] = true"),
-	FoundByExplorationWeight = 30,
-	Icon = "UI/Icons/Expeditions/5_tall_stones",
-	OneInstanceOnly = true,
-	OneTime = true,
-	RelevantSkills = set( "Farming", "Healing" ),
-	StoryBits = {
-		PlaceObj('ExpeditionStoryBitWeight', {
-			'StoryBit', "NA_deathfly_exp_1",
-		}),
-	},
-	UILineColor = 4293083197,
-	description = T(234587525360, --[[ModItemExpeditionPreset NA_Exped_Deathfly_Nest_3 description]] "A thick column of smoke is rising from this area."),
-	display_name = T(650882215927, --[[ModItemExpeditionPreset NA_Exped_Deathfly_Nest_3 display_name]] "Thick smoke"),
-	id = "NA_Exped_Deathfly_Nest_3",
-	mod_version_major = 3,
-	save_in = "Mod/TGkJ3Tu",
-}),
-PlaceObj('ModItemTrait', {
-	Description = T(948055913191, --[[ModItemTrait Dragonfly_watcher Description]] "Having survived a close ordeal with a mega-Scissorhands, this colonist has a +30% chance to dodge attacks in melee combat!"),
-	DisplayName = T(887074351609, --[[ModItemTrait Dragonfly_watcher DisplayName |gender-variants]] "Survival of the Fittest"),
-	id = "Dragonfly_watcher",
-	save_in = "Mod/TGkJ3Tu",
-	unit_reactions = {
-		PlaceObj('UnitReaction', {
-			Event = "AvoidAttackModify",
-			Handler = function (self, target, hit_chance, attacker, weapon_def, attacker_dist)
-				if GetDist(target, attacker) < 10 then
-					return hit_chance - 30
-				else
-					return hit_chance
-				end
-			end,
-		}),
-	},
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	FxAction = "UINotificationExpedition",
-	Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/DragonflySwarm.PNG",
-	NotificationText = T(160772523165, --[[ModItemStoryBit NA_deathfly_exp_1 NotificationText]] "Expedition complete: <ExplorationSiteName>"),
-	Text = T(230111664251, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "Well good news there isn't a brush fire.\nBad news, it's a dust devil made by a swarm of Dragonfly's headed this way!\n\nSuddenly being in a very flammable, slow, and big vehicle isn't very appealing...\nWhat should I do?"),
-	Title = T(985850948102, --[[ModItemStoryBit NA_deathfly_exp_1 Title]] "[The Nests Awaken] Deathfly Swarm"),
-	comment = "Flying swarm attack",
-	group = "Expedition_FollowUP",
-	id = "NA_deathfly_exp_1",
-	max_reply_id = 3,
-	save_in = "Mod/TGkJ3Tu",
-	PlaceObj('StoryBitReply', {
-		Text = T(520691799291, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "Fly you fool!"),
-		param_bindings = false,
-		unique_id = 1,
-	}),
-	PlaceObj('StoryBitOutcome', {
-		Effects = {
-			PlaceObj('AddRemoveTrait', {
-				Trait = "Dragonfly_watcher",
-				param_bindings = false,
-			}),
-			PlaceObj('StoryBitActivate', {
-				Id = "new_nest_deathfly",
-				param_bindings = false,
-			}),
-		},
-		Prerequisites = {
-			PlaceObj('CheckSkillLevel', {
-				Amount = 4,
-				Condition = ">=",
-				Skill = "Construction",
-				param_bindings = false,
-			}),
-		},
-		Text = T(540877573297, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "I had to break down some of the carriage and use it as fuel.\nBut that gave the balloon a boost in both height and speed.\n\nThe Dragonflys didn't notice me hovering above, and I figured I would watch what they where doing.\nThe min-tornado stripped the topsoil and started to dig a hole into the earth itself!\nWhat was left was a large rock, and the Dragonflys collectively picked it up.\nThis was a fascinating display, and I took some notes on some of the more interesting parts.\n\n<em>Local dragonfly nests will now spawn.\nColonist gains a trait improving observation/research efficiency.\n</em>"),
-		Title = T(889465807215, --[[ModItemStoryBit NA_deathfly_exp_1 Title]] "[The Nests Awaken] Deathfly Swarm"),
-		param_bindings = false,
-	}),
-	PlaceObj('StoryBitReply', {
-		Text = T(641775203562, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "Fight your way out!"),
-		param_bindings = false,
-		unique_id = 2,
-	}),
-	PlaceObj('StoryBitOutcome', {
-		Effects = {
-			PlaceObj('ModifySkill', {
-				Id = "autoid_TGkJ3Tu_bnmfqt3",
-				Level = 2,
-				Skill = "Combat",
-				param_bindings = false,
-			}),
-			PlaceObj('StoryBitActivate', {
-				Id = "new_nest_deathfly",
-				param_bindings = false,
-			}),
-		},
-		Prerequisites = {
-			PlaceObj('CheckSkillLevel', {
-				Amount = 2,
-				Condition = ">=",
-				Skill = "Combat",
-				param_bindings = false,
-			}),
-			PlaceObj('CheckExpression', {
-				Expression = function (self, obj) return obj:HasRangedAttack() end,
-				param_bindings = false,
-			}),
-		},
-		Text = T(808980217950, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "Well turns out Dragonfly's do not really like it when another flying thing is attacking them at range!\nTheir instincts must be more like prey against other sky creatures.....\n\nSetting that horrifying realization aside, I shot some down and landed to collect their meat.\nHopefully the Dragonfly's don't realize who started shooting at them....\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests can now spawn.\nDragonfly nests are going to be inherently hostile!\nColonist gains combat experience.\n</em>"),
-		Title = T(330953351478, --[[ModItemStoryBit NA_deathfly_exp_1 Title]] "[The Nests Awaken] Deathfly Swarm"),
-		param_bindings = false,
-	}),
-	PlaceObj('StoryBitOutcome', {
-		Effects = {
-			PlaceObj('AddRemoveTrait', {
-				Trait = "Dragonfly_watcher",
-				param_bindings = false,
-			}),
-			PlaceObj('StoryBitActivate', {
-				Id = "new_nest_deathfly",
-				param_bindings = false,
-			}),
-			PlaceObj('GiveExpeditionRewardToSurvivor', {
-				Amount = 10000,
-				Resource = "ChefsSteak",
-				param_bindings = false,
-			}),
-		},
-		Prerequisites = {
-			PlaceObj('CheckSkillLevel', {
-				Amount = 4,
-				Condition = ">=",
-				Skill = "Construction",
-				param_bindings = false,
-			}),
-		},
-		Text = T(607374492344, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "I had to break down most of the carriage.\nI then cranked up the heat lamp to it's maximum output, and shoved all that wood into the fuel.\n\nTurns out when something from above started spewing hot fire, Dragonfly's don't stick around to see if they can fight that off.\nThis means I have some cooked meat to collect.\n\nWhen I landed, I noticed a small rock that was half-exposed by the tornado.\nI took a piece from it to bring home as well!\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nColonist gains cooked meals.\nUnlock research investigating the special rock of the Dragonfly's.\n</em>"),
-		Title = T(633835020765, --[[ModItemStoryBit NA_deathfly_exp_1 Title]] "[The Nests Awaken] Deathfly Swarm"),
-		param_bindings = false,
-	}),
-	PlaceObj('StoryBitOutcome', {
-		Effects = {
-			PlaceObj('ExecuteCode', {
-				Code = function (self, obj)
-					obj:EjectAndStrand()
-				end,
-				param_bindings = false,
-			}),
-			PlaceObj('StoryBitActivate', {
-				Id = "new_nest_deathfly",
-				param_bindings = false,
-			}),
-		},
-		Text = T(375208463852, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "<style TextNegative>MAYDAY MAYDAY WE ARE GOING DOWN.\nTHE DAMN DEATHFLYS PUT HOLES INTO THE BALLOON.</style>\n\nI don't have many places for a soft landing, let alone a landing zone without critters.....\nThis may be my last transmission.....\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\n<style TextNegative>\nDragonfly nests are now inherently hostile!\nColonist missing in action</style>"),
-		Title = T(957136341347, --[[ModItemStoryBit NA_deathfly_exp_1 Title]] "[The Nests Awaken] Deathfly Swarm"),
-		Weight = 20,
-		param_bindings = false,
-	}),
-	PlaceObj('StoryBitReply', {
-		Text = T(552791266267, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "Fly casual and stay the course"),
-		param_bindings = false,
-		unique_id = 3,
-	}),
-	PlaceObj('StoryBitOutcome', {
-		Effects = {
-			PlaceObj('ExecuteCode', {
-				Code = function (self, obj)
-					PlaceRandomExplorationSites(obj)
-					PlaceRandomExplorationSites(obj)
-					PlaceRandomExplorationSites(obj)
-				end,
-				param_bindings = false,
-			}),
-			PlaceObj('StoryBitActivate', {
-				Id = "new_nest_deathfly",
-				param_bindings = false,
-			}),
-		},
-		Text = T(879432358752, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "Well turns out Deathfly's are still naturally passive creatures.\nSo the balloon didn't pop and leave me falling to my death, so that's nice.\n\nIt was a roller coaster, as I was caught in the tornado they summoned.\nAfter what felt like an eternity, the entire balloon was flung unceremoniously away.\n\nI stabilized my ride, but was well off course.\nI'm heading home, and I will mark down any new spots of interest I find.\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\n3 new expedition sites discovered.\n</em>"),
-		Title = T(421797323522, --[[ModItemStoryBit NA_deathfly_exp_1 Title]] "[The Nests Awaken] Deathfly Swarm"),
-		param_bindings = false,
-	}),
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	FxAction = "UINotificationExpedition",
-	Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/DeathflyMatriarch.PNG",
-	NotificationText = T(169415572709, --[[ModItemStoryBit NA_deathfly_exp_2 NotificationText]] "Expedition complete: <ExplorationSiteName>"),
-	Text = T(856899456860, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "Well the smoke was coming from a steam spewing cave.\nAs I got closer, a single gigantic Deathfly was laying inside.\n\nThere where dozens of eggs laid in weird protruding rocks.\nI can only assume this is a broodmother, preparing clutches to spread.\n\nI'm certain any movement I make towards the cave would result in the Deathfly to react defensively.\nWhat should I do?"),
-	Title = T(349702585332, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
-	comment = "Matriarch",
-	group = "Expedition_FollowUP",
-	id = "NA_deathfly_exp_2",
-	max_reply_id = 4,
-	save_in = "Mod/TGkJ3Tu",
-	PlaceObj('StoryBitReply', {
-		Text = T(102819202843, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "Try to communicate with it, that we are friendly"),
-		param_bindings = false,
-		unique_id = 1,
-	}),
-	PlaceObj('StoryBitOutcome', {
-		Effects = {
-			PlaceObj('StoryBitActivate', {
-				Id = "new_nest_deathfly",
-				param_bindings = false,
-			}),
-		},
-		Prerequisites = {
-			PlaceObj('CheckSkillLevel', {
-				Amount = 7,
-				Condition = ">=",
-				Skill = "Farming",
-				param_bindings = false,
-			}),
-		},
-		Text = T(319870924889, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "I placed a collection of rations and nearby food at the mouth of the cave and then backed away slowly.\nNot all of the food I had collected, and the Deathfly could still smell food on me.\n\nShe slowly waddled up and ate the food, then returned back to her spot.\nWith a blast of her wings, she rolled a rock to me. \nIt didn't have any eggs in it, and it was filled with pockmarks and holes.\n\nIt must mean something to them, and we can research it when I'm back.\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nA research has unlocked to learn about the Deathfly rock.\n</em>"),
-		Title = T(175900218427, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
-	}),
-	PlaceObj('StoryBitOutcome', {
-		Effects = {
-			PlaceObj('StoryBitActivate', {
-				Id = "new_nest_deathfly",
-				param_bindings = false,
-			}),
-		},
-		Prerequisites = {
-			PlaceObj('CheckSkillLevel', {
-				Amount = 4,
-				Condition = ">=",
-				Skill = "Farming",
-				param_bindings = false,
-			}),
-		},
-		Text = T(861968247259, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "I put the food down and sat down next to it.\nEven made some cooing noises and mocked scratches with my hands.\nThe Deathfly didn't seem that impressed.... and didn't leave her spot.\n\nFrustration got the better of me, and I started to shout...\nShe did not like that one bit, and with a blast from her wings, I was pushed back into the balloon!\nSome smaller Deathfly's then flew up and pushed the balloon farther and farther away!\n\nHonestly, I am grateful they only did this and didn't just attack.\nIt also gave me some ideas on how to make balloon travel even better....\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nNew research available regarding expedition travel.</em>"),
-		Title = T(625793983073, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
-	}),
-	PlaceObj('StoryBitOutcome', {
-		Effects = {
-			PlaceObj('StoryBitActivate', {
-				Id = "new_nest_deathfly",
-				param_bindings = false,
-			}),
-		},
-		Text = T(803153682592, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "The Matriarch did not appreciate my many many gestures of goodwill!\nStupid animals, unable to recognize tokens of friendship!\n\nI may or may not have sustained some acid burns, and based on the smaller Deathfly's I had to fight off to get back to the Balloon.... I'm not sure they will be friendly in the future.\nBut let the record show I tried!\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.</em>\n<style TextNegative>Dragonfly nests are now inherently hostile!</style>"),
-		Title = T(543653203542, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
-	}),
-	PlaceObj('StoryBitReply', {
-		Text = T(485113079625, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "Sneak in and grab an egg/rock"),
-		unique_id = 2,
-	}),
-	PlaceObj('StoryBitOutcome', {
-		Effects = {
-			PlaceObj('StoryBitActivate', {
-				Id = "new_nest_deathfly",
-				param_bindings = false,
-			}),
-		},
-		Prerequisites = {
-			PlaceObj('CheckSkillLevel', {
-				Amount = 4,
-				Condition = ">=",
-				Skill = "Intellectual",
-				param_bindings = false,
-			}),
-		},
-		Text = T(457868723074, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "It may not have the most moral thing to do, but I wounded some smaller creatures and left them tied nearby.\n\nThis was too enticing of an offer for the nearby Deathflies and they proceeded to have a feast.\n\nI grabbed a rock with eggs and didn't stick around!\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nNew research available to examine the brood clutch.</em>"),
-		Title = T(836946825417, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
-	}),
-	PlaceObj('StoryBitOutcome', {
-		Effects = {
-			PlaceObj('StoryBitActivate', {
-				Id = "new_nest_deathfly",
-				param_bindings = false,
-			}),
-		},
-		Text = T(484092531577, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "I explored nearby, looking for a suitably large rock to roll towards the cave.\nThankfully, there was one nearby, and I got it rolling.\n\nBut instead of rolling past the cave and spooking them away.....\nIt rolled directly into the cave, and the Deathfly stood her ground.\n\nGood news, I'm coming back with a lot of meat.\nBad news, that cave is now closed for business.\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nColonist gained Construction skill level.\nColonist gains moderate amount of meat.</em>\n<style TextNegative>Dragonfly nests are now inherently hostile!</em>"),
-		Title = T(143472997446, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
-		Weight = 20,
-	}),
-	PlaceObj('StoryBitReply', {
-		Text = T(325832019682, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "Try and scare it off"),
-		unique_id = 3,
-	}),
-	PlaceObj('StoryBitOutcome', {
-		Effects = {
-			PlaceObj('StoryBitActivate', {
-				Id = "new_nest_deathfly",
-				param_bindings = false,
-			}),
-		},
-		Prerequisites = {
-			PlaceObj('CheckOR', {
-				Conditions = {
-					PlaceObj('CheckIsAndroid', {
-						param_bindings = false,
-					}),
-					PlaceObj('CheckSkillLevel', {
-						Amount = 6,
-						Condition = ">=",
-						Skill = "Combat",
-						param_bindings = false,
-					}),
-					PlaceObj('CheckTrait', {
-						Trait = "became_death",
-						param_bindings = false,
+	PlaceObj('ModItemExpeditionPreset', {
+		DisableList = {
+			PlaceObj('Explanation', {
+				'Conditions', {
+					PlaceObj('CheckExpression', {
+						Expression = function (self, obj) return false end,
 					}),
 				},
-				param_bindings = false,
 			}),
 		},
-		Text = T(243114945982, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "I started to prepare for the worst.\nGot all my weapons in order, ammo to restock them, checked my armor.\n\nThe Deathfly Matriarch must has somehow recognized what I was doing.\nBecause it made an odd noise, and other Deathflys started to carry away the rock/eggs.\n\nI hastened my preparation and when I started walking towards the cave, the Deathfly's stopped taking the eggs away.\nI grabbed one and left before they collectively realized they could take me on!\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nColonist gained Construction skill level.\nNew research available to examine the brood clutch.</em>"),
-		Title = T(457690605978, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
-	}),
-	PlaceObj('StoryBitOutcome', {
-		Effects = {
-			PlaceObj('StoryBitActivate', {
-				Id = "new_nest_deathfly",
-				param_bindings = false,
+		DisplayImage = "UI/Messages/Expeditions/exp_5_tall_stones",
+		Expiration = 4800000,
+		FoundByExplorationDisplayText = T(241929342418, --[[ModItemExpeditionPreset NA_Exped_Deathfly_Nest_3 FoundByExplorationDisplayText]] "Nest_Species_Savegame_Stats['DeathflyNest']['spawnflag'] = true"),
+		FoundByExplorationWeight = 30,
+		Icon = "UI/Icons/Expeditions/5_tall_stones",
+		Obsolete = true,
+		OneTime = true,
+		RelevantSkills = set( "Farming", "Healing" ),
+		StoryBits = {
+			PlaceObj('ExpeditionStoryBitWeight', {
+				'StoryBit', "NA_deathfly_exp_1",
 			}),
 		},
-		Text = T(263663659407, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "I ran up and started shouting and banging my chest.\nThis.... did not go over well.\nWith a blast from the Matriarchs wings, I was pushed back into the balloon!\nSome smaller Deathfly's then flew up and pushed the balloon farther and farther away!\n\nHonestly, I am grateful they only did this and didn't just attack.\nIt also gave me some ideas on how to make balloon travel even better....\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nNew research available regarding expedition travel.</em>"),
-		Title = T(873436179274, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
-		Weight = 20,
+		UILineColor = 4293083197,
+		description = T(234587525360, --[[ModItemExpeditionPreset NA_Exped_Deathfly_Nest_3 description]] "A thick column of smoke is rising from this area."),
+		display_name = T(650882215927, --[[ModItemExpeditionPreset NA_Exped_Deathfly_Nest_3 display_name]] "Thick smoke"),
+		id = "NA_Exped_Deathfly_Nest_3",
+		mod_version_major = 3,
+		save_in = "Mod/TGkJ3Tu",
 	}),
-}),
-PlaceObj('ModItemStoryBit', {
-	Category = "Expedition",
-	Enabled = true,
-	FxAction = "UINotificationExpedition",
-	NotificationText = T(312390709618, --[[ModItemStoryBit NA_deathfly_exp_3 NotificationText]] "Expedition complete: <ExplorationSiteName>"),
-	Title = T(394422715878, --[[ModItemStoryBit NA_deathfly_exp_3 Title]] "[The Nests Awaken] Deathfly Insta-cliff"),
-	comment = "Cliff in a cyst",
-	group = "Expedition_FollowUP",
-	id = "NA_deathfly_exp_3",
-	save_in = "Mod/TGkJ3Tu",
-}),
+	PlaceObj('ModItemStoryBit', {
+		Category = "Expedition",
+		Enabled = true,
+		FxAction = "UINotificationExpedition",
+		Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/DragonflySwarm.PNG",
+		NotificationText = T(160772523165, --[[ModItemStoryBit NA_deathfly_exp_1 NotificationText]] "Expedition complete: <ExplorationSiteName>"),
+		Text = T(230111664251, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "Well good news there isn't a brush fire.\nBad news, it's a dust devil made by a swarm of Dragonfly's headed this way!\n\nSuddenly being in a very flammable, slow, and big vehicle isn't very appealing...\nWhat should I do?"),
+		Title = T(985850948102, --[[ModItemStoryBit NA_deathfly_exp_1 Title]] "[The Nests Awaken] Deathfly Swarm"),
+		comment = "Flying swarm attack",
+		group = "Expedition_FollowUP",
+		id = "NA_deathfly_exp_1",
+		max_reply_id = 3,
+		save_in = "Mod/TGkJ3Tu",
+		PlaceObj('StoryBitReply', {
+			Text = T(520691799291, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "Fly you fool!"),
+			param_bindings = false,
+			unique_id = 1,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('AddRemoveTrait', {
+					Trait = "Dragonfly_watcher",
+					param_bindings = false,
+				}),
+				PlaceObj('StoryBitActivate', {
+					Id = "new_nest_deathfly",
+					param_bindings = false,
+				}),
+			},
+			Prerequisites = {
+				PlaceObj('CheckSkillLevel', {
+					Amount = 4,
+					Condition = ">=",
+					Skill = "Construction",
+					param_bindings = false,
+				}),
+			},
+			Text = T(540877573297, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "I had to break down some of the carriage and use it as fuel.\nBut that gave the balloon a boost in both height and speed.\n\nThe Dragonflys didn't notice me hovering above, and I figured I would watch what they where doing.\nThe min-tornado stripped the topsoil and started to dig a hole into the earth itself!\nWhat was left was a large rock, and the Dragonflys collectively picked it up.\nThis was a fascinating display, and I took some notes on some of the more interesting parts.\n\n<em>Local dragonfly nests will now spawn.\nColonist gains a trait improving observation/research efficiency.\n</em>"),
+			Title = T(889465807215, --[[ModItemStoryBit NA_deathfly_exp_1 Title]] "[The Nests Awaken] Deathfly Swarm"),
+			param_bindings = false,
+		}),
+		PlaceObj('StoryBitReply', {
+			Text = T(641775203562, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "Fight your way out!"),
+			param_bindings = false,
+			unique_id = 2,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('ModifySkill', {
+					Id = "autoid_TGkJ3Tu_bnmfqt3",
+					Level = 2,
+					Skill = "Combat",
+					param_bindings = false,
+				}),
+				PlaceObj('StoryBitActivate', {
+					Id = "new_nest_deathfly",
+					param_bindings = false,
+				}),
+			},
+			Prerequisites = {
+				PlaceObj('CheckSkillLevel', {
+					Amount = 2,
+					Condition = ">=",
+					Skill = "Combat",
+					param_bindings = false,
+				}),
+				PlaceObj('CheckExpression', {
+					Expression = function (self, obj) return obj:HasRangedAttack() end,
+					param_bindings = false,
+				}),
+			},
+			Text = T(808980217950, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "Well turns out Dragonfly's do not really like it when another flying thing is attacking them at range!\nTheir instincts must be more like prey against other sky creatures.....\n\nSetting that horrifying realization aside, I shot some down and landed to collect their meat.\nHopefully the Dragonfly's don't realize who started shooting at them....\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests can now spawn.\nDragonfly nests are going to be inherently hostile!\nColonist gains combat experience.\n</em>"),
+			Title = T(330953351478, --[[ModItemStoryBit NA_deathfly_exp_1 Title]] "[The Nests Awaken] Deathfly Swarm"),
+			param_bindings = false,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('AddRemoveTrait', {
+					Trait = "Dragonfly_watcher",
+					param_bindings = false,
+				}),
+				PlaceObj('StoryBitActivate', {
+					Id = "new_nest_deathfly",
+					param_bindings = false,
+				}),
+				PlaceObj('GiveExpeditionRewardToSurvivor', {
+					Amount = 10000,
+					Resource = "ChefsSteak",
+					param_bindings = false,
+				}),
+			},
+			Prerequisites = {
+				PlaceObj('CheckSkillLevel', {
+					Amount = 4,
+					Condition = ">=",
+					Skill = "Construction",
+					param_bindings = false,
+				}),
+			},
+			Text = T(607374492344, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "I had to break down most of the carriage.\nI then cranked up the heat lamp to it's maximum output, and shoved all that wood into the fuel.\n\nTurns out when something from above started spewing hot fire, Dragonfly's don't stick around to see if they can fight that off.\nThis means I have some cooked meat to collect.\n\nWhen I landed, I noticed a small rock that was half-exposed by the tornado.\nI took a piece from it to bring home as well!\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nColonist gains cooked meals.\nUnlock research investigating the special rock of the Dragonfly's.\n</em>"),
+			Title = T(633835020765, --[[ModItemStoryBit NA_deathfly_exp_1 Title]] "[The Nests Awaken] Deathfly Swarm"),
+			param_bindings = false,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('ExecuteCode', {
+					Code = function (self, obj)
+						obj:EjectAndStrand()
+					end,
+					param_bindings = false,
+				}),
+				PlaceObj('StoryBitActivate', {
+					Id = "new_nest_deathfly",
+					param_bindings = false,
+				}),
+			},
+			Text = T(375208463852, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "<style TextNegative>MAYDAY MAYDAY WE ARE GOING DOWN.\nTHE DAMN DEATHFLYS PUT HOLES INTO THE BALLOON.</style>\n\nI don't have many places for a soft landing, let alone a landing zone without critters.....\nThis may be my last transmission.....\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\n<style TextNegative>\nDragonfly nests are now inherently hostile!\nColonist missing in action</style>"),
+			Title = T(957136341347, --[[ModItemStoryBit NA_deathfly_exp_1 Title]] "[The Nests Awaken] Deathfly Swarm"),
+			Weight = 20,
+			param_bindings = false,
+		}),
+		PlaceObj('StoryBitReply', {
+			Text = T(552791266267, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "Fly casual and stay the course"),
+			param_bindings = false,
+			unique_id = 3,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('ExecuteCode', {
+					Code = function (self, obj)
+						PlaceRandomExplorationSites(obj)
+						PlaceRandomExplorationSites(obj)
+						PlaceRandomExplorationSites(obj)
+					end,
+					param_bindings = false,
+				}),
+				PlaceObj('StoryBitActivate', {
+					Id = "new_nest_deathfly",
+					param_bindings = false,
+				}),
+			},
+			Text = T(879432358752, --[[ModItemStoryBit NA_deathfly_exp_1 Text]] "Well turns out Deathfly's are still naturally passive creatures.\nSo the balloon didn't pop and leave me falling to my death, so that's nice.\n\nIt was a roller coaster, as I was caught in the tornado they summoned.\nAfter what felt like an eternity, the entire balloon was flung unceremoniously away.\n\nI stabilized my ride, but was well off course.\nI'm heading home, and I will mark down any new spots of interest I find.\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\n3 new expedition sites discovered.\n</em>"),
+			Title = T(421797323522, --[[ModItemStoryBit NA_deathfly_exp_1 Title]] "[The Nests Awaken] Deathfly Swarm"),
+			param_bindings = false,
+		}),
+	}),
+	PlaceObj('ModItemStoryBit', {
+		Category = "Expedition",
+		Enabled = true,
+		FxAction = "UINotificationExpedition",
+		Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/DeathflyMatriarch.PNG",
+		NotificationText = T(169415572709, --[[ModItemStoryBit NA_deathfly_exp_2 NotificationText]] "Expedition complete: <ExplorationSiteName>"),
+		Text = T(856899456860, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "Well the smoke was coming from a steam spewing cave.\nAs I got closer, a single gigantic Deathfly was laying inside.\n\nThere where dozens of eggs laid in weird protruding rocks.\nI can only assume this is a broodmother, preparing clutches to spread.\n\nI'm certain any movement I make towards the cave would result in the Deathfly to react defensively.\nWhat should I do?"),
+		Title = T(349702585332, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
+		comment = "Matriarch",
+		group = "Expedition_FollowUP",
+		id = "NA_deathfly_exp_2",
+		max_reply_id = 4,
+		save_in = "Mod/TGkJ3Tu",
+		PlaceObj('StoryBitReply', {
+			Text = T(102819202843, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "Try to communicate with it, that we are friendly"),
+			param_bindings = false,
+			unique_id = 1,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('StoryBitActivate', {
+					Id = "new_nest_deathfly",
+					param_bindings = false,
+				}),
+			},
+			Prerequisites = {
+				PlaceObj('CheckSkillLevel', {
+					Amount = 7,
+					Condition = ">=",
+					Skill = "Farming",
+					param_bindings = false,
+				}),
+			},
+			Text = T(319870924889, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "I placed a collection of rations and nearby food at the mouth of the cave and then backed away slowly.\nNot all of the food I had collected, and the Deathfly could still smell food on me.\n\nShe slowly waddled up and ate the food, then returned back to her spot.\nWith a blast of her wings, she rolled a rock to me. \nIt didn't have any eggs in it, and it was filled with pockmarks and holes.\n\nIt must mean something to them, and we can research it when I'm back.\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nA research has unlocked to learn about the Deathfly rock.\n</em>"),
+			Title = T(175900218427, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
+			param_bindings = false,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('StoryBitActivate', {
+					Id = "new_nest_deathfly",
+					param_bindings = false,
+				}),
+			},
+			Prerequisites = {
+				PlaceObj('CheckSkillLevel', {
+					Amount = 4,
+					Condition = ">=",
+					Skill = "Farming",
+					param_bindings = false,
+				}),
+			},
+			Text = T(861968247259, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "I put the food down and sat down next to it.\nEven made some cooing noises and mocked scratches with my hands.\nThe Deathfly didn't seem that impressed.... and didn't leave her spot.\n\nFrustration got the better of me, and I started to shout...\nShe did not like that one bit, and with a blast from her wings, I was pushed back into the balloon!\nSome smaller Deathfly's then flew up and pushed the balloon farther and farther away!\n\nHonestly, I am grateful they only did this and didn't just attack.\nIt also gave me some ideas on how to make balloon travel even better....\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nNew research available regarding expedition travel.</em>"),
+			Title = T(625793983073, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
+			param_bindings = false,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('StoryBitActivate', {
+					Id = "new_nest_deathfly",
+					param_bindings = false,
+				}),
+			},
+			Text = T(803153682592, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "The Matriarch did not appreciate my many many gestures of goodwill!\nStupid animals, unable to recognize tokens of friendship!\n\nI may or may not have sustained some acid burns, and based on the smaller Deathfly's I had to fight off to get back to the Balloon.... I'm not sure they will be friendly in the future.\nBut let the record show I tried!\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.</em>\n<style TextNegative>Dragonfly nests are now inherently hostile!</style>"),
+			Title = T(543653203542, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
+			param_bindings = false,
+		}),
+		PlaceObj('StoryBitReply', {
+			Text = T(485113079625, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "Sneak in and grab an egg/rock"),
+			param_bindings = false,
+			unique_id = 2,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('StoryBitActivate', {
+					Id = "new_nest_deathfly",
+					param_bindings = false,
+				}),
+			},
+			Prerequisites = {
+				PlaceObj('CheckSkillLevel', {
+					Amount = 4,
+					Condition = ">=",
+					Skill = "Intellectual",
+					param_bindings = false,
+				}),
+			},
+			Text = T(457868723074, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "It may not have the most moral thing to do, but I wounded some smaller creatures and left them tied nearby.\n\nThis was too enticing of an offer for the nearby Deathflies and they proceeded to have a feast.\n\nI grabbed a rock with eggs and didn't stick around!\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nNew research available to examine the brood clutch.</em>"),
+			Title = T(836946825417, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
+			param_bindings = false,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('StoryBitActivate', {
+					Id = "new_nest_deathfly",
+					param_bindings = false,
+				}),
+			},
+			Text = T(484092531577, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "I explored nearby, looking for a suitably large rock to roll towards the cave.\nThankfully, there was one nearby, and I got it rolling.\n\nBut instead of rolling past the cave and spooking them away.....\nIt rolled directly into the cave, and the Deathfly stood her ground.\n\nGood news, I'm coming back with a lot of meat.\nBad news, that cave is now closed for business.\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nColonist gained Construction skill level.\nColonist gains moderate amount of meat.</em>\n<style TextNegative>Dragonfly nests are now inherently hostile!</em>"),
+			Title = T(143472997446, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
+			Weight = 20,
+			param_bindings = false,
+		}),
+		PlaceObj('StoryBitReply', {
+			Text = T(325832019682, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "Try and scare it off"),
+			param_bindings = false,
+			unique_id = 3,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('StoryBitActivate', {
+					Id = "new_nest_deathfly",
+					param_bindings = false,
+				}),
+			},
+			Prerequisites = {
+				PlaceObj('CheckOR', {
+					Conditions = {
+						PlaceObj('CheckIsAndroid', {
+							param_bindings = false,
+						}),
+						PlaceObj('CheckSkillLevel', {
+							Amount = 6,
+							Condition = ">=",
+							Skill = "Combat",
+							param_bindings = false,
+						}),
+						PlaceObj('CheckTrait', {
+							Trait = "became_death",
+							param_bindings = false,
+						}),
+					},
+					param_bindings = false,
+				}),
+			},
+			Text = T(243114945982, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "I started to prepare for the worst.\nGot all my weapons in order, ammo to restock them, checked my armor.\n\nThe Deathfly Matriarch must has somehow recognized what I was doing.\nBecause it made an odd noise, and other Deathflys started to carry away the rock/eggs.\n\nI hastened my preparation and when I started walking towards the cave, the Deathfly's stopped taking the eggs away.\nI grabbed one and left before they collectively realized they could take me on!\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nColonist gained Construction skill level.\nNew research available to examine the brood clutch.</em>"),
+			Title = T(457690605978, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
+			param_bindings = false,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('StoryBitActivate', {
+					Id = "new_nest_deathfly",
+					param_bindings = false,
+				}),
+			},
+			Text = T(263663659407, --[[ModItemStoryBit NA_deathfly_exp_2 Text]] "I ran up and started shouting and banging my chest.\nThis.... did not go over well.\nWith a blast from the Matriarchs wings, I was pushed back into the balloon!\nSome smaller Deathfly's then flew up and pushed the balloon farther and farther away!\n\nHonestly, I am grateful they only did this and didn't just attack.\nIt also gave me some ideas on how to make balloon travel even better....\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nNew research available regarding expedition travel.</em>"),
+			Title = T(873436179274, --[[ModItemStoryBit NA_deathfly_exp_2 Title]] "[The Nests Awaken] Deathfly Matriarch Cave"),
+			Weight = 20,
+			param_bindings = false,
+		}),
+	}),
+	PlaceObj('ModItemStoryBit', {
+		Category = "Expedition",
+		Enabled = true,
+		FxAction = "UINotificationExpedition",
+		Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/brand_new_deathfly_nest.PNG",
+		NotificationText = T(312390709618, --[[ModItemStoryBit NA_deathfly_exp_3 NotificationText]] "Expedition complete: <ExplorationSiteName>"),
+		Text = T(104094270601, --[[ModItemStoryBit NA_deathfly_exp_3 Text]] "Well the smoke was a small object being carried by a group of Deathfly's.\nThey where flying low to the ground, seemingly wandering.\nOne would occasionally break off from the pack, fly nearby, then return.\n\nAfter a half dozen break offs, the group start hovering above a flat clearing.\nAnd the one carrying the smoking... rock(?) just dropped it.\n\nLo and behold, the second that thing landed, a sheer rock cliff grew from seemingly nothing!\nAnd out of the cliff came crawling baby Deathflys!\n\nI MUST get a sample of this cliff, but it may be dangerous...."),
+		Title = T(394422715878, --[[ModItemStoryBit NA_deathfly_exp_3 Title]] "[The Nests Awaken] Deathfly Insta-cliff"),
+		comment = "It's a cliff in a box",
+		group = "Expedition_FollowUP",
+		id = "NA_deathfly_exp_3",
+		max_reply_id = 4,
+		save_in = "Mod/TGkJ3Tu",
+		PlaceObj('StoryBitReply', {
+			Text = T(966515534093, --[[ModItemStoryBit NA_deathfly_exp_3 Text]] "Distract the main group and chisel a small piece"),
+			param_bindings = false,
+			unique_id = 1,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Prerequisites = {
+				PlaceObj('CheckSkillLevel', {
+					Amount = 4,
+					Condition = ">=",
+					Skill = "Farming",
+					param_bindings = false,
+				}),
+			},
+			Text = T(831263858786, --[[ModItemStoryBit NA_deathfly_exp_3 Text]] "I set up traps in preparation, and then sharpened my survival tools.\nThe traps caught some smaller prey, and I slaughtered just enough of them for their smell to waft towards the nest.\n\nOne by one, what looked like the entire group left to get a free meal.\nGiving me plenty of time to get a good sample.\n\nThe rock doesn't feel alive, and it's very porous.\nBut further inspection at base will give us more info.\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nA research has unlocked to learn about the Deathfly rock.\n</em>"),
+			Title = T(239614198996, --[[ModItemStoryBit NA_deathfly_exp_3 Title]] "[The Nests Awaken] Deathfly Insta-cliff"),
+			param_bindings = false,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Prerequisites = {
+				PlaceObj('CheckSkillLevel', {
+					Amount = 4,
+					Condition = ">=",
+					Skill = "Construction",
+					param_bindings = false,
+				}),
+			},
+			Text = T(237365953875, --[[ModItemStoryBit NA_deathfly_exp_3 Text]] "I took some of the food I had and left if nearby.\nI didn't know how much time that would buy me, but all those years of mining paid off.\nBecause I was able to knock a chunk loose in one hit.\n\nThe Deathfly rock is easier to break than the stone on the planet.\nBut further inspection at base will give us more info.\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nA research has unlocked to learn about the Deathfly rock.\n</em>"),
+			Title = T(748844352164, --[[ModItemStoryBit NA_deathfly_exp_3 Title]] "[The Nests Awaken] Deathfly Insta-cliff"),
+			param_bindings = false,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Text = T(711362572730, --[[ModItemStoryBit NA_deathfly_exp_3 Text]] "I took some of the food I had and left if nearby.\nBut a scouting Deathfly saw me right as I started to head to the nest...\n\nI didn't want to back out now, so I sprinted to the rock and carved a piece off.\nThe Deathflys of course did not take too kindly too this, and I'm a bit singed from their spit.\n\nThankfully once I sprinted off, they did not chase.\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nA research has unlocked to learn about the Deathfly rock.\n</em>"),
+			Title = T(605175457632, --[[ModItemStoryBit NA_deathfly_exp_3 Title]] "[The Nests Awaken] Deathfly Insta-cliff"),
+			Weight = 20,
+			param_bindings = false,
+		}),
+		PlaceObj('StoryBitReply', {
+			Text = T(515046751280, --[[ModItemStoryBit NA_deathfly_exp_3 Text]] "Observe the brand new cliff"),
+			param_bindings = false,
+			unique_id = 3,
+		}),
+		PlaceObj('StoryBitOutcome', {
+			Prerequisites = {
+				PlaceObj('CheckSkillLevel', {
+					Amount = 4,
+					Condition = ">=",
+					Skill = "Construction",
+					param_bindings = false,
+				}),
+			},
+			Text = T(173559535498, --[[ModItemStoryBit NA_deathfly_exp_3 Text]] "The newly hatched Deathfly's are fully functional.\nI watched as packs split off and started to hunt the nearby wildlife.\n\n<em>A local dragonfly nest has spawned.\nDragonfly nests will now spawn.\nA research has unlocked to learn about the Deathfly rock.\n</em>"),
+			Title = T(395442296810, --[[ModItemStoryBit NA_deathfly_exp_3 Title]] "[The Nests Awaken] Deathfly Insta-cliff"),
+			param_bindings = false,
+		}),
+		PlaceObj('StoryBitReply', {
+			Text = T(580803645001, --[[ModItemStoryBit NA_deathfly_exp_3 Text]] "Pick off lone Deathfly's to dwindle their numbers"),
+			param_bindings = false,
+			unique_id = 4,
+		}),
+	}),
+	PlaceObj('ModItemTrait', {
+		Description = T(948055913191, --[[ModItemTrait Dragonfly_watcher Description]] "Having survived a close ordeal with a mega-Scissorhands, this colonist has a +30% chance to dodge attacks in melee combat!"),
+		DisplayName = T(887074351609, --[[ModItemTrait Dragonfly_watcher DisplayName |gender-variants]] "Survival of the Fittest"),
+		id = "Dragonfly_watcher",
+		save_in = "Mod/TGkJ3Tu",
+		unit_reactions = {
+			PlaceObj('UnitReaction', {
+				Event = "AvoidAttackModify",
+				Handler = function (self, target, hit_chance, attacker, weapon_def, attacker_dist)
+					if GetDist(target, attacker) < 10 then
+						return hit_chance - 30
+					else
+						return hit_chance
+					end
+				end,
+			}),
+		},
+	}),
+	}),
 PlaceObj('ModItemFolder', {
 	'name', "New Content: Consortium (Mining)",
 }, {
@@ -4246,6 +4137,10 @@ PlaceObj('ModItemFolder', {
 					Resource = "Silicon",
 					param_bindings = false,
 				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_consortium",
+				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/temporary.png",
 			Text = T(507494139370, --[[ModItemStoryBit Robot_Degraded_Prefab Text]] "I stomped on what robots were still moving.\nThe buildings where so broken down a single solid kick toppled them.\n\nThere are a lot of blinking red lights that I couldn't break though.\nNot sure what that's about, but I'm coming back with quite a haul!\n\n<em>Local Consortium Nest aggression levels raised.\nLarge trove of Silicon Gained</em>\n"),
@@ -4271,6 +4166,11 @@ PlaceObj('ModItemFolder', {
 					end,
 					param_bindings = false,
 				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					aggression_up = false,
+					param_bindings = false,
+					species = "nesting_consortium",
+				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/temporary.png",
 			Text = T(949651270910, --[[ModItemStoryBit Robot_Degraded_Prefab Text]] "I broke all the nearby trees and rocks down.\nTook me the better part of a day, and I'm going to be sore for days.\n\nAfter the 3rd rock I dropped into the drop box, the building started to whir to life!\nAnd out came a brand new robot with a brand new teal pickaxe.\n\nIt glanced my way, but then went right to work picking up the rest of what I broke down. \n\nI left before the now buzzing base changed it's mind.\n\n<em>Colonists Physical Skill increased by 2.\nLocal Consortium Nest aggression levels lowered.</em>"),
@@ -4284,11 +4184,10 @@ PlaceObj('ModItemFolder', {
 		}),
 		PlaceObj('StoryBitOutcome', {
 			Effects = {
-				PlaceObj('ExecuteCode', {
-					Code = function (self, obj)
-						Aggression_down('ConsortiumNest')
-					end,
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					aggression_up = false,
 					param_bindings = false,
+					species = "nesting_consortium",
 				}),
 				PlaceObj('AttachEffectsToLabel', {
 					Effects = {
@@ -4400,8 +4299,22 @@ PlaceObj('ModItemFolder', {
 			unique_id = 3,
 		}),
 		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_consortium",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_consortium",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_consortium",
+				}),
+			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/temporary.png",
-			Text = T(646013289734, --[[ModItemStoryBit Robot_Diplo_Miscomm Text]] 'Before I ended up on this planet, I knew that the Consortium was just a robotics company. And they certainly did not have any authority to even send space ships, let alone mine!\n\nAs I explained, I was cutoff by the robot....\n"DIPLOMATIC COMMUNICATIONS HAVE BROKEN DOWN. LEAVE THE PREMISES BEFORE YOUR DIPLOMATIC IMMUNITY IS NULL AND VOID, AND ALERT YOUR CIVILIZATION WE DECLARE WAR."\n\n<style TextNegative>The consequences of this action will occur in due time</style>'),
+			Text = T(646013289734, --[[ModItemStoryBit Robot_Diplo_Miscomm Text]] 'Before I ended up on this planet, I knew that the Consortium was just a robotics company. And they certainly did not have any authority to even send space ships, let alone mine!\n\nAs I explained, I was cutoff by the robot....\n"DIPLOMATIC COMMUNICATIONS HAVE BROKEN DOWN. LEAVE THE PREMISES BEFORE YOUR DIPLOMATIC IMMUNITY IS NULL AND VOID, AND ALERT YOUR CIVILIZATION WE DECLARE WAR."\n\n\n<em>Local Consortium Nest aggression levels raised.</em>'),
 			Title = T(117855560734, --[[ModItemStoryBit Robot_Diplo_Miscomm Title]] "[The Nests Awaken] Consortium Mining Site"),
 			param_bindings = false,
 		}),
@@ -4411,6 +4324,12 @@ PlaceObj('ModItemFolder', {
 			unique_id = 4,
 		}),
 		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_consortium",
+				}),
+			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/temporary.png",
 			Text = T(673450905611, --[[ModItemStoryBit Robot_Diplo_Miscomm Text]] "I asked to see a tour before we started to negotiate to 'make sure their stuff was top quality'.\n\nI also made sure to stress how culturally, I must \"bless\" everything that sparks with water.\nAnd those buckets of bolts just let me..... like their self-preservation code got turned off!\n\nNo sooner had I toured 2 buildings than everything was shorting, and a few fires broke out!\nNeedless to say, I got to pick what I wanted to bring home from the negotiations!\n\n<em>Hoard of silicon and metal acquired.\nLocal Consortium Aggression increased</em>"),
 			Title = T(966655008822, --[[ModItemStoryBit Robot_Diplo_Miscomm Title]] "[The Nests Awaken] Consortium Mining Site"),
@@ -4439,6 +4358,10 @@ PlaceObj('ModItemFolder', {
 					SpawnClass = "Scissorhands_T5",
 					param_bindings = false,
 				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_consortium",
+				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/temporary.png",
 			Text = T(781495852780, --[[ModItemStoryBit Robot_Fake_Settlement Text]] 'Through a combination of trickery, flattery, and acting like I believed the robots, I managed to break some cages.\nThe animals that were healthy enough started to rampage across the "town".\nThe animal whose cage I opened first seemed to take a liking to me, and it seems to want to come home with me.\n\n<em>High Tier animal will be brought back from this expedition.\nLocal Consortium Aggression levels increased.</em>'),
@@ -4451,6 +4374,10 @@ PlaceObj('ModItemFolder', {
 					SpawnClass = "Camel_T5",
 					param_bindings = false,
 				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_consortium",
+				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/temporary.png",
 			Text = T(283543309898, --[[ModItemStoryBit Robot_Fake_Settlement Text]] 'Through a combination of trickery, flattery, and acting like I believed the robots, I managed to break some cages.\nThe animals that were healthy enough started to rampage across the "town".\nThe animal whose cage I opened first seemed to take a liking to me, and it seems to want to come home with me.\n\n<em>High Tier animal will be brought back from this expedition.\nLocal Consortium Aggression levels increased.</em>'),
@@ -4462,6 +4389,10 @@ PlaceObj('ModItemFolder', {
 				PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 					SpawnClass = "Ulfen_T5",
 					param_bindings = false,
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_consortium",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/temporary.png",
@@ -4476,9 +4407,13 @@ PlaceObj('ModItemFolder', {
 		}),
 		PlaceObj('StoryBitOutcome', {
 			Effects = {
-				nil,
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					aggression_up = false,
+					param_bindings = false,
+					species = "nesting_consortium",
+				}),
 				PlaceObj('GiveExpeditionRewardToSurvivor', {
-					Amount = 500000,
+					Amount = 150000,
 					Resource = "Wood",
 					param_bindings = false,
 				}),
@@ -4744,8 +4679,22 @@ PlaceObj('ModItemFolder', {
 			unique_id = 10,
 		}),
 		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_shriekers",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_shriekers",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_shriekers",
+				}),
+			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ShriekerHorns.jpg",
-			Text = T(329248656624, --[[ModItemStoryBit Broken_Shrieker_Nest Text]] "I tried to damage the pillars with what I had...\nBut these pillars are made of stern stuff!\n\nWorse still, the pillars are now vibrating so loud it is starting to hurt.\nI'm getting out of here before I start to go deaf!\n<style TextNegative>The consequences of this action will occur in due time</style>"),
+			Text = T(329248656624, --[[ModItemStoryBit Broken_Shrieker_Nest Text]] "I tried to damage the pillars with what I had...\nBut these pillars are made of stern stuff!\n\nWorse still, the pillars are now vibrating so loud it is starting to hurt.\nI'm getting out of here before I start to go deaf!\n<em>Local Shrieker Nest aggression levels raised 3x.</em>"),
 			Title = T(573170111095, --[[ModItemStoryBit Broken_Shrieker_Nest Title]] "Pillar's are louder!"),
 			param_bindings = false,
 		}),
@@ -4761,6 +4710,11 @@ PlaceObj('ModItemFolder', {
 					Amount = 100000,
 					Resource = "CarbonNanotubes",
 					param_bindings = false,
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					aggression_up = false,
+					param_bindings = false,
+					species = "nesting_shriekers",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ShriekerHorns.jpg",
@@ -4793,6 +4747,10 @@ PlaceObj('ModItemFolder', {
 					Amount = 50000,
 					Resource = "CarbonNanotubes",
 					param_bindings = false,
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_shriekers",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ShriekerHorns.jpg",
@@ -4843,6 +4801,14 @@ PlaceObj('ModItemFolder', {
 					Amount = 50000,
 					Resource = "CarbonNanotubes",
 					param_bindings = false,
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_shriekers",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_shriekers",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ShriekerHorns.jpg",
@@ -4895,10 +4861,14 @@ PlaceObj('ModItemFolder', {
 		}),
 		PlaceObj('StoryBitOutcome', {
 			Effects = {
-				nil,
 				PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 					SpawnClass = "Shrieker_T4",
 					param_bindings = false,
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					aggression_up = false,
+					param_bindings = false,
+					species = "nesting_shriekers",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ShriekerHorns.jpg",
@@ -4928,10 +4898,14 @@ PlaceObj('ModItemFolder', {
 		}),
 		PlaceObj('StoryBitOutcome', {
 			Effects = {
-				nil,
 				PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 					SpawnClass = "Shrieker_T3",
 					param_bindings = false,
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					aggression_up = false,
+					param_bindings = false,
+					species = "nesting_shriekers",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ShriekerHorns.jpg",
@@ -4970,6 +4944,10 @@ PlaceObj('ModItemFolder', {
 					Amount = 30000,
 					Resource = "CarbonNanotubes",
 					param_bindings = false,
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_shriekers",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/ShriekerHorns.jpg",
@@ -5276,6 +5254,14 @@ PlaceObj('ModItemFolder', {
 					Resource = "CarbonNanotubes",
 					param_bindings = false,
 				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_shriekers",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_shriekers",
+				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/pileoffood.jpg",
 			Prerequisites = {
@@ -5359,6 +5345,14 @@ PlaceObj('ModItemFolder', {
 					HealthCond = "Shrieker_SpikePuncture",
 					HealthCondType = "Injury",
 					param_bindings = false,
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_shriekers",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_shriekers",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/pileoffood.jpg",
@@ -5451,10 +5445,21 @@ PlaceObj('ModItemFolder', {
 		}),
 		PlaceObj('StoryBitOutcome', {
 			Effects = {
-				nil,
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					aggression_up = false,
+					param_bindings = false,
+					species = "nesting_shriekers",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_scissorhands",
+				}),
 				nil,
 				PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 					SpawnClass = "Shrieker_T4",
+					param_bindings = false,
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
 					param_bindings = false,
 				}),
 			},
@@ -5485,10 +5490,22 @@ PlaceObj('ModItemFolder', {
 		}),
 		PlaceObj('StoryBitOutcome', {
 			Effects = {
-				nil,
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					aggression_up = false,
+					param_bindings = false,
+					species = "nesting_scissorhands",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					aggression_up = false,
+					param_bindings = false,
+					species = "nesting_shriekers",
+				}),
 				nil,
 				PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 					SpawnClass = "Scissorhands_T4",
+					param_bindings = false,
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
 					param_bindings = false,
 				}),
 			},
@@ -5519,11 +5536,15 @@ PlaceObj('ModItemFolder', {
 		}),
 		PlaceObj('StoryBitOutcome', {
 			Effects = {
-				nil,
-				nil,
-				PlaceObj('GiveExpeditionTameRewardToSurvivor', {
-					SpawnClass = "Shrieker_T3",
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					aggression_up = false,
 					param_bindings = false,
+					species = "nesting_shriekers",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					aggression_up = false,
+					param_bindings = false,
+					species = "nesting_scissorhands",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/Insect_War.jpg",
@@ -5558,6 +5579,16 @@ PlaceObj('ModItemFolder', {
 					Level = 2,
 					Skill = "Healing",
 					param_bindings = false,
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					aggression_up = false,
+					param_bindings = false,
+					species = "nesting_shriekers",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					aggression_up = false,
+					param_bindings = false,
+					species = "nesting_scissorhands",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/Insect_War.jpg",
@@ -5960,11 +5991,15 @@ PlaceObj('ModItemFolder', {
 		}),
 		PlaceObj('StoryBitOutcome', {
 			Effects = {
-				nil,
 				PlaceObj('GiveExpeditionRewardToSurvivor', {
 					Amount = 50000,
 					Resource = "Silicon",
 					param_bindings = false,
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					aggression_up = false,
+					param_bindings = false,
+					species = "nesting_scissorhands",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/Scissor_Sage_Nest_.PNG",
@@ -6003,10 +6038,19 @@ PlaceObj('ModItemFolder', {
 		}),
 		PlaceObj('StoryBitOutcome', {
 			Effects = {
-				nil,
 				PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 					SpawnClass = "Scissorhands_T5",
 					param_bindings = false,
+				}),
+				PlaceObj('NestingSpeciesAggressionChange', {
+					new_aggressive = true,
+					param_bindings = false,
+					species = "nesting_scissorhands",
+				}),
+				PlaceObj('NestingSpeciesAggressionChange', {
+					new_aggressive = true,
+					param_bindings = false,
+					species = "nesting_scissorhands",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/Scissor_Sage_Nest_.PNG",
@@ -6032,6 +6076,20 @@ PlaceObj('ModItemFolder', {
 			param_bindings = false,
 		}),
 		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_scissorhands",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_scissorhands",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_scissorhands",
+				}),
+			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/Scissor_Sage_Nest_.PNG",
 			Text = T(755280989645, --[[ModItemStoryBit Single_Occupant_Scissor_Nest Text]] "I couldn't find anything that wasn't a Scissorhand corpse to try and tame the scissorhand with.\n\nThe Scissohand seemed pretty insulted and started getting aggressive!\nTo make matters worse, a whole group of Scissorhands showed up and interrupted the taming.\n\nI got out of their before I ended up as either groups dinner! \n\n<em>Local Scissorhand Nest aggression levels raised.</em>"),
 			Title = T(283482400818, --[[ModItemStoryBit Single_Occupant_Scissor_Nest Title]] "[The Nests Awaken] A Betrayer"),
@@ -6092,8 +6150,22 @@ PlaceObj('ModItemFolder', {
 			unique_id = 2,
 		}),
 		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_scissorhands",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_scissorhands",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_scissorhands",
+				}),
+			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/Scissor_Mating.PNG",
-			Text = T(714448102929, --[[ModItemStoryBit Scissorhand_Mating_event Text]] "I collected some kindling nearby, and then lined up dry wood to burn towards the site.\n\nThe fire quickly spread and engulfed everything!\n\nI must have left some sort of trail, because I've spotted Scissorhands behind my trail back home!\n\n<em><style TextNegative>The consequences of this action will occur in due time</style>"),
+			Text = T(714448102929, --[[ModItemStoryBit Scissorhand_Mating_event Text]] "I collected some kindling nearby, and then lined up dry wood to burn towards the site.\n\nThe fire quickly spread and engulfed everything!\n\nI must have left some sort of trail, because I've spotted Scissorhands behind my trail back home!\n\n<em>Local Scissorhand Nest aggression levels raised.</em>"),
 			Title = T(748425566629, --[[ModItemStoryBit Scissorhand_Mating_event Title]] "[The Nests Awaken] Mating Dance Discovered"),
 			param_bindings = false,
 		}),
@@ -6104,10 +6176,17 @@ PlaceObj('ModItemFolder', {
 		}),
 		PlaceObj('StoryBitOutcome', {
 			Effects = {
-				nil,
 				PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 					SpawnClass = "Scissorhands_T4",
 					param_bindings = false,
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_scissorhands",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_scissorhands",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/Scissor_Mating.PNG",
@@ -6133,6 +6212,16 @@ PlaceObj('ModItemFolder', {
 			param_bindings = false,
 		}),
 		PlaceObj('StoryBitOutcome', {
+			Effects = {
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_scissorhands",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_scissorhands",
+				}),
+			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/Scissor_Mating.PNG",
 			Text = T(455547906131, --[[ModItemStoryBit Scissorhand_Mating_event Text]] "I thought I picked a pair that was far away from the nest.\nWhat I did not know was that there where other pairs nearby that spotted me while I was approaching.\n\nI barely had enough distance between me and the group of mega-predators to make it back to my ride home!\n\nI'm sure the Scissorhands did not like a random human wandering in....\n\n<em>Local Scissorhand Nest aggression levels raised twice.</em>"),
 			Title = T(806289281069, --[[ModItemStoryBit Scissorhand_Mating_event Title]] "[The Nests Awaken] Scissorhand Mating Site"),
@@ -6189,12 +6278,13 @@ PlaceObj('ModItemFolder', {
 		}),
 		PlaceObj('StoryBitOutcome', {
 			Effects = {
-				nil,
-				PlaceObj('ModifySkill', {
-					Id = "autoid_TGkJ3Tu_CNdLf4S",
-					Level = 2,
-					Skill = "Combat",
+				PlaceObj('NestingSpeciesAggressionEvent', {
 					param_bindings = false,
+					species = "nesting_scissorhands",
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_scissorhands",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/Scissor_Amush.PNG",
@@ -6210,13 +6300,10 @@ PlaceObj('ModItemFolder', {
 		}),
 		PlaceObj('StoryBitOutcome', {
 			Effects = {
-				nil,
-				nil,
-				PlaceObj('ModifySkill', {
-					Id = "autoid_TGkJ3Tu_jdLYJzG",
-					Level = 2,
-					Skill = "Combat",
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					aggression_up = false,
 					param_bindings = false,
+					species = "nesting_scissorhands",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/Scissor_Amush.PNG",
@@ -6264,10 +6351,13 @@ PlaceObj('ModItemFolder', {
 		}),
 		PlaceObj('StoryBitOutcome', {
 			Effects = {
-				nil,
 				PlaceObj('GiveExpeditionTameRewardToSurvivor', {
 					SpawnClass = "Scissorhands_T4",
 					param_bindings = false,
+				}),
+				PlaceObj('NestingSpeciesAggressionEvent', {
+					param_bindings = false,
+					species = "nesting_scissorhands",
 				}),
 			},
 			Image = "Mod/TGkJ3Tu/PicsOritDidntHappen/Scissor_Amush.PNG",
@@ -6416,6 +6506,7 @@ PlaceObj('ModItemTech', {
 	},
 	id = "Deathfly_balloon_speed",
 	money_value = 250000000,
+	save_in = "Mod/TGkJ3Tu",
 	PlaceObj('AttachEffectsToBuildings', {
 		Effects = {
 			PlaceObj('ModifyObject', {

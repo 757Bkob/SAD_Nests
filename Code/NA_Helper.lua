@@ -51,25 +51,37 @@ function NA_Mod_Set(id)
 	end
 end
 
+function NA_create_runtime()
+	local species = Presets.NestingSpeciesPreset.Default --nests = ClassDescendantsList("TerritorialNest")
+	for _, v in ipairs(species) do
+		if v.nest_class and not Nest_Species_Savegame_Stats[v.id] then
+			local spawnflag = false
+			if v.nest_class == 'ScissorhandsNest' or v.nest_class == 'ShriekerNest' then
+				spawnflag = true
+			elseif v.nest_class == 'ConsortiumNest' and IsDlcAvailable('Robots') then
+				spawnflag = true
+			end
+			if not Nest_Species_Savegame_Stats[v.id] then
+				Nest_Species_Savegame_Stats[v.id] = {}
+			end
+			Nest_Species_Savegame_Stats[v.id][v.id .. '_nest_spawn_cd'] = 0
+			Nest_Species_Savegame_Stats[v.id][v.id .. '_evo_cd'] = 0
+			Nest_Species_Savegame_Stats[v.id][v.id .. '_stored_aggr'] = 0
+			Nest_Species_Savegame_Stats[v.id][v.id .. '_aggro_events'] = 0
+			Nest_Species_Savegame_Stats[v.id]['spawnflag'] = spawnflag
+			Nest_Species_Savegame_Stats[v.id]['aggressive'] = v.aggressive
+			Nest_Species_Savegame_Stats[v.id]['spawn_allowed'] = v.spawnable
+			Nest_Species_Savegame_Stats[v.id]['attacked_by_player'] = false
+			Nest_Species_Savegame_Stats[v.id]['attacked_by_others'] = {}
+		end
+	end
+end
+
 function Setup_nest_mod()
 	CreateGameTimeThread(function()
 		WaitMsg("DlcsLoaded")
-		local species = Presets.NestingSpeciesPreset.Default --nests = ClassDescendantsList("TerritorialNest")
-		for _, v in ipairs(species) do
-			if v.nest_class and not Nest_Species_Savegame_Stats[v.id] then
-				local spawnflag = false
-				if v.nest_class == 'ScissorhandsNest' or v.nest_class == 'ShriekerNest' then
-					spawnflag = true
-				elseif v.nest_class == 'ConsortiumNest' and IsDlcAvailable('Robots') then
-					spawnflag = true
-				end
-				Nest_Species_Savegame_Stats[v.id] = {}
-				Nest_Species_Savegame_Stats[v.id][v.id .. '_nest_spawn_cd'] = 0
-				Nest_Species_Savegame_Stats[v.id][v.id .. '_evo_cd'] = 0
-				Nest_Species_Savegame_Stats[v.id][v.id .. '_stored_aggr'] = 0
-				Nest_Species_Savegame_Stats[v.id][v.id .. '_aggro_events'] = 0
-				Nest_Species_Savegame_Stats[v.id]['spawnflag'] = spawnflag
-			end
+		if not Nest_Species_Savegame_Stats then
+			NA_create_runtime()
 		end
 		if Nest_scouting_quadrants == {} then
 			CreateMapGrid()

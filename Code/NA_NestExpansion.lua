@@ -11,7 +11,7 @@ function Juno_Cancer(force)
 		end)
 	else
 		nests = MapGet(true, 'TerritorialNest', function(nest)
-			if GameTime() - cosnt.year > nest.spawned_on and nest.class ~= 'JunoNest' then
+			if GameTime() - const.Scale.years > nest.spawned_on and nest.class ~= 'JunoNest' then
 				return true
 			end
 		end)
@@ -19,8 +19,7 @@ function Juno_Cancer(force)
 	if #nests > 0 then
 		local roll = AsyncRand(#nests)
 		local to_convert = nests[roll]
-		Convert_nest_into(to_convert, 'nesting_juno')
-	elseif force then
+		return Convert_nest_into(to_convert, 'nesting_juno')
 	end
 end
 
@@ -484,12 +483,16 @@ function EnhancedTerritorialNest:change_nest_herd(force_evo)
 	return upgraded_flag
 end
 
+-- Moved this aggression to global var to allow runtime/save aggression changes
 function EnhancedTerritorialNest:can_be_aggressive(who)
-	if Presets.NestingSpeciesPreset.Default[self.nest_species].aggressive then
+	if not Nest_Species_Savegame_Stats then
+		NA_create_runtime()
+	end
+	if Nest_Species_Savegame_Stats[self.nest_species]['aggressive'] then
 		return true
 	elseif who == 'player' and self.attacked_by_player then
 		return true
-	elseif Presets.NestingSpeciesPreset.Default[who] and self.other_species_attacks[who] then
+	elseif Nest_Species_Savegame_Stats[self.nest_species]['attacked_by_others'].who then
 		return true
 	else
 		return false
@@ -497,21 +500,21 @@ function EnhancedTerritorialNest:can_be_aggressive(who)
 end
 
 function EnhancedTerritorialNest:RegisterTarget(unit, time)
+	if not Nest_Species_Savegame_Stats then
+		NA_create_runtime()
+	end
+	local wake_up_flag = false
 	if unit.player then
 		self.attacked_by_player = true
+		Nest_Species_Savegame_Stats[self.nest_species]['attacked_by_player'] = false
+		wake_up_flag = true
 	elseif unit.nest then
-		unit.nest.attacked_by_player = true
+		Nest_Species_Savegame_Stats[self.nest_species]['attacked_by_others'][unit.nest.nest_species] = true
+		wake_up_flag = true
 	end
-	local tags = unit['UnitTags']
-	if tags and self.state == 'asleep' and tags['Human'] then
-		DebugPrint("Nest registering a human attacker!\n")
+	if wake_up_flag and self.state ~= 'awake' and unit.nest.state ~= 'asleep' then
+		DebugPrint("Nest registering an attacker!\n")
 		self:SwitchState('sleepy')
-	end
-	if unit.nest then
-		DebugPrint("Nest registering another nest attacker!\n")
-		if self.state ~= 'awake' and unit.nest.state ~= 'asleep' then
-			self:SwitchState('sleepy')
-		end
 	end
 end
 
@@ -603,6 +606,9 @@ function EnhancedTerritorialNest:calculate_attack_strength(who)
 		local species = get_species_from_nest(self.class)
 		local banked = 0
 		local species_banked_aggr = species .. '_banked_aggr'
+		if not Nest_Species_Savegame_Stats then
+			NA_create_runtime()
+		end
 		if Nest_Species_Savegame_Stats[species] and Nest_Species_Savegame_Stats[self.nest_species][species_banked_aggr] then
 			banked = Nest_Species_Savegame_Stats[self.nest_species][species_banked_aggr]
 		else
@@ -763,6 +769,19 @@ function EnhancedTerritorialNest:IsQuadrantScouted(quad_no)
 	end
 end
 
+function EnhancedTerritorialNest:OnDie(reason)
+	if reason == "combat" or reason == "bleeding" then
+		local attacker = self.attack_received_by
+		if IsValid(attacker) and attacker.player then
+			MapForEach(self, range, "TerritorialNest", function(nest, me)
+				if nest.nest_species == me.nest_species then
+					self:nest_support_closest(nest)
+				end
+			end, self)
+		end
+	end
+end
+
 function EnhancedTerritorialNest:MarkScouted(other_species, time)
 	rawset(self, other_species, time)
 end
@@ -798,9 +817,13 @@ function ReportScoutingResults(quad_no, species, objects_to_report, player_found
 end
 
 -- TODO instead of cheat learning about the quadrant, send out a nesting unit to scout
-function EnhancedTerritorialNest:Scout_Specific_Quad(quad_no)
+function EnhancedTerritorialNest:Scout_Specific_Quad(quad_no,map_hacks)
 	DebugPrint("Nest is releasing a scouting unit!!\n")
 	local spawn_def = SpawnDefs['Nest_scout_passive']
+	if map_hacks then
+		print('Using the map hack version!')
+		spawn_def = SpawnDefs['Nest_scout_passive_map_hacks']
+	end
 	--used by invader to know what quadrant is to be scouted
 	-- And to track if the scout ever returned
 	if self.quadrant_scouting then
@@ -816,16 +839,6 @@ function EnhancedTerritorialNest:Scout_Specific_Quad(quad_no)
 	spawn_def = spawn_def:CreateInstance(instance)
 	local t = spawn_def:ResolveTarget()
 	spawn_def:ActivateSpawn(t, {}, 100)
-	--[[
-	if not Nest_scouting_quadrants[quad_no] then
-		CreateMapGrid()
-	end
-	local player_found = Player_presence_in_quadrant(quad_no)
-	local looking_for = {}
-	looking_for[#looking_for+1] = 'EnhancedTerritorialNest'
-	local all_nests = Cheat_find_all_in_quadrant(quad_no)
-	ReportScoutingResults(quad_no,self.nest_species,all_nests,player_found)
-	--]]
 end
 
 function MegaScout(nest)
@@ -834,8 +847,6 @@ function MegaScout(nest)
 	end
 end
 
--- Currently this will just cheat
--- I want to build out scouting behavior to allow the player to interact with a species learning about the map
 function EnhancedTerritorialNest:scout_nearest_quad()
 	DebugPrint("\nScouting closest usncouted quad!\n")
 	if not self.quadrant then
@@ -1016,28 +1027,6 @@ function EnhancedTerritorialNest:IsCloserToPlayer(other_nest)
 	return my_distance < other_distance
 end
 
-function EnhancedTerritorialNest:IsClosestToPlayer()
-	--local my_species = get_species_from_nest(self.class)
-	local compare_point = Get_center_of_survivors()
-	--print("Center of survivors is: ",compare_point,'\n')
-	local my_distance = self:GetDist2D(compare_point)
-	--print("I am this far away from it: ",my_distance,'\n')
-	local nest_dist = {}
-	MapForEach("map", self.class, function(nest, compare_point, me)
-		if nest ~= me then
-			nest_dist[#nest_dist + 1] = { nest = nest, dist = nest:GetDist2D(compare_point) }
-		end
-	end, compare_point, self)
-	local closest = self
-	--print(nest_dist,'\n')
-	for _, v in ipairs(nest_dist) do
-		if v.dist < my_distance then
-			closest = v.nest
-		end
-	end
-	return closest == self
-end
-
 -- A nest attacks the player only when it is the most-forward of its species; a nest behind a same-species ally sends
 -- support to that ally instead. "Behind" = the ally is closer to the survivor centre AND within an angular sector of
 -- this nest's own bearing from that centre. The angular gate is what stops support being sent to a nest ~180 degrees
@@ -1122,7 +1111,6 @@ end
 
 function EnhancedTerritorialNest:support_arrived(allied_unit)
 	--print("A unit supporting me has arrived!")
-	local my_strongest_tier = 0
 	if self.state == 'asleep' then
 		--print("This is going to try and wake me up!")
 		if not self.wake_up_alarms then
@@ -1388,7 +1376,7 @@ function UnitNesting:OnObjUpdate()
 end
 
 function UnitNesting:ReportScoutingResult()
-	quadrant = invader.target_quadrant
+	local quadrant = invader.target_quadrant
 	local day = GameTime()
 	local species = invader.location.nest_species
 	local list_of_found = self.observed_objects

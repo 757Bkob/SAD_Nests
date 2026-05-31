@@ -19,6 +19,7 @@ DefineClass.NestingSpeciesPreset = {
 		{ category = "Species",	id = "resource_list",	name = "Aggression resources", editor = "nested_list", default = false, base_class = "ResAmount", template = true, help = "Amount of a specific resource to trigger an aggression event.", },
 		{ category = "Species",	id = "spore_buildings",	name = "Spore Buildings", editor = "choice", default = false, items = function() return ClassDescendantsList('NestSpore') end, template = true, help = "The spore buildings this species stores resources in.", },
 		{ category = "Species",	id = "aggressive",	name = "Naturally Aggressive?", editor = "bool", default = true, template = true, help = "Will this species attack unprovoked?", },
+		{ category = "Species",	id = "spawnable",	name = "Nests spawning allowed from start?", editor = "bool", default = true, template = true, help = "Can nests of this species spawn from start of game?", },
 		{ category = "Prefab", id = "PrefabTags",   name = "Prefab Tags Any",        editor = "set",         default = empty_table, items = function() return PrefabTagsCombo() end, three_state = true },
 	},
 }

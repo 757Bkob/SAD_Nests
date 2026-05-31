@@ -9,29 +9,88 @@ function get_species()
 	return to_return
 end
 
-DefineClass.GiveExpeditionSpeciesEffectToSurvivor = {
+function get_nest_species()
+	local presets = Presets.NestingSpeciesPreset.Default
+	local to_return = {}
+	for _,v in ipairs(presets) do
+		if v.id then
+			table.insert_unique(to_return,v.id)
+		end
+	end
+	return to_return
+end
+
+DefineClass.NestingSpeciesAggressionEvent = {
 	__parents = { "Effect", },
 	__generated_by_class = "EffectDef",
 
 	properties = {
-		{ id = "species", name = "species", help = "What species is affected", editor = "choice", default = false, items = function (self) return get_species() end, },
-		{ id = "effect", name = "effect", help = "If species is getting more or less aggressive", editor = "choice", default = 'aggression up', items = {"aggression up","aggression down"}},
+		{ id = "species", name = "species", help = "What species is affected", editor = "choice", default = false, items = function (self) return get_nest_species() end, },
+		{ id = "aggression_up", name = "Is this aggression up?", help = "Set to false for it to be an aggression down event", editor = "bool", default = true,},
 	},
-	EditorView = Untranslated("<species> will have it's <effect>"),
-	Documentation = "Colony effects a species",
+	EditorView = Untranslated("<species> has an aggression event."),
+	Documentation = "Thing makes species mad or docile",
 	EditorNestedObjCategory = "Preset",
 }
 
-function GiveExpeditionSpeciesEffectToSurvivor:__exec(obj, context)
-	if self.effect == 'aggression up' then
+function NestingSpeciesAggressionEvent:__exec(obj, context)
+	if self.aggression_up then
 		Aggression_up(self.species)
-	elseif self.effect == 'aggression down' then
+	else
 		Aggression_down(self.species)
 	end
 end
 
-function GiveExpeditionSpeciesEffectToSurvivor:GetError()
-	if not self.effect then
+function NestingSpeciesAggressionEvent:GetError()
+	if not self.species then
+		return "Select an effect the species will do"
+	end
+end
+
+DefineClass.NestingSpeciesAggressionChange = {
+	__parents = { "Effect", },
+	__generated_by_class = "EffectDef",
+
+	properties = {
+		{ id = "species", name = "species", help = "What species", editor = "choice", default = false, items = function (self) return get_nest_species() end, },
+		{ id = "new_aggressive", name = "Now aggressive?", help = "If nests of this species can now attack the player", editor = "bool", default = false },
+	},
+	EditorView = Untranslated("<species> aggression change."),
+	Documentation = "Thing makes species aggressive or stops them from spawning",
+	EditorNestedObjCategory = "Preset",
+}
+
+function NestingSpeciesAggressionChange:__exec(obj, context)
+	if not Presets.NestingSpeciesPreset.Default[self.species] then return end
+	Presets.NestingSpeciesPreset.Default[self.species]['aggression'] = self.new_aggressive
+end
+
+function NestingSpeciesAggressionChange:GetError()
+	if not self.species then
+		return "Select an effect the species will do"
+	end
+end
+
+DefineClass.NestingSpeciesSpawnableChange = {
+	__parents = { "Effect", },
+	__generated_by_class = "EffectDef",
+
+	properties = {
+		{ id = "species", name = "species", help = "What species", editor = "choice", default = false, items = function (self) return get_nest_species() end, },
+		{ id = "new_spawnable", name = "Now spawnable?", help = "If nests of this species can now spawn on the map", editor = "bool", default = false},
+	},
+	EditorView = Untranslated("<species> spawning rules edit"),
+	Documentation = "Thing makes species spawnable or stops them from spawning",
+	EditorNestedObjCategory = "Preset",
+}
+
+function NestingSpeciesSpawnableChange:__exec(obj, context)
+	if not Presets.NestingSpeciesPreset.Default[self.species] then return end
+	Presets.NestingSpeciesPreset.Default[self.species]['spawn_allowed'] = self.new_spawnable
+end
+
+function NestingSpeciesSpawnableChange:GetError()
+	if not self.species then
 		return "Select an effect the species will do"
 	end
 end

@@ -540,7 +540,16 @@ function InvaderBehaviourNestScout:OnAssign(invader, end_time)
 		end
 	end
 	if self.map_hack then
-		invader.observed_objects = Get_objs_in_quad(invader.target_quadrant, self.log_classes)
+		print("I got map hacks! Cheat finding everything!")
+		for _,type in ipairs(self.log_classes) do
+			local objects_found = Cheat_find_all_in_quadrant(invader.target_quadrant, type)
+			for _,obj in ipairs(objects_found) do
+				table.insert_unique(invader.observed_objects,obj)
+			end
+		end
+		print("Objects found:")
+		print(invader.observed_objects)
+		invader.player_found = Player_presence_in_quadrant(invader.target_quadrant)
 	end
 	invader:UpdateAttachedUI()
 end
@@ -600,7 +609,7 @@ function UnitDetection:detect_nearby()
 		self.detected_units = units
 	end
 	local range = self:GetDetectionRange()
-	self:GetMaxCollisionRadius(range + MaxLosTargetRadius) -- cache information about the surrounding, boosting the surf enum effectiveness
+	self:GetMaxCollisionRadius(range + const.MaxLosTargetRadius) -- cache information about the surrounding, boosting the surf enum effectiveness
 	self.los_checks = self
 		.los_max_checks                                 -- Limit the maximum allowed LOS checks. The enum is randomized, so we should eventually check all units.
 	local collection_idx = self:GetDetectCollectionIdx()
