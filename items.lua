@@ -2527,7 +2527,7 @@ PlaceObj('ModItemFolder', {
 						return true
 					end 
 					end)
-					return nests_convertible > 0
+					return nest_convertible > 0
 				end,
 				param_bindings = false,
 			}),
