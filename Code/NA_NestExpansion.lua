@@ -273,7 +273,7 @@ function Convert_nest_into(nest_to_convert, other_species, delete_old_members)
 			DoneObject(member)
 		end
 	end
-	for _, spore in ipairs(spores) do
+	for _, spore in ipairs(spores or empty_tanl) do
 		DoneObject(spore)
 	end
 	local def = g_Classes['FallingDebrisMarker']
