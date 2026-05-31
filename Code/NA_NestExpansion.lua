@@ -380,7 +380,11 @@ end
 -- nest:Dist2D(me) < MulDivRound(3 * distance_to_beat,1,2) is my current way to detect if a nest is "in between" the player and this nest
 
 function EnhancedTerritorialNest:get_proximity()
-	local center = AveragePoint2D(GetValidSurvivorsOnMap())
+	-- Get_center_of_survivors averages the living party and falls back to the map
+	-- centre when no survivor is valid on-map (e.g. the whole party is out on an
+	-- expedition). A bare AveragePoint2D(GetValidSurvivorsOnMap()) would crash on
+	-- that empty list; this mirrors the mod's other survivor-centre call sites.
+	local center = Get_center_of_survivors()
 	local dist_to_center = self:GetDist2D(center)
 	local rate = 150 * guim  -- 150 meters per thresholdz
 	local prox = DivRound(dist_to_center, rate)
@@ -1619,7 +1623,10 @@ function decay_speed(target)
 		effect_id = 'nest_attack_speed_robot'
 		target:RemoveRobotConditions(effect_id, "ReplaceOldest")
 	end--]]
-	local survivors = AveragePoint2D(GetValidSurvivorsOnMap())
+	-- Get_center_of_survivors falls back to the map centre when no survivor is valid
+	-- on-map; a bare AveragePoint2D(GetValidSurvivorsOnMap()) would crash on that empty
+	-- list. Same guarded helper the mod's other survivor-centre sites use.
+	local survivors = Get_center_of_survivors()
 	local distance_to = target:GetDist2D(survivors)
 	local prox = MulDivRound(distance_to, 1, 150 * guim)
 	local count = count_effects_by_id(target, effect_id)
