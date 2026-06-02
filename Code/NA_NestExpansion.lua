@@ -522,9 +522,12 @@ function EnhancedTerritorialNest:can_be_aggressive(who)
 end
 
 function EnhancedTerritorialNest:RegisterTarget(unit, time)
-	if not Nest_Species_Savegame_Stats then
-		NA_create_runtime()
+	-- The detection sweep can reach RegisterTarget before expand()/growth_event() lazily assign
+	-- nest_species, which would otherwise index Stats[nil] below.
+	if not self.nest_species then
+		self.nest_species = get_species_from_nest(self.class)
 	end
+	if not self.nest_species then return end
 	local wake_up_flag = false
 	if unit.player then
 		self.attacked_by_player = true
