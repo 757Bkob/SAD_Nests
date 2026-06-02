@@ -312,9 +312,14 @@ function EnhancedTerritorialNest:give_ep_to_struct(ep)
 	if not ep then return end
 	Bkob_Log_NA("Nest storing EP in support structures\n")
 	local spore_building_def = g_Classes[Presets.NestingSpeciesPreset.Default[self.nest_species].spore_buildings]
+	-- spore_buildings defaults to false, so g_Classes[false] can be nil here.
+	if not spore_building_def then return end
 	Bkob_Log_NA(spore_building_def.class)
 	Bkob_Log_NA(self.territorial_range)
 	local spores_near = MapGet(self, self.territorial_range, spore_building_def.class)
+	-- Bail rather than error: consume_closest_node set consume_time = max_int before calling us, so an
+	-- error here is procall-caught but never recovered and the nest never consumes again.
+	if not spores_near or #spores_near == 0 then return end
 	Bkob_Log_NA("There are this many spore buildings near me: ", #spores_near)
 	local progress_each = DivRound(ep, #spores_near)
 	local spore_res = Resources[spore_building_def.MineResource] --Resources[spores_near[1]]
