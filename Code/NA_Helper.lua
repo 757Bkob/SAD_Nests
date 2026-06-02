@@ -80,9 +80,12 @@ end
 function Setup_nest_mod()
 	CreateGameTimeThread(function()
 		WaitMsg("DlcsLoaded")
-		if not Nest_Species_Savegame_Stats then
-			NA_create_runtime()
-		end
+		-- Populate per-species stats unconditionally; NA_create_runtime skips any species already present
+		-- (line 57), so it is safe on both new games and savegame loads. The old
+		-- `if not Nest_Species_Savegame_Stats` guard was dead -- the MapVar defaults to {} (truthy), so it
+		-- never fired and every Nest_Species_Savegame_Stats[id] read nil (regression from commit 460df25,
+		-- which extracted this loop into NA_create_runtime but gated the call on an always-false condition).
+		NA_create_runtime()
 		if Nest_scouting_quadrants == {} then
 			CreateMapGrid()
 		end

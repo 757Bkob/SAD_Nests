@@ -500,9 +500,13 @@ function EnhancedTerritorialNest:can_be_aggressive(who)
 end
 
 function EnhancedTerritorialNest:RegisterTarget(unit, time)
-	if not Nest_Species_Savegame_Stats then
-		NA_create_runtime()
+	-- nest_species has no class default (set lazily in expand()/growth_event()); the engine UnitDetection
+	-- sweep can reach RegisterTarget first, leaving Nest_Species_Savegame_Stats[self.nest_species] a nil
+	-- index. Resolve it here as the other call sites do, and bail if the species can't be resolved.
+	if not self.nest_species then
+		self.nest_species = get_species_from_nest(self.class)
 	end
+	if not self.nest_species then return end
 	local wake_up_flag = false
 	if unit.player then
 		self.attacked_by_player = true
