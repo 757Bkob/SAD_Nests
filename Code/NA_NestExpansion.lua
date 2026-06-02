@@ -248,7 +248,9 @@ function EnhancedTerritorialNest:expand()
 	while nodes < 30 and grows < max_growths do
 		--(nodes)
 		--("expanded the distance ",grows,' times')
-		nodes = MapCount(self, (self.territorial_range + (grows * expand_by)) * guim, function(thing)
+		-- territorial_range is already in engine units, so the old outer `* guim` double-scaled it to a
+		-- map-wide radius. Scale only the per-growth expansion (expand_by metres) instead.
+		nodes = MapCount(self, self.territorial_range + (grows * expand_by * guim), function(thing)
 			if not IsKindOf(thing, 'NestSpore') then return true end
 		end)
 		grows = grows + 1
