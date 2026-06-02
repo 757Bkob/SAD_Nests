@@ -1,6 +1,11 @@
 -------------------- MOD SETUP ---------------------
 local hour_duration = const.HourDuration
 
+-- Per-tick memo for Get_center_of_survivors (see its definition). Declared here so both
+-- Setup_nest_mod (resets the stamp on map load) and Get_center_of_survivors capture them as upvalues.
+local survivor_centre_cache = false
+local survivor_centre_stamp = false
+
 MapVar("Global_nest_spawn_cd", 0)
 MapVar("Nest_Notifications", 1)
 MapVar("Nest_Species_Savegame_Stats", {})
@@ -78,6 +83,9 @@ function NA_create_runtime()
 end
 
 function Setup_nest_mod()
+	-- Invalidate the survivor-centre memo: GameTime resets across maps, so a stamp left over from a
+	-- prior map could otherwise match this map's GameTime and return a stale (off-map) centre.
+	survivor_centre_stamp = false
 	CreateGameTimeThread(function()
 		WaitMsg("DlcsLoaded")
 		-- Unguarded on purpose: an `if not Nest_Species_Savegame_Stats` check is a trap (the MapVar defaults
@@ -376,7 +384,15 @@ function NA_tutorial()
 	Nest_tutorial = true
 end
 
+-- The survivor centre is identical for every caller within one GameTime tick, but a wave of
+-- simultaneous nest updates (each nest's GetSupportTarget / get_proximity / IsClosestToPlayer, etc.)
+-- would otherwise re-average the whole party once per nest. Memoise it per tick: the first call in a
+-- tick computes and stamps it with GameTime(); later calls in the same tick return the cached point.
+-- The stamp is cleared on map load (Setup_nest_mod) so a value from a prior map can never survive.
 function Get_center_of_survivors()
+	if survivor_centre_stamp == GameTime() then
+		return survivor_centre_cache
+	end
 	local surv = GetValidSurvivorsOnMap()
 	local sum_x = 0
 	local sum_y = 0
@@ -389,11 +405,15 @@ function Get_center_of_survivors()
 		sum_y = sum_y + y
 		count = count + 1
 	end
+	local center
 	if count == 0 then
 		-- no valid survivors (rare; e.g. a wipe) -> fall back to map centre to avoid a /0 crash
-		return GetMapBox():Center()
+		center = GetMapBox():Center()
+	else
+		center = point(DivRound(sum_x, count), DivRound(sum_y, count))
 	end
-	local center = point(DivRound(sum_x, count), DivRound(sum_y, count))
+	survivor_centre_cache = center
+	survivor_centre_stamp = GameTime()
 	return center
 end
 
