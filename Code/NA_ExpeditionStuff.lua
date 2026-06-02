@@ -1,24 +1,6 @@
-function get_species()
-	local presets = Presets.UnitSpeciesGroup.Default
-	local to_return = {}
-	for _,v in ipairs(presets) do
-		if v.id and v.primary_combat_group then
-			table.insert_unique(to_return,v.id)
-		end
-	end
-	return to_return
-end
-
-function get_nest_species()
-	local presets = Presets.NestingSpeciesPreset.Default
-	local to_return = {}
-	for _,v in ipairs(presets) do
-		if v.id then
-			table.insert_unique(to_return,v.id)
-		end
-	end
-	return to_return
-end
+-- These technically are outcomes that can be called by anything.
+-- Even say.... a research!
+-- But leaving them in NA_ExpeditionStuff because this mod triggers these from Expedition Storybits
 
 DefineClass.NestingSpeciesAggressionEvent = {
 	__parents = { "Effect", },
@@ -101,6 +83,8 @@ function IsPosFree(x, y)
 		and GetPassType(x, y) == 0
 end
 
+
+---- Ok the below is the stuff used _just_ in expeditions
 
 function UnitExpedition:TraumaBond()
 	Bkob_Log_FE("Starting to spawn a unit around a colonist!")

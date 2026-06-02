@@ -250,6 +250,36 @@ function Bkob_Log_NA(hard_string, var)
 	end
 end
 
+function is_inside_of(box, pos)
+	if box:GetDist2D(pos) == 0 then
+		return true
+	else
+		return false
+	end
+end
+
+function get_species()
+	local presets = Presets.UnitSpeciesGroup.Default
+	local to_return = {}
+	for _,v in ipairs(presets) do
+		if v.id and v.primary_combat_group then
+			table.insert_unique(to_return,v.id)
+		end
+	end
+	return to_return
+end
+
+function get_nest_species()
+	local presets = Presets.NestingSpeciesPreset.Default
+	local to_return = {}
+	for _,v in ipairs(presets) do
+		if v.id then
+			table.insert_unique(to_return,v.id)
+		end
+	end
+	return to_return
+end
+
 -- input a preset id, nest class name, preset, or nest object; output the NestingSpeciesPreset (or false)
 function find_nest_species(input)
 	-- Always resolve to the NestingSpeciesPreset object (or false), regardless of whether

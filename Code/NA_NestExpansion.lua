@@ -23,6 +23,26 @@ function Juno_Cancer(force)
 	end
 end
 
+
+function NewNest_ClosestReCalc(species)
+	CreateRealTimeThread(function(species)
+		Sleep(1000)
+		local s_nests = MapGet(true,"TerritorialNest",function(nest,species)
+			if nest.nest_species == species then return true end
+		end,species)
+		for _, nest in ipairs(s_nests) do
+			-- pass
+		end
+	end
+	)
+end
+
+--
+function OnMsg.NewNestEvent(nest_species)
+	NewNest_ClosestReCalc(nest_species)
+end
+
+
 function SpawnNestInsideMap(marker, seed, nest_type, danger_lvl)
 	DebugPrint("Spawning a nest\n")
 	if marker and terrain.IsWater(marker) then
@@ -212,6 +232,8 @@ function NestDelayedInit(nest)
 	--nest:force_inert_if_capped()
 	nest.quadrant = Get_quadrant_from_obj(nest, true)
 	nest.spawned_on = GameTime()
+	-- adding this msg here because we need to do all the init computations....
+	Msg("NewNest", nest)
 end
 
 --~Presets.UnitSpeciesGroup.Default[Presets.NestingSpeciesPreset.Default[get_species_from_nest(SelectedObj.class)].unit_species]
@@ -387,7 +409,7 @@ function EnhancedTerritorialNest:get_proximity()
 	local dist_to_center = self:GetDist2D(center)
 	local rate = 150 * guim  -- 150 meters per thresholdz
 	local prox = DivRound(dist_to_center, rate)
-	prox = Max(1, Min(5, prox)) -- closest nests have a prox of 1
+	prox = Max(1, Min(10, prox)) -- closest nests have a prox of 1
 	self.proximity = prox
 	return prox
 end
@@ -1038,15 +1060,21 @@ function EnhancedTerritorialNest:GetSupportTarget()
 	local my_bearing = CalcOrientation(center, self:GetPos())
 	local sector = 60 * 60 -- +-60 degrees (HG angles are in 1/60-degree units) -> a 120-degree forward arc
 	local best, best_dist
-	MapForEach("map", self.class, function(nest, me)
-		if nest == me then return end
-		local n_dist = nest:GetDist2D(center)
-		if n_dist >= my_dist then return end                                                     -- only nests ahead of me (closer to the survivors)
-		if abs(AngleDiff(my_bearing, CalcOrientation(center, nest:GetPos()))) > sector then return end -- same sector only
-		if not best or n_dist < best_dist then
-			best, best_dist = nest, n_dist
-		end
-	end, self)
+	best = CreateRealTimeThread(function(me)
+		MapForEach("map", me.class, function(nest, me)
+			local best, best_dist
+			Sleep(1000)
+			if nest == me or nest.proximity > me.proximity then return end
+			local n_dist = nest:GetDist2D(center)
+			if n_dist >= my_dist then return end -- only nests ahead of me (closer to the survivors)
+			if abs(AngleDiff(my_bearing, CalcOrientation(center, nest:GetPos()))) > sector then return end -- same sector only
+			if not best or n_dist < best_dist then
+				best, best_dist = nest, n_dist
+			end
+			return best
+		end, self)
+	end
+	,self)
 	return best or false
 end
 
@@ -1221,9 +1249,15 @@ function EnhancedTerritorialNest:growth_event()
 	if not Nest_scouting_quadrants[self.quadrant] then
 		CreateMapGrid()
 	end
+	-- Move the below to a prop, that triggers once a month within a thread that is liberal with sleeps
 	local unscouted = self:GetUnscoutedQuadrantsWithin()
+
+	-- Move the below to a prop, that updates when a nesting unit reports scouting info
 	local my_quad_scouted = #unscouted[1] > 0
+
+	-- Move the below to a prop, that updates when a nesting unit reports scouting info
 	local unscouted_nearby = unscouted[3]
+
 	if not my_quad_scouted then
 		spawn_def_selection[#spawn_def_selection + 1] = {
 			weight = 200,
@@ -1243,7 +1277,10 @@ function EnhancedTerritorialNest:growth_event()
 		local to_scout = table.weighted_rand(unscouted[#unscouted], function(entry) return 100 end)
 		spawn_def_selection[#spawn_def_selection + 1] = { weight = 15, fun = self.Scout_Specific_Quad, input = to_scout }
 	end
+	-- Move the below to a prop that inits in the delayed nest init.
 	local attack_range = MulDivRound(NA_X_length + NA_Y_length, 3, 2)
+
+	-- Move the below to a prop, that updates when a nesting unit reports scouting info
 	local nearby_enemies = self:GetNearbyEnemiesNonPlayer(attack_range)
 	if #nearby_enemies > 0 then
 		for _, enemy in ipairs(nearby_enemies) do
@@ -1260,10 +1297,14 @@ function EnhancedTerritorialNest:growth_event()
 		end
 	end
 	-- note this means if a nest is awaken by another species, it will still be aggressive towards the player
+	
+	-- move is player known to prop, same with aggressive. Need to send a message & respond to the message when a nest aggression changes however
 	if self:IsPlayerKnown() and not self:IsAsleep() and self:can_be_aggressive() then
 		-- Attack the player only if this nest is the front line of its species; if a same-species ally is ahead of us
 		-- toward the survivors AND in roughly our own direction, support it instead. The angular gate stops support
 		-- being sent to a ~180-degree-opposite nest (which would cross the player's base).
+		
+		-- Move the below to a prop, that updates when a new nest spawns
 		local support_target = self:GetSupportTarget()
 		if support_target then
 			spawn_def_selection[#spawn_def_selection + 1] = {
@@ -1293,7 +1334,11 @@ function EnhancedTerritorialNest:growth_event()
 		spawn_def_selection[#spawn_def_selection + 1] = { weight = 50, fun = self.Scout_Specific_Quad, input = scouting }
 	end
 	-- if there is a nest within ~3 quadrant lengths
+	
+	-- Move the below to a prop that inits in the delayed nest init.
 	local wake_up_range = MulDivRound(NA_X_length + NA_Y_length, 3, 2)
+
+	-- move to prop. Need to send a message & respond to the message when a nest state changes however
 	local sleepy = self:ClosestSleepyNest(wake_up_range)
 	if sleepy then
 		spawn_def_selection[#spawn_def_selection + 1] = { weight = 100, fun = self.alert_neighbor, input = sleepy }
@@ -1325,7 +1370,10 @@ function EnhancedTerritorialNest:UpdateNextAttackTime()
 end
 
 function EnhancedTerritorialNest:TooTiredCheck()
-
+	return false
+	-- ToDo, trigger once a month.
+	-- Should never make a nest asleep that has been supported in the last year, attacked in the last year, or is closesst to the player
+	-- Otherwise for each month this nest has not been asleep, +5% chance for this nest to switch back to asleep.
 end
 
 function EnhancedTerritorialNest:OnObjUpdate(time, update_interval)
@@ -1488,14 +1536,6 @@ function UnitNesting:SetNest(nest)
 	if IsValid(nest) then
 		nest:AddNestMember(self)
 		--self:AddHUDName()
-	end
-end
-
-function is_inside_of(box, pos)
-	if box:GetDist2D(pos) == 0 then
-		return true
-	else
-		return false
 	end
 end
 

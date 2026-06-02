@@ -25,7 +25,7 @@ return PlaceObj('ModDef', {
 	'id', "TGkJ3Tu",
 	'author', "Ark Builder",
 	'version_major', 3,
-	'version', 234,
+	'version', 236,
 	'lua_revision', 233360,
 	'saved_with_revision', 373414,
 	'entities', {
@@ -56,7 +56,7 @@ return PlaceObj('ModDef', {
 	},
 	'has_options', true,
 	'has_data', true,
-	'saved', 1780269195,
+	'saved', 1780408773,
 	'code_hash', -4924104791802306194,
 	'steam_id', "3479479720",
 	'TagAnimals', true,
