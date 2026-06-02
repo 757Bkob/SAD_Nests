@@ -671,7 +671,9 @@ function nest_find_attack_spawn(spawndef_instance, spawn_class, target)
 	local def = spawn_class and g_Classes[spawn_class]
 	local pfclass = def.pfclass
 	local pos = terrain.FindPassableTile(spawndef_instance.nest, const.tfpPassClass, pfclass)
-	if not pos then print("no pos found!") end
+	-- No passable tile at the nest means no spawn anchor; pos feeds GetRandomPlayablePos/IsCloser2D below,
+	-- which throw on nil (this call is not procall-guarded), so bail instead of just logging.
+	if not pos then return nil end
 	local nest_entity_radius = spawndef_instance.nest:GetRadius()
 	local x, y
 	local retry = 10
