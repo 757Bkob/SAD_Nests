@@ -677,10 +677,14 @@ function nest_find_attack_spawn(spawndef_instance, spawn_class, target)
 	local retry = 10
 	local range = spawndef_instance.nest.max_range
 	local target_radius = 30 * guim
+	-- Up to 10 attempts, widening target_radius (no passable spot near the target) or range (spot rejected)
+	-- each pass. retry must decrement on every path or the no-spot branch spins, and x resets on a connectivity
+	-- failure so `not x` keeps the loop going instead of falling through.
 	while not x and retry > 0 do
 		local spot_closest_to_target = terrain.FindPassable(target, pfclass, target_radius)
 		if not spot_closest_to_target then
 			target_radius = target_radius * 2
+			retry = retry - 1
 		else
 			x, y = GetRandomPlayablePos(pos, range, guim, AsyncRand(), pfclass, def.radius)
 			local temp_pos = point(x, y)
@@ -693,16 +697,16 @@ function nest_find_attack_spawn(spawndef_instance, spawn_class, target)
 			else
 				local possible_pos = point(x, y)
 				if ConnectivityCheck(possible_pos, spot_closest_to_target, pfclass) then
-					--print("Found a point!")
 					return possible_pos
 				else
+					x = nil
 					retry = retry - 1
 					range = range * 2
 				end
 			end
 		end
-		return nil
 	end
+	return nil
 end
 
 local post_spawn_animal = function(self, obj, target, context)
