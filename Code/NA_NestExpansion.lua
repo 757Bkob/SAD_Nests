@@ -671,17 +671,15 @@ function nest_find_attack_spawn(spawndef_instance, spawn_class, target)
 	local def = spawn_class and g_Classes[spawn_class]
 	local pfclass = def.pfclass
 	local pos = terrain.FindPassableTile(spawndef_instance.nest, const.tfpPassClass, pfclass)
-	-- No passable tile at the nest means no spawn anchor; pos feeds GetRandomPlayablePos/IsCloser2D below,
-	-- which throw on nil (this call is not procall-guarded), so bail instead of just logging.
+	-- pos feeds GetRandomPlayablePos/IsCloser2D below, which throw on nil, and this path isn't procall-guarded.
 	if not pos then return nil end
 	local nest_entity_radius = spawndef_instance.nest:GetRadius()
 	local x, y
 	local retry = 10
 	local range = spawndef_instance.nest.max_range
 	local target_radius = 30 * guim
-	-- Up to 10 attempts, widening target_radius (no passable spot near the target) or range (spot rejected)
-	-- each pass. retry must decrement on every path or the no-spot branch spins, and x resets on a connectivity
-	-- failure so `not x` keeps the loop going instead of falling through.
+	-- Every non-returning branch must decrement retry (else the no-spot path spins) and leave x nil (else
+	-- `not x` falls out before retrying).
 	while not x and retry > 0 do
 		local spot_closest_to_target = terrain.FindPassable(target, pfclass, target_radius)
 		if not spot_closest_to_target then
