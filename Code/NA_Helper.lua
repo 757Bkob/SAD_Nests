@@ -1,8 +1,7 @@
 -------------------- MOD SETUP ---------------------
 local hour_duration = const.HourDuration
 
--- Per-tick memo for Get_center_of_survivors (see its definition). Declared here so both
--- Setup_nest_mod (resets the stamp on map load) and Get_center_of_survivors capture them as upvalues.
+-- Up here, not beside Get_center_of_survivors, so Setup_nest_mod's stamp reset can capture them too.
 local survivor_centre_cache = false
 local survivor_centre_stamp = false
 
@@ -83,8 +82,8 @@ function NA_create_runtime()
 end
 
 function Setup_nest_mod()
-	-- Invalidate the survivor-centre memo: GameTime resets across maps, so a stamp left over from a
-	-- prior map could otherwise match this map's GameTime and return a stale (off-map) centre.
+	-- Reset across maps: GameTime restarts, so a stamp from a prior map could match and return a stale
+	-- off-map centre.
 	survivor_centre_stamp = false
 	CreateGameTimeThread(function()
 		WaitMsg("DlcsLoaded")
@@ -384,11 +383,8 @@ function NA_tutorial()
 	Nest_tutorial = true
 end
 
--- The survivor centre is identical for every caller within one GameTime tick, but a wave of
--- simultaneous nest updates (each nest's GetSupportTarget / get_proximity / IsClosestToPlayer, etc.)
--- would otherwise re-average the whole party once per nest. Memoise it per tick: the first call in a
--- tick computes and stamps it with GameTime(); later calls in the same tick return the cached point.
--- The stamp is cleared on map load (Setup_nest_mod) so a value from a prior map can never survive.
+-- Identical for every caller within a GameTime tick, but a wave of nest updates would re-average the
+-- whole party once per nest -- so cache it per tick.
 function Get_center_of_survivors()
 	if survivor_centre_stamp == GameTime() then
 		return survivor_centre_cache
