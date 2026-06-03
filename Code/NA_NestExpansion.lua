@@ -390,16 +390,13 @@ function EnhancedTerritorialNest:consume_closest_node()
 	self:get_next_consume_time()
 end
 
+local STORYBIT_POPUP_IMAGE = {
+	ShriekerNest     = 'Mod/TGkJ3Tu/PicsOritDidntHappen/Shrieker_Nest.PNG',
+	ScissorhandsNest = 'Mod/TGkJ3Tu/PicsOritDidntHappen/Scissor_Nest.PNG',
+	ConsortiumNest   = 'Mod/TGkJ3Tu/PicsOritDidntHappen/ConsortiumNestVariant.PNG',
+}
 function EnhancedTerritorialNest:GetStoryBitPopupImage()
-	if self.class == 'ShriekerNest' then
-		return 'Mod/TGkJ3Tu/Shrieker_Nest.PNG'
-	elseif self.class == 'ScissorhandsNest' then
-		return 'Mod/TGkJ3Tu/Scissor_Nest.PNG'
-	elseif self.class == 'ConsortiumNest' then
-		return 'ConsortiumNestVariant.PNG'
-	else
-		return 'Mod/TGkJ3Tu/Shrieker_Nest.PNG'
-	end
+	return STORYBIT_POPUP_IMAGE[self.class] or 'Mod/TGkJ3Tu/PicsOritDidntHappen/Shrieker_Nest.PNG'
 end
 
 -- Closest does 2 things
