@@ -218,6 +218,17 @@ DefineClass.EnhancedTerritorialNest = {
 	awoken_at = 0,
 	attacked_by_player = false,
 	other_species_attacks = {},
+	-- set once on delayed init
+	wake_up_range = false,
+	attack_range = false,
+	-- set on init, update on scouting reports
+	to_scout = false,
+	to_attack = false,
+	know_player = false,
+	support_nest = false,
+	wake_up_nest = false,
+	-- set on init, based on preset, edited when an event occurs.
+	aggressive = true,
 }
 
 function EnhancedTerritorialNest:Align_cgroup_members()
@@ -231,8 +242,10 @@ function NestDelayedInit(nest)
 	nest:get_proximity()
 	--nest:force_inert_if_capped()
 	nest.quadrant = Get_quadrant_from_obj(nest, true)
+	nest.wake_up_range = MulDivRound(NA_X_length + NA_Y_length, 3, 2)
+	nest.attack_range = MulDivRound(NA_X_length + NA_Y_length, 3, 2)
 	nest.spawned_on = GameTime()
-	-- adding this msg here because we need to do all the init computations....
+	-- adding this msg here because we need to complete init before other nests can do stuff based on this new nest....
 	Msg("NewNest", nest)
 end
 
@@ -1243,127 +1256,56 @@ function EnhancedTerritorialNest:growth_event()
 	local spawn_def_selection = {}
 	if self.state == 'sleepy' then
 		spawn_def_selection[#spawn_def_selection + 1] = { weight = 100, fun = self.overflow_spawn }
-		spawn_def_selection[#spawn_def_selection + 1] = { weight = 15, fun = self.scout_nearest_quad }
+		if self.to_scout then
+			spawn_def_selection[#spawn_def_selection + 1] = { weight = 200, fun = self.Scout_Specific_Quad, input = self.next_quad_to_scout }
+		else
+			-- this is a failure condition, to scout _something_. Should never trigger ideally as this is computationally intense in the OnObjUpdate function
+			spawn_def_selection[#spawn_def_selection + 1] = { weight = 15, fun = self.scout_nearest_quad }
+		end
 		spawn_def = table.weighted_rand(spawn_def_selection, "weight")
 		spawn_def.fun(self)
 		return
-	end
-	-- ensure quadrant + scouting grid exist before reading them (growth_event lacked the guard
-	-- that scout_nearest_quad has; on a fresh map the grid is uninitialised -> nil-index crash)
-	if not self.quadrant then
-		self.quadrant = Get_quadrant_from_obj(self, true)
-	end
-	if not self.nest_species then
-		self.nest_species = get_species_from_nest(self.class)
-	end
-	if not Nest_scouting_quadrants[self.quadrant] then
-		CreateMapGrid()
-	end
-	-- Move the below to a prop, that triggers once a month within a thread that is liberal with sleeps
-	local unscouted = self:GetUnscoutedQuadrantsWithin()
-
-	-- Move the below to a prop, that updates when a nesting unit reports scouting info
-	local my_quad_scouted = #unscouted[1] > 0
-
-	-- Move the below to a prop, that updates when a nesting unit reports scouting info
-	local unscouted_nearby = unscouted[3]
-
-	if not my_quad_scouted then
-		spawn_def_selection[#spawn_def_selection + 1] = {
-			weight = 200,
-			fun = self.Scout_Specific_Quad,
-			input = self
-				.quadrant
-		}
-	elseif #unscouted_nearby > 0 then
-		local to_scout = table.weighted_rand(unscouted_nearby, function(entry) return 100 end)
-		spawn_def_selection[#spawn_def_selection + 1] = {
-			weight = (100 * #unscouted_nearby),
-			fun = self
-				.Scout_Specific_Quad,
-			input = to_scout
-		}
-	elseif #unscouted[#unscouted] > 0 then
-		local to_scout = table.weighted_rand(unscouted[#unscouted], function(entry) return 100 end)
-		spawn_def_selection[#spawn_def_selection + 1] = { weight = 15, fun = self.Scout_Specific_Quad, input = to_scout }
-	end
-	-- Move the below to a prop that inits in the delayed nest init.
-	local attack_range = MulDivRound(NA_X_length + NA_Y_length, 3, 2)
-
-	-- Move the below to a prop, that updates when a nesting unit reports scouting info
-	local nearby_enemies = self:GetNearbyEnemiesNonPlayer(attack_range)
-	if #nearby_enemies > 0 then
-		for _, enemy in ipairs(nearby_enemies) do
-			local weight = 100
-			if enemy.state == 'asleep' then
-				weight = weight * 2
-			end
-			spawn_def_selection[#spawn_def_selection + 1] = {
-				weight = weight,
-				fun = self.nest_attack_non_player,
-				input =
-					enemy
-			}
+	else -- we are an alert nest.
+		if self.next_quad_to_scout then
+			spawn_def_selection[#spawn_def_selection + 1] = { weight = 200, fun = self.Scout_Specific_Quad, input = self.next_quad_to_scout }
 		end
+		if self.to_attack then -- TODO and self.state == 'awake' then, locking inter-species warfare locked behind a disaster
+			spawn_def_selection[#spawn_def_selection + 1] = { weight = 200, fun = self.nest_attack_non_player, input = self.to_attack }
+		end
+		if not self.know_player then
+			if not self.next_quad_to_scout then
+				-- this is a failure condition, to scout _something_. Should never trigger ideally as this is computationally intense in the OnObjUpdate function
+				spawn_def_selection[#spawn_def_selection + 1] = { weight = 15, fun = self.scout_nearest_quad }
+			else
+				-- we place a second scout a specific quad to make it more to scout if the nest is awake, but does not know about the player
+				spawn_def_selection[#spawn_def_selection + 1] = { weight = 200, fun = self.Scout_Specific_Quad, input = self.next_quad_to_scout }
+			end
+		-- this means we know about the player, meaning we can attack them
+		elseif self.support_nest then
+			-- except we are not the closest, and instead need to send units the closest nest
+			spawn_def_selection[#spawn_def_selection + 1] = { weight = 150, fun = self.nest_support_closest, input = self.support_nest }
+		else
+			-- ok now we know we can actually attack the player, setting this weight to VERY high
+			spawn_def_selection[#spawn_def_selection + 1] = { weight = 600, fun = self.nest_attack_player }
+		end
+		if self.wake_up_nest then
+			spawn_def_selection[#spawn_def_selection + 1] = { weight = 100, fun = self.alert_neighbor, input = self.wake_up_nest }
+		end
+		-- backup events
+		spawn_def_selection[#spawn_def_selection + 1] = { weight = 10, fun = self.overflow_spawn }
+		spawn_def_selection[#spawn_def_selection + 1] = { weight = 50, fun = self.mega_consume }
+		spawn_def = table.weighted_rand(spawn_def_selection, "weight")
+		if spawn_def.input then
+			spawn_def.fun(self, spawn_def.input)
+		else
+			spawn_def.fun(self)
+		end
+		return
 	end
-	-- note this means if a nest is awaken by another species, it will still be aggressive towards the player
-	
-	-- move is player known to prop, same with aggressive. Need to send a message & respond to the message when a nest aggression changes however
-	if self:IsPlayerKnown() and not self:IsAsleep() and self:can_be_aggressive() then
+end
 		-- Attack the player only if this nest is the front line of its species; if a same-species ally is ahead of us
 		-- toward the survivors AND in roughly our own direction, support it instead. The angular gate stops support
 		-- being sent to a ~180-degree-opposite nest (which would cross the player's base).
-		
-		-- Move the below to a prop, that updates when a new nest spawns
-		local support_target = self:GetSupportTarget()
-		if support_target then
-			spawn_def_selection[#spawn_def_selection + 1] = {
-				weight = 150,
-				fun = self.nest_support_closest,
-				input =
-					support_target
-			}
-		else
-			spawn_def_selection[#spawn_def_selection + 1] = { weight = 300, fun = self.nest_attack_player }
-		end
-	else
-		local scouting
-		if #unscouted[#unscouted] > 0 then
-			scouting = table.weighted_rand(unscouted[#unscouted], function(entry) return 100 end)
-		else
-			-- we force scout the quadrant with the oldest scouted time as a major major backup
-			for i = 1, #Nest_scouting_quadrants do
-				if Nest_scouting_quadrants[i][self.nest_species].last_scout then
-					scouting = i
-					break
-				end
-				scouting = unscouted[1][1]
-			end
-		end
-		-- if the player is not known, we ALWAYS want to scout and find them
-		spawn_def_selection[#spawn_def_selection + 1] = { weight = 50, fun = self.Scout_Specific_Quad, input = scouting }
-	end
-	-- if there is a nest within ~3 quadrant lengths
-	
-	-- Move the below to a prop that inits in the delayed nest init.
-	local wake_up_range = MulDivRound(NA_X_length + NA_Y_length, 3, 2)
-
-	-- move to prop. Need to send a message & respond to the message when a nest state changes however
-	local sleepy = self:ClosestSleepyNest(wake_up_range)
-	if sleepy then
-		spawn_def_selection[#spawn_def_selection + 1] = { weight = 100, fun = self.alert_neighbor, input = sleepy }
-	end
-	-- always leave the options to just vomit enemies in the nearby area
-	-- and consume a lot of nearby biomass
-	spawn_def_selection[#spawn_def_selection + 1] = { weight = 10, fun = self.overflow_spawn }
-	spawn_def_selection[#spawn_def_selection + 1] = { weight = 50, fun = self.mega_consume }
-	spawn_def = table.weighted_rand(spawn_def_selection, "weight")
-	if spawn_def.input then
-		spawn_def.fun(self, spawn_def.input)
-	else
-		spawn_def.fun(self)
-	end
-end
 
 function EnhancedTerritorialNest:UpdateNextAttackTime()
 	DebugPrint("Nest updating when to attack next\n")
