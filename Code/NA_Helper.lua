@@ -308,25 +308,11 @@ function find_nest_species(input)
 	return false
 end
 
+-- PXImpossible is the Project X (Repaired) mod's added difficulty, not vanilla; `or 7` covers an
+-- unknown mod-added difficulty or a nil result when there is no active Game.
+local DIFFICULTY_OFFSET = { Easy = 1, Medium = 2, Hard = 3, VeryHard = 4, Insane = 5, PXImpossible = 6 }
 function Get_difficulty_offset()
-	local difficulty_offset = 2
-	local difficulty = GetGameDifficulty()
-	if difficulty == 'Easy' then
-		difficulty_offset = 1
-	elseif difficulty == 'Medium' then
-		difficulty_offset = 2
-	elseif difficulty == 'Hard' then
-		difficulty_offset = 3
-	elseif difficulty == 'VeryHard' then
-		difficulty_offset = 4
-	elseif difficulty == 'Insane' then
-		difficulty_offset = 5
-	elseif difficulty == 'PXImpossible' then
-		difficulty_offset = 6
-	else
-		difficulty_offset = 7
-	end
-	return difficulty_offset
+	return DIFFICULTY_OFFSET[GetGameDifficulty()] or 7
 end
 
 --assuming a string of the nest class
@@ -349,32 +335,11 @@ function get_species_from_nest(nest_class)
 	end
 end
 
+local NEST_BY_REGION = { Desertum = 'ShriekerNest', Sobrius = 'ShriekerNest', Saltu = 'ScissorhandsNest' }
 function Get_nest_species_by_region(region)
 	region = region or Region.id
 	DebugPrint("Getting nest class id by region\n")
-	if region == 'Desertum' then
-		return get_species_from_nest('ShriekerNest')
-	elseif region == 'Sobrius' then
-		return get_species_from_nest("ShriekerNest")
-	elseif region == 'Saltu' then
-		return get_species_from_nest('ScissorhandsNest')
-	else
-		return get_species_from_nest('ShriekerNest')
-	end
-end
-
-function Get_nest_entity_by_region(region)
-	region = region or Region.id
-	DebugPrint("Getting nest class id by region\n")
-	if region == 'Desertum' then
-		return ('ShriekerNest')
-	elseif region == 'Sobrius' then
-		return get_species_from_nest("ShriekerNest")
-	elseif region == 'Saltu' then
-		return get_species_from_nest('ScissorhandsNest')
-	else
-		return get_species_from_nest('ShriekerNest')
-	end
+	return get_species_from_nest(NEST_BY_REGION[region] or 'ShriekerNest')
 end
 
 function Is_DLC_Present()
@@ -451,9 +416,9 @@ function NA_QA(full_log)
 	full_log = full_log or false
 	EE_debug = full_log
 	print("Testing regions default nests")
-	print(Get_nest_entity_by_region('Desertum') == 'nesting_shriekers')
-	print(Get_nest_entity_by_region('Sobrius') == 'nesting_shriekers')
-	print(Get_nest_entity_by_region('Saltu') == 'nesting_scissorhands')
+	print(Get_nest_species_by_region('Desertum') == 'nesting_shriekers')
+	print(Get_nest_species_by_region('Sobrius') == 'nesting_shriekers')
+	print(Get_nest_species_by_region('Saltu') == 'nesting_scissorhands')
 	--assert(Get_nest_by_region('Desertum')=='nesting_shriekers')
 	--assert(Get_nest_by_region('Sobrius')=='nesting_shriekers')
 	--assert(Get_nest_by_region('Saltu')=='nesting_scissorhands')
